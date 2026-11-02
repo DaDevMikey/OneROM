@@ -1,0 +1,24 @@
+From 8a91b2c3d4e5f67890123456789abcdef0123456 Mon Sep 17 00:00:00 2001
+From: OneROM <onerom@project>
+Date: Tue, 6 Oct 2026 14:25:00 +0200
+Subject: [PATCH] Disable camera cutout protection black box on Galaxy S10
+
+---
+ smali/com/android/systemui/DisplayCutoutBaseView.smali | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/smali/com/android/systemui/DisplayCutoutBaseView.smali b/smali/com/android/systemui/DisplayCutoutBaseView.smali
+index 1000000..2000000 100644
+--- a/smali/com/android/systemui/DisplayCutoutBaseView.smali
++++ b/smali/com/android/systemui/DisplayCutoutBaseView.smali
+@@ -588,6 +588,8 @@
+ .method public drawCutoutProtection(Landroid/graphics/Canvas;)V
+     .locals 2
+ 
++    return-void
++
+     iget v0, p0, Lcom/android/systemui/DisplayCutoutBaseView;->cameraProtectionProgress:F
+ 
+     const/high16 v1, 0x3f000000    # 0.5f
+-- 
+2.34.1
