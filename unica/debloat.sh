@@ -137,7 +137,6 @@ system/priv-app/DigitalKey
 system/priv-app/EnhancedAttestationAgent
 system/priv-app/FBInstaller_NS
 system/priv-app/FBServices
-system/priv-app/FotaAgent
 system/priv-app/ImsLogger
 system/priv-app/IpsGeofence
 system/priv-app/OdaService

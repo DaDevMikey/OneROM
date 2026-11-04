@@ -32,10 +32,10 @@ $ROM_IS_OFFICIAL && ROM_STATUS="OFFICIAL"
 ZIP_FILE_SUFFIX="-sign.zip"
 $DEBUG && ! $ROM_IS_OFFICIAL && ZIP_FILE_SUFFIX=".zip"
 
-FILE_NAME="OneROM_Native_${ROM_VERSION}_$(date +%Y%m%d)_${TARGET_CODENAME}${ZIP_FILE_SUFFIX}"
+FILE_NAME="OneROM_${ROM_CODENAME:-Delta}_${ROM_VERSION}_$(date +%Y%m%d)_${TARGET_CODENAME}${ZIP_FILE_SUFFIX}"
 while [ -f "$OUT_DIR/$FILE_NAME" ]; do
     INCREMENTAL=$((INCREMENTAL + 1))
-    FILE_NAME="OneROM_Native_${ROM_VERSION}_$(date +%Y%m%d)-${INCREMENTAL}_${TARGET_CODENAME}${ZIP_FILE_SUFFIX}"
+    FILE_NAME="OneROM_${ROM_CODENAME:-Delta}_${ROM_VERSION}_$(date +%Y%m%d)-${INCREMENTAL}_${TARGET_CODENAME}${ZIP_FILE_SUFFIX}"
 done
 
 PRIVATE_KEY_PATH="$SRC_DIR/security/"
@@ -51,6 +51,25 @@ PRIVATE_KEY_PATH+="_platform.pk8"
 PUBLIC_KEY_PATH+="_platform.x509.pem"
 
 trap 'rm -rf "$TMP_DIR"' EXIT INT
+
+WAIT_FOR_PARTITION_JOBS()
+{
+    local FAILED=false
+    local JOB_INDEX
+    local EXIT_CODE
+
+    for JOB_INDEX in "${!PARTITION_JOBS[@]}"; do
+        if wait "${PARTITION_JOBS[$JOB_INDEX]}"; then
+            continue
+        else
+            EXIT_CODE=$?
+            LOGE "$1 failed for ${PARTITION_NAMES[$JOB_INDEX]} (exit $EXIT_CODE)"
+            FAILED=true
+        fi
+    done
+
+    ! $FAILED
+}
 
 # https://android.googlesource.com/platform/build/+/refs/tags/android-15.0.0_r1/tools/releasetools/build_super_image.py#72
 BUILD_SUPER_EMPTY()
@@ -588,10 +607,9 @@ PRINT_HEADER()
     echo    'ui_print("                /_/ |_|                 ");'
     echo    'ui_print("====================================================");'
     echo -n 'ui_print("'
-    echo -n "Welcome to $ROM_NAME $ROM_VERSION for $TARGET_NAME!"
+    echo -n "Welcome to ${ROM_NAME:-OneROM} $ROM_VERSION (${ROM_CODENAME:-Delta}) for $TARGET_NAME!"
     echo    '");'
-    echo    'ui_print("Native One UI 9.0 Port (Galaxy S24 FE Donor)");'
-    echo    'ui_print("Based on ArtisanROM S10 HALs & UN1CA / ExtremeROM sixteen");'
+    echo    'ui_print("OneROM Delta for Galaxy S10");'
     echo    'ui_print("Developer: mikey @XDAforums");'
     echo    'ui_print("====================================================");'
     echo -n 'ui_print("'
@@ -615,11 +633,7 @@ PRINT_HEADER()
     echo    'ui_print("Proceeding with installation!");'
     echo    'ui_print("====================================================");'
     echo    'ui_print("****************************************************");'
-    echo    'ui_print("   ____     __                    ___  ____  __  ___");'
-    echo    'ui_print("  / __/_ __/ /________ __ _  ___ / _ \/ __ \/  |/  /");'
-    echo    "ui_print(\" / _/ \ \ / __/ __/ -_)  ' \/ -_) , _/ /_/ / /|_/ / \");"
-    echo    'ui_print("/___//_\_\\\__/_/  \__/_/_/_/\__/_/|_|\____/_/  /_/  ");'
-    echo    'ui_print("                                                    ");'
+    echo    'ui_print("                   OneROM Delta                     ");'
     echo    'ui_print("****************************************************");'
 }
 # ]
@@ -631,6 +645,8 @@ mkdir -p "$TMP_DIR/scripts"
 cp -a "$SRC_DIR/prebuilts/extras/cleanup.sh" "$TMP_DIR/scripts/cleanup.sh"
 
 LOG_STEP_IN "- Building OS partitions"
+PARTITION_JOBS=()
+PARTITION_NAMES=()
 while IFS= read -r f; do
     PARTITION=$(basename "$f")
     IS_VALID_PARTITION_NAME "$PARTITION" || continue
@@ -647,11 +663,12 @@ while IFS= read -r f; do
             "$WORK_DIR/$PARTITION" "$WORK_DIR/configs/file_context-$PARTITION" "$WORK_DIR/configs/fs_config-$PARTITION" || exit 1
         LOG_STEP_OUT
     ) &
+    PARTITION_JOBS+=("$!")
+    PARTITION_NAMES+=("$PARTITION")
 done < <(find "$WORK_DIR" -maxdepth 1 -type d)
 LOG_STEP_OUT
 
-# shellcheck disable=SC2046
-wait $(jobs -p) || exit 1
+WAIT_FOR_PARTITION_JOBS "Image creation" || exit 1
 
 if [ "$TARGET_SUPER_PARTITION_SIZE" -ne 0 ]; then
     LOG "- Building unsparse_super_empty.img"
@@ -664,6 +681,8 @@ fi
 BROTLI_QUALITY=6
 $DEBUG && BROTLI_QUALITY=0
 
+PARTITION_JOBS=()
+PARTITION_NAMES=()
 while IFS= read -r f; do
     PARTITION="$(basename "$f" | sed "s/.img//g")"
     IS_VALID_PARTITION_NAME "$PARTITION" || continue
@@ -678,10 +697,11 @@ while IFS= read -r f; do
         EVAL "brotli --quality=\"$BROTLI_QUALITY\" --output=\"$TMP_DIR/$PARTITION.new.dat.br\" \"$TMP_DIR/$PARTITION.new.dat\"" || exit 1
         rm -f "$TMP_DIR/$PARTITION.new.dat"
     ) &
+    PARTITION_JOBS+=("$!")
+    PARTITION_NAMES+=("$PARTITION")
 done < <(find "$TMP_DIR" -maxdepth 1 -type f -name "*.img")
 
-# shellcheck disable=SC2046
-wait $(jobs -p) || exit 1
+WAIT_FOR_PARTITION_JOBS "Image conversion/compression" || exit 1
 
 if [ -d "$WORK_DIR/kernel" ]; then
     while IFS= read -r f; do

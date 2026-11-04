@@ -46,6 +46,20 @@ BUILD()
 
     LOG "- Building ${INPUT_FILE//$WORK_DIR/}"
 
+    if [[ "$TARGET_CODENAME" == "beyond1lte" && "$SOURCE_API_LEVEL" -ge 37 ]]; then
+        case "$FILE" in
+            system/priv-app/SettingsProvider/SettingsProvider.apk|\
+            system/priv-app/BiometricSetting/BiometricSetting.apk|\
+            system/system_ext/priv-app/SystemUI/SystemUI.apk|\
+            priv-app/SystemUI/SystemUI.apk)
+                LOG "- Keeping donor-signed shared-UID APK: $FILE"
+                ADD_TO_WORK_DIR "$SOURCE_FIRMWARE" "$PARTITION" "$FILE"
+                bash "$SRC_DIR/scripts/internal/build_app_code_override.sh" "$OUTPUT_PATH" "$INPUT_FILE" || exit 1
+                return
+                ;;
+        esac
+    fi
+
     # DEX format version might not be matching minSdkVersion, currently we handle
     # baksmali manually as apktool will by default use minSdkVersion when available
     # instead of the actual DEX format version used in the input apk
@@ -60,6 +74,10 @@ BUILD()
             if [ ! "$DEX_API_LEVEL" ] || [[ "$DEX_API_LEVEL" -gt "35" ]]; then
                 LOGE "Unvalid DEX API level: $DEX_API_LEVEL"
                 exit 1
+            fi
+
+            if [[ "$DEX_API_LEVEL" == "35" ]]; then
+                DEX_API_LEVEL="34"
             fi
 
             if [[ "$d" == *"smali" ]]; then
@@ -148,9 +166,12 @@ DECODE()
     if [[ "$INPUT_FILE" == *services.jar* ]]; then
         EVAL "baksmali d -a 36 --ac false --di false -j \"$THREAD_COUNT\" -l -o \"$OUTPUT_PATH/smali\" --sl \"$INPUT_FILE\"/classes.dex" &
         EVAL "baksmali d -a 36 --ac false --di false -j \"$THREAD_COUNT\" -l -o \"$OUTPUT_PATH/smali_classes2\" --sl \"$INPUT_FILE\"/classes.dex/2" &
+        wait $(jobs -p) || exit 1
+        echo -n "35" > "$OUTPUT_PATH/dex_api_version"
+        find "$OUTPUT_PATH" -maxdepth 1 -type f -name "*.dex" -delete
     fi
 
-    if [ -f "$OUTPUT_PATH/classes.dex" ]; then
+    if [ -f "$OUTPUT_PATH/classes.dex" ] && [[ "$INPUT_FILE" != *services.jar* ]]; then
         local DEX_API_LEVEL
         local SMALI_OUT
 

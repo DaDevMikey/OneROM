@@ -69,6 +69,14 @@ system_ext/priv-app/SystemUI/SystemUI.apk/smali/com/android/systemui/Rune.smali
 system_ext/priv-app/SystemUI/SystemUI.apk/smali/com/android/systemui/QpRune.smali
 "
 for f in $FTP; do
-    sed -i "s/CscFeature_Common_SupportZProjectFunctionInGlobal/CscFeature_Setting_SupportRealTimeNetworkSpeed/g" "$APKTOOL_DIR/$f"
+    if [ -f "$APKTOOL_DIR/$f" ]; then
+        sed -i "s/CscFeature_Common_SupportZProjectFunctionInGlobal/CscFeature_Setting_SupportRealTimeNetworkSpeed/g" "$APKTOOL_DIR/$f"
+    else
+        _pkg_path="${f%%/smali*}"
+        _target_file="$(find "$APKTOOL_DIR/$_pkg_path" -name "$(basename "$f")" 2>/dev/null | head -n 1)"
+        if [ -n "$_target_file" ] && [ -f "$_target_file" ]; then
+            sed -i "s/CscFeature_Common_SupportZProjectFunctionInGlobal/CscFeature_Setting_SupportRealTimeNetworkSpeed/g" "$_target_file"
+        fi
+    fi
 done
 LOG_STEP_OUT

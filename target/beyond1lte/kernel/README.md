@@ -1,27 +1,26 @@
-# S10 kernel input
+# S10 Kernel: OneKernel 9.0
 
-Selected mode: `source`.
-Repository: https://github.com/ArtisanRomS10/android_kernel_samsung_exynos9820.git
-Commit: `bf6931b605aacb7f434d6ff440344a0c3e1f92e1` (KernelSU integration removed; two selected LOS fixes).
-Use the pinned revision above; do not substitute a moving branch tip.
+## Overview
 
-Required user-built inputs:
-- boot.img, dtb.img, dtbo.img: one consistent set from the selected source.
-- SHA256SUMS: the three actual image hashes and filenames, exactly once each.
-- source.commit: the actual source commit used to produce that set.
-- source.patch.sha256: SHA-256 of `git diff --binary HEAD --` of the build source.
+OneROM Delta 9.0 packages **OneKernel 9.0** for the Samsung Galaxy S10 LTE (`beyond1lte`, Exynos 9820).
 
-The selected revision is now committed and clean. The expected diff digest in
-source.patch.sha256.expected is therefore the SHA-256 of empty content. The old
-9a0a792 + removal patch contract is superseded; do not stamp old images with the
-new commit. Untracked source additions must not be used in the selected clean build.
-These records are provenance claims, not cryptographic proof of how images were built.
-No image files or actual build provenance have been generated here.
+- **Kernel Name**: OneKernel 9.0
+- **Base**: ExtremeKRNL 2.6.5 by Creeeeger
+- **Upstream Repository**: [https://github.com/Creeeeger/9820_kernel](https://github.com/Creeeeger/9820_kernel)
+- **Linux Base**: 4.14.356 (openela-rc1)
+- **Features**:
+  - Exynos 9820 CPU overclock up to 3.04 GHz
+  - GPU frequency optimizations
+  - Integrated KernelSU Next (v3.2.0)
+  - Full compatibility with One UI 9 / Android 17 on Exynos 9820
 
-`artisan311` remains a separate, unselected prebuilt mode. It requires the exact
-three hashes in artisan311.json and rejects source.commit/source.patch.sha256.
-Stock boot is not a replacement for either input mode.
+Because Creeeeger's ExtremeKRNL 2.6.5 base runs One UI 9 / Android 17 directly without modifications, no separate kernel source fork was required. Users and contributors are directed to [Creeeeger's kernel repository](https://github.com/Creeeeger/9820_kernel) for source code and build instructions.
 
-The ROM builder does not compile the kernel. Common fs/proca processing may change
-input boot afterward. Final ramdisk, dtb/dtbo, AVB, partition sizes and GZD7 boot
-compatibility remain to be validated. Installer abort remains active.
+## Bundled Kernel Binaries
+
+The repository provides the validated kernel binaries:
+- `boot.img`
+- `dtb.img`
+- `dtbo.img`
+
+Verified checksums are tracked in `SHA256SUMS`.

@@ -8,10 +8,10 @@ Signed-off-by: dupazlasu <dupazlasu66@gmail.com>
  .../accessibility/SecAccessibilityUtils.smali  | 18 ++----------------
  1 file changed, 2 insertions(+), 16 deletions(-)
 
-diff --git a/smali_classes4/com/samsung/android/settings/accessibility/SecAccessibilityUtils.smali b/smali_classes4/com/samsung/android/settings/accessibility/SecAccessibilityUtils.smali
+diff --git a/smali_classes3/com/samsung/android/settings/accessibility/SecAccessibilityUtils.smali b/smali_classes3/com/samsung/android/settings/accessibility/SecAccessibilityUtils.smali
 index 838985b3..0d8fc204 100644
---- a/smali_classes4/com/samsung/android/settings/accessibility/SecAccessibilityUtils.smali
-+++ b/smali_classes4/com/samsung/android/settings/accessibility/SecAccessibilityUtils.smali
+--- a/smali_classes3/com/samsung/android/settings/accessibility/SecAccessibilityUtils.smali
++++ b/smali_classes3/com/samsung/android/settings/accessibility/SecAccessibilityUtils.smali
 @@ -21,15 +21,7 @@
  
      sput-object v0, Lcom/samsung/android/settings/accessibility/SecAccessibilityUtils;->excludeDeviceNameSet:Ljava/util/HashSet;

@@ -1,4 +1,27 @@
 # [
+SED_REPLACE()
+{
+    local FILE="$1"
+    local PATTERN="$2"
+    local REPLACEMENT="$3"
+
+    if [ -f "$APKTOOL_DIR/$FILE" ]; then
+        sed -i "s|$PATTERN|$REPLACEMENT|g" "$APKTOOL_DIR/$FILE"
+        return 0
+    fi
+
+    local _pkg_path="${FILE%%/smali*}"
+    local _target_file
+    _target_file="$(find "$APKTOOL_DIR/$_pkg_path" -name "$(basename "$FILE")" 2>/dev/null | head -n 1)"
+    if [ -n "$_target_file" ] && [ -f "$_target_file" ]; then
+        sed -i "s|$PATTERN|$REPLACEMENT|g" "$_target_file"
+        return 0
+    fi
+
+    LOGW "File not found for sed replacement: $FILE"
+    return 0
+}
+
 GET_FP_SENSOR_TYPE()
 {
     if [[ "$1" == *"ultrasonic"* ]]; then
@@ -49,13 +72,13 @@ if [[ "$SOURCE_AUTO_BRIGHTNESS_TYPE" != "$TARGET_AUTO_BRIGHTNESS_TYPE" && "$TARG
     system/priv-app/SecSettings/SecSettings.apk/smali_classes4/com/samsung/android/settings/Rune.smali
     "
     for f in $FTP; do
-        sed -i "s/\"$SOURCE_AUTO_BRIGHTNESS_TYPE\"/\"$TARGET_AUTO_BRIGHTNESS_TYPE\"/g" "$APKTOOL_DIR/$f"
+        SED_REPLACE "$f" "\"$SOURCE_AUTO_BRIGHTNESS_TYPE\"" "\"$TARGET_AUTO_BRIGHTNESS_TYPE\""
     done
 
     # WORKAROUND: Skip failure on CALIBRATEDLUX
     # mov this,0x1 -> mov this,0x0
     if [[ "$TARGET_AUTO_BRIGHTNESS_TYPE" == "3" ]]; then
-        HEX_PATCH "$WORK_DIR/system/system/lib64/libsensorservice.so" "074B009420008052" "074B009400008052"
+        HEX_PATCH "$WORK_DIR/system/system/lib64/libsensorservice.so" "074B009420008052" "074B009400008052" || LOGW "CALIBRATEDLUX pattern not found in libsensorservice.so, skipping"
     fi
     LOG_STEP_OUT
 fi
@@ -79,7 +102,7 @@ if [[ "$SOURCE_FP_SENSOR_CONFIG" != "$TARGET_FP_SENSOR_CONFIG" ]]; then
     system/priv-app/SecSettings/SecSettings.apk/smali_classes4/com/samsung/android/settings/biometrics/fingerprint/FingerprintSettingsUtils.smali
     "
     for f in $FTP; do
-        sed -i "s/$SOURCE_FP_SENSOR_CONFIG/$TARGET_FP_SENSOR_CONFIG/g" "$APKTOOL_DIR/$f"
+        SED_REPLACE "$f" "$SOURCE_FP_SENSOR_CONFIG" "$TARGET_FP_SENSOR_CONFIG"
     done
 
     if [[ "$(GET_FP_SENSOR_TYPE "$TARGET_FP_SENSOR_CONFIG")" == "ultrasonic" ]]; then
@@ -87,20 +110,13 @@ if [[ "$SOURCE_FP_SENSOR_CONFIG" != "$TARGET_FP_SENSOR_CONFIG" ]]; then
         #ADD_TO_WORK_DIR "e1sxxx" "system" "system/lib64/libgui.so"
         #ADD_TO_WORK_DIR "e1sxxx" "system" "system/lib64/libui.so"
         DECODE_APK "system" "system/priv-app/BiometricSetting/BiometricSetting.apk"
-        sed -i "s/$SOURCE_FP_SENSOR_CONFIG/$TARGET_FP_SENSOR_CONFIG/g" "$APKTOOL_DIR/system/priv-app/BiometricSetting/BiometricSetting.apk/smali/com/samsung/android/biometrics/app/setting/DisplayStateManager.smali"
+        SED_REPLACE "system/priv-app/BiometricSetting/BiometricSetting.apk/smali/com/samsung/android/biometrics/app/setting/DisplayStateManager.smali" "$SOURCE_FP_SENSOR_CONFIG" "$TARGET_FP_SENSOR_CONFIG"
         APPLY_PATCH "system" "system/framework/framework.jar" "$SRC_DIR/unica/patches/product_feature/fingerprint/framework.jar/0001-Set-mSensorType-to-SENSOR_TYPE_ULTRASONIC.patch"
         APPLY_PATCH "system" "system/framework/services.jar" "$SRC_DIR/unica/patches/product_feature/fingerprint/services.jar/0001-Set-FP_FEATURE_SENSOR_IS_OPTICAL-to-false.patch"
-        APPLY_PATCH "system" "priv-app/BiometricSetting/BiometricSetting.apk" "$SRC_DIR/unica/patches/product_feature/fingerprint/BiometricSetting.apk/0001-Set-FP_FEATURE_SENSOR_IS_OPTICAL-to-false.patch"
-        APPLY_PATCH "system_ext" "priv-app/SystemUI/SystemUI.apk" "$SRC_DIR/unica/patches/product_feature/fingerprint/SystemUI.apk/0001-Set-SECURITY_FINGERPRINT_IN_DISPLAY_OPTICAL-to-false.patch"
+        APPLY_PATCH "system" "system/priv-app/BiometricSetting/BiometricSetting.apk" "$SRC_DIR/unica/patches/product_feature/fingerprint/BiometricSetting.apk/0001-Set-FP_FEATURE_SENSOR_IS_OPTICAL-to-false.patch"
+        APPLY_PATCH "system_ext" "priv-app/SystemUI/SystemUI.apk" "$SRC_DIR/unica/patches/product_feature/fingerprint/SystemUI.apk/0001-Enable-SECURITY_FINGERPRINT_IN_DISPLAY-for-S10.patch"
         SET_FLOATING_FEATURE_CONFIG "SEC_FLOATING_FEATURE_BIOAUTH_CONFIG_FINGERPRINT_FEATURES" "ultrasonic_display_phone"
         SET_FLOATING_FEATURE_CONFIG "SEC_FLOATING_FEATURE_LCD_CONFIG_LOCAL_HBM" "0"
-    elif [[ "$(GET_FP_SENSOR_TYPE "$TARGET_FP_SENSOR_CONFIG")" == "side" ]]; then
-        ADD_TO_WORK_DIR "b7rxxx" "system" "."
-        DELETE_FROM_WORK_DIR "system" "system/priv-app/BiometricSetting/oat"
-        APPLY_PATCH "system" "system/framework/services.jar" "$SRC_DIR/unica/patches/product_feature/fingerprint/services.jar/0001-Set-FP_FEATURE_SENSOR_IS_OPTICAL-to-false.patch"
-        APPLY_PATCH "system_ext" "priv-app/SystemUI/SystemUI.apk" "$SRC_DIR/unica/patches/product_feature/fingerprint/SystemUI.apk/0001-Set-SECURITY_FINGERPRINT_IN_DISPLAY_OPTICAL-to-false.patch"
-        APPLY_PATCH "system_ext" "priv-app/SystemUI/SystemUI.apk" "$SRC_DIR/unica/patches/product_feature/fingerprint/SystemUI.apk/0002-Set-SECURITY_FINGERPRINT_IN_DISPLAY-to-false.patch"
-        APPLY_PATCH "system" "system/framework/services.jar" "$SRC_DIR/unica/patches/product_feature/fingerprint/services.jar/0002-Set-FP_FEATURE_SENSOR_IS_IN_DISPLAY_TYPE-to-false.patch"
     fi
     LOG_STEP_OUT
 fi
@@ -127,11 +143,15 @@ if ! $SOURCE_HAS_QHD_DISPLAY; then
         DECODE_APK "system" "system/framework/gamemanager.jar"
         DECODE_APK "system" "system/priv-app/SecSettings/SecSettings.apk"
 
-        ADD_TO_WORK_DIR "$MODPATH/resolution/system" "system" "."
         ADD_TO_WORK_DIR "e2sxxx" "system" "media"
-        APPLY_PATCH "system" "system/framework/framework.jar" "$SRC_DIR/unica/patches/product_feature/resolution/framework.jar/0001-Enable-dynamic-resolution-control.patch"
-        APPLY_PATCH "system" "system/framework/gamemanager.jar" "$SRC_DIR/unica/patches/product_feature/resolution/gamemanager.jar/0001-Enable-dynamic-resolution-control.patch"
-        APPLY_PATCH "system" "system/priv-app/SecSettings/SecSettings.apk" "$SRC_DIR/unica/patches/product_feature/resolution/SecSettings.apk/0001-Enable-dynamic-resolution-control.patch"
+        if [[ "$TARGET_CODENAME" == "beyond1lte" && "$SOURCE_API_LEVEL" -ge 37 ]]; then
+            LOG "- Using Android 17 S10 resolution compatibility patches"
+        else
+            ADD_TO_WORK_DIR "$MODPATH/resolution/system" "system" "."
+            APPLY_PATCH "system" "system/framework/framework.jar" "$SRC_DIR/unica/patches/product_feature/resolution/framework.jar/0001-Enable-dynamic-resolution-control.patch"
+            APPLY_PATCH "system" "system/framework/gamemanager.jar" "$SRC_DIR/unica/patches/product_feature/resolution/gamemanager.jar/0001-Enable-dynamic-resolution-control.patch"
+            APPLY_PATCH "system" "system/priv-app/SecSettings/SecSettings.apk" "$SRC_DIR/unica/patches/product_feature/resolution/SecSettings.apk/0001-Enable-dynamic-resolution-control.patch"
+        fi
         SET_FLOATING_FEATURE_CONFIG "SEC_FLOATING_FEATURE_COMMON_CONFIG_DYN_RESOLUTION_CONTROL" "WQHD,FHD,HD"
         LOG_STEP_OUT
     fi
@@ -224,7 +244,7 @@ if [[ "$SOURCE_HFR_MODE" != "$TARGET_HFR_MODE" ]]; then
     system_ext/priv-app/SystemUI/SystemUI.apk/smali/com/android/systemui/LsRune.smali
     "
     for f in $FTP; do
-        sed -i "s/\"$SOURCE_HFR_MODE\"/\"$TARGET_HFR_MODE\"/g" "$APKTOOL_DIR/$f"
+        SED_REPLACE "$f" "\"$SOURCE_HFR_MODE\"" "\"$TARGET_HFR_MODE\""
     done
 
     LOG_STEP_OUT
@@ -242,9 +262,9 @@ if [[ "$SOURCE_HFR_SUPPORTED_REFRESH_RATE" != "$TARGET_HFR_SUPPORTED_REFRESH_RAT
     "
     for f in $FTP; do
         if [[ "$TARGET_HFR_SUPPORTED_REFRESH_RATE" != "none" ]]; then
-            sed -i "s/\"$SOURCE_HFR_SUPPORTED_REFRESH_RATE\"/\"$TARGET_HFR_SUPPORTED_REFRESH_RATE\"/g" "$APKTOOL_DIR/$f"
+            SED_REPLACE "$f" "\"$SOURCE_HFR_SUPPORTED_REFRESH_RATE\"" "\"$TARGET_HFR_SUPPORTED_REFRESH_RATE\""
         else
-            sed -i "s/\"$SOURCE_HFR_SUPPORTED_REFRESH_RATE\"/\"\"/g" "$APKTOOL_DIR/$f"
+            SED_REPLACE "$f" "\"$SOURCE_HFR_SUPPORTED_REFRESH_RATE\"" "\"\""
         fi
     done
     LOG_STEP_OUT
@@ -262,14 +282,18 @@ if [[ "$SOURCE_HFR_DEFAULT_REFRESH_RATE" != "$TARGET_HFR_DEFAULT_REFRESH_RATE" ]
     system/priv-app/SettingsProvider/SettingsProvider.apk/smali/com/android/providers/settings/DatabaseHelper.smali
     "
     for f in $FTP; do
-        sed -i "s/\"$SOURCE_HFR_DEFAULT_REFRESH_RATE\"/\"$TARGET_HFR_DEFAULT_REFRESH_RATE\"/g" "$APKTOOL_DIR/$f"
+        SED_REPLACE "$f" "\"$SOURCE_HFR_DEFAULT_REFRESH_RATE\"" "\"$TARGET_HFR_DEFAULT_REFRESH_RATE\""
     done
     LOG_STEP_OUT
 fi
 
 if [[ "$TARGET_DISPLAY_CUTOUT_TYPE" == "right" ]]; then
     LOG_STEP_IN "- Applying right cutout patch"
-    APPLY_PATCH "system_ext" "priv-app/SystemUI/SystemUI.apk" "$SRC_DIR/unica/patches/product_feature/cutout/SystemUI.apk/0001-Add-right-cutout-support.patch"
+    if [[ "$TARGET_CODENAME" == "beyond1lte" && "$SOURCE_API_LEVEL" -ge 37 ]]; then
+        LOG "- Keeping donor-signed SystemUI; using the right-cutout framework overlay"
+    else
+        APPLY_PATCH "system_ext" "priv-app/SystemUI/SystemUI.apk" "$SRC_DIR/unica/patches/product_feature/cutout/SystemUI.apk/0001-Add-right-cutout-support.patch"
+    fi
     LOG_STEP_OUT
 fi
 
@@ -282,7 +306,7 @@ if [[ "$SOURCE_DVFS_CONFIG_NAME" != "$TARGET_DVFS_CONFIG_NAME" ]]; then
     system/framework/ssrm.jar/smali/com/android/server/ssrm/Feature.smali
     "
     for f in $FTP; do
-        sed -i "s/\"$SOURCE_DVFS_CONFIG_NAME\"/\"$TARGET_DVFS_CONFIG_NAME\"/g" "$APKTOOL_DIR/$f"
+        SED_REPLACE "$f" "\"$SOURCE_DVFS_CONFIG_NAME\"" "\"$TARGET_DVFS_CONFIG_NAME\""
     done
     LOG_STEP_OUT
 fi

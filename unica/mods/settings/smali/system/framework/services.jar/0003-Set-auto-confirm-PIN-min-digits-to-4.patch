@@ -12,15 +12,14 @@ diff --git a/smali/com/android/server/locksettings/SyntheticPasswordManager.smal
 index 3a3cb638..f1822bf0 100644
 --- a/smali/com/android/server/locksettings/SyntheticPasswordManager.smali
 +++ b/smali/com/android/server/locksettings/SyntheticPasswordManager.smali
-@@ -908,7 +908,7 @@
+@@ -694,7 +694,7 @@
  
      if-eqz v12, :cond_1
  
 -    const/4 v12, 0x6
 +    const/4 v12, 0x4
  
-     if-ge v10, v12, :cond_2
+     if-ge v11, v12, :cond_2
  
 -- 
 2.49.1
-
