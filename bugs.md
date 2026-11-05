@@ -18,6 +18,9 @@ This document tracks known issues and active bug hunting targets for **OneROM De
 3. **Screen Recording**
    - Native screen recorder fails to capture or outputs broken video streams.
 
+4. **Browser**
+   - Using the browser causes a soft reboot.
+
 ---
 
 ## Flashing & Utilities Note
