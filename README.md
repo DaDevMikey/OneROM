@@ -43,36 +43,62 @@ A fully native Samsung One UI 9 port for the Samsung Galaxy S10 LTE, built from 
 
 ---
 
-## Flashing Instructions
+## Flashing Instructions (From Stock to OneROM)
 
 > [!IMPORTANT]
 > **F2FS Userdata Requirement**:
 > Android 17 / One UI 9 requires `/data` to be formatted as **F2FS**. Formatting as `ext4` will trigger `rescueparty_by_bootchecker` bootloops.
+>
+> **Prerequisites & Tooling**:
+> The ROM package, TWRP Odin pack, cleaner, and repartitioner are all available on the [GoFile Release Folder](https://gofile.io/d/EMEHIYG6).
+> - **TWRP Recovery**: Uses the exact same TWRP as ExtremeROM Nexus (`ExtremeROM_Nexus_G973_TWRP_OdinPack_v2.tar`).
+> - **Cleaner**: Uses the exact same cleaner script as ExtremeROM Nexus (`Exynos9820_Cleaner.zip`).
+> - **Repartitioning**: Uses the slightly modified repartitioner script from ExtremeROM (`Exynos9820_Repartition.zip`).
 
-### Step-by-Step Installation
+---
 
-1. **Reboot to TWRP Recovery**:
+### Step-by-Step Installation Guide (From Stock)
+
+#### Step 1: Unlock Bootloader & Flash TWRP via Odin
+1. On your phone running stock firmware, enable **Developer options** and turn on **OEM unlocking**.
+2. Power off the device, then hold **Volume Down + Bixby** and connect the USB cable to a PC to enter **Download Mode**.
+3. Long-press **Volume Up** to unlock the bootloader (this wipes user data).
+4. Boot back into Download Mode (**Volume Down + Bixby + USB**).
+5. Open **Odin** on your PC:
+   - Untick **Auto Reboot** in Odin Options.
+   - Slot `ExtremeROM_Nexus_G973_TWRP_OdinPack_v2.tar` into the **AP** slot.
+   - Click **Start** to flash TWRP.
+6. Force reboot into TWRP immediately: hold **Volume Down + Power**, and as soon as the screen goes black, instantly switch to holding **Volume Up + Bixby + Power** until the TWRP splash screen appears.
+
+#### Step 2: Wipe & Repartition
+1. In TWRP, go to **Wipe** -> **Format Data**, type `yes`, and confirm.
+2. Flash `Exynos9820_Repartition.zip` (via USB OTG, MicroSD, or `adb sideload`):
    ```bash
-   adb reboot recovery
+   adb sideload Exynos9820_Repartition.zip
    ```
-2. **Format Userdata as F2FS**:
-   In TWRP terminal or via ADB shell:
+3. Once repartitioning completes, reboot recovery (**Reboot** -> **Recovery**).
+
+#### Step 3: Clean Partitions & Format Data as F2FS
+1. In TWRP, flash the cleaner script:
    ```bash
-   adb shell "make_f2fs -f -O extra_attr,inode_checksum,sb_checksum,quota,compression /dev/block/by-name/userdata"
+   adb sideload Exynos9820_Cleaner.zip
    ```
-   *(Alternatively in TWRP GUI: Wipe -> Advanced Wipe -> Select Data -> Repair or Change File System -> Change File System -> F2FS).*
-3. **Sideload the ROM Package**:
-   Put the device into ADB sideload mode:
+2. **Format `/data` as F2FS**:
+   - In TWRP GUI: **Wipe** -> **Advanced Wipe** -> Select **Data** -> **Repair or Change File System** -> **Change File System** -> **F2FS** -> Swipe.
+   - *Alternatively via ADB shell*:
+     ```bash
+     adb shell "make_f2fs -f -O extra_attr,inode_checksum,sb_checksum,quota,compression /dev/block/by-name/userdata"
+     ```
+
+#### Step 4: Flash OneROM Delta 9.0
+1. Put TWRP into sideload mode:
+   - Tap **Advanced** -> **ADB Sideload** -> Swipe to Start Sideload (or run `adb shell twrp sideload`).
+2. Flash the ROM package:
    ```bash
-   adb shell twrp sideload
+   adb sideload OneROM_Delta_9.0.0.1_20261105-4_beyond1lte-sign.zip
    ```
-   Transfer and flash the signed zip:
-   ```bash
-   adb wait-for-sideload
-   adb sideload out/OneROM_Delta_9.0.0.1_..._beyond1lte-sign.zip
-   ```
-4. **Reboot System**:
-   Once flashing finishes, reboot the phone. First boot takes approximately 2-3 minutes.
+3. Once flashing completes successfully, tap **Reboot System**.
+   *(First boot takes approximately 2-4 minutes while Android 17 initializes).*
 
 ---
 
