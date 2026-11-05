@@ -170,23 +170,16 @@ def prepare(module, decoded):
             source = source.replace('"SM-A236B"', '"SM-S721B"')
             path.write_text(source)
 
-    # 11. Build Number Branding: Ensure it always displays custom OneROM branding
+    # 11. Build Number Branding: Ensure it always displays custom OneROM branding with source build number
     for path in decoded.glob("smali*/com/android/settings/deviceinfo/BuildNumberPreferenceController.smali"):
         source = path.read_text()
         pat = r"(\.method public getSummary\(\)Ljava/lang/CharSequence;\n)(.*?)(\.end method)"
         rep = (
             r"\1    .locals 2\n"
             r'    const-string v0, "ro.build.display.id"\n'
-            r'    const-string v1, "OneROM Delta 9.0 (beyond1lte)"\n'
+            r'    const-string v1, "OneROM Delta 9.0 (beyond1lte) (S721BXXSFEZJ1)"\n'
             r"    invoke-static {v0, v1}, Landroid/os/SemSystemProperties;->get(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;\n"
             r"    move-result-object v0\n"
-            r'    const-string v1, "CP2A"\n'
-            r"    invoke-virtual {v0, v1}, Ljava/lang/String;->startsWith(Ljava/lang/String;)Z\n"
-            r"    move-result v1\n"
-            r"    if-eqz v1, :custom_display_val\n"
-            r"    return-object v0\n"
-            r"    :custom_display_val\n"
-            r'    const-string v0, "OneROM Delta 9.0 (beyond1lte)"\n'
             r"    return-object v0\n\3"
         )
         source = re.sub(pat, rep, source, flags=re.S)

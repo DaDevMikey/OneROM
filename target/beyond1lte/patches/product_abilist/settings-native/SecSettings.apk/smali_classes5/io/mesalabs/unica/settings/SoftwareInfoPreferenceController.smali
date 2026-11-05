@@ -109,16 +109,6 @@
     invoke-virtual {v1, v0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
     move-result v1
     if-eqz v1, :bootloader
-    const-string v0, "ro.onerom.codename"
-    const-string v1, ""
-    invoke-static {v0, v1}, Landroid/os/SemSystemProperties;->get(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
-    move-result-object v0
-    invoke-static {v0}, Landroid/text/TextUtils;->isEmpty(Ljava/lang/CharSequence;)Z
-    move-result v1
-    if-nez v1, :try_onerom_device
-    return-object v0
-
-    :try_onerom_device
     const-string v0, "ro.onerom.device"
     const-string v1, "beyond1lte"
     invoke-static {v0, v1}, Landroid/os/SemSystemProperties;->get(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;

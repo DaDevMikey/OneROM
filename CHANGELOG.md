@@ -10,9 +10,11 @@
   - Authentic Galaxy S10 wallpaper with static banner layout in `About phone` and `Software information`.
   - Version status updated to **Official**.
   - Restored **Fullscreen AOD** toggle (`aod_show_lockscreen_wallpaper`) in UI settings.
+  - Enabled **Launcher animation type** selection (HighEnd, Mass, LowEnd, LowestEnd) and live blur effect toggles in UI settings.
   - Multi-User support enabled (up to 4 concurrent user accounts).
   - Identifier privacy masking (IMEI, Serial number, Phone number) with automatic SecSettings restart into `About phone`.
   - Built-in Bixby hardware key remapping support.
+  - Added `--debug` build flag for early ADB / USB debugging bringup during boot and `--release` mode for production builds.
 - **Multimedia & Compatibility**:
   - Fixed Android 17 Bionic FORTIFY buffer overflow in `libstagefright.so` `ACodec::reconfigEncoder4OtherApps`, enabling full hardware video encoding (`scrcpy`, screen recording, video calling).
   - Isolated 32-bit legacy audio/multimedia runtime under 64-bit Zygote.

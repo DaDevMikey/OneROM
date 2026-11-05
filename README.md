@@ -92,6 +92,13 @@ Or manually:
 source buildenv.sh beyond1lte
 bash scripts/make_rom.sh -f
 ```
+
+#### Build Flags
+- `--debug` : Enables early ADB and USB debugging (`ro.debuggable=1`, `persist.sys.usb.config=mtp,adb`) before `sys.boot_completed` for rapid development and kernel bringup testing.
+- `--release` : Default production mode with USB debugging disabled (`ro.debuggable=0`, `persist.sys.usb.config=mtp`).
+- `-f, --force` : Force complete re-execution and re-packaging of the ROM.
+- `--no-rom-zip` : Extracts and patches partitions without assembling the flashable zip.
+
 The final flashable package will be created in `out/OneROM_Delta_9.0.0.1_..._beyond1lte-sign.zip`.
 
 ---

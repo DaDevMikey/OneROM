@@ -46,10 +46,18 @@ PREPARE_SCRIPT()
             "--no-rom-zip")
                 BUILD_ZIP=false
                 ;;
+            "--debug")
+                export DEBUG=true
+                ;;
+            "--release")
+                export DEBUG=false
+                ;;
             *)
                 echo "Usage: make_rom [options]"
                 echo " -f, --force : Force build"
                 echo " --no-rom-zip : Do not build ROM zip"
+                echo " --debug : Enable early ADB & USB debugging for testing"
+                echo " --release : Production release (USB debugging off by default)"
                 exit 1
                 ;;
         esac
@@ -80,6 +88,8 @@ PRINT_USAGE()
     echo "Usage: make_rom [options]" >&2
     echo " -f, --force : Force ROM build" >&2
     echo " --no-rom-zip : Do not build ROM zip" >&2
+    echo " --debug : Enable early ADB & USB debugging for testing" >&2
+    echo " --release : Production release (USB debugging off by default)" >&2
 }
 # ]
 

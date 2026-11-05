@@ -21,34 +21,7 @@
 .method public getAvailabilityStatus()I
     .locals 1
 
-    :try_start_0
-    const-string p0, "io.mesalabs.unica.FloatingFeatureHooks"
-
-    invoke-static {p0}, Ljava/lang/Class;->forName(Ljava/lang/String;)Ljava/lang/Class;
-    :try_end_0
-    .catch Ljava/lang/ClassNotFoundException; {:try_start_0 .. :try_end_0} :catch_0
-
-    const-string p0, "ro.board.platform"
-
-    invoke-static {p0}, Landroid/os/SemSystemProperties;->get(Ljava/lang/String;)Ljava/lang/String;
-
-    move-result-object p0
-
-    const-string v0, "mt"
-
-    invoke-virtual {p0, v0}, Ljava/lang/String;->startsWith(Ljava/lang/String;)Z
-
-    move-result p0
-
-    if-nez p0, :cond_0
-
     const/4 p0, 0x0
-
-    return p0
-
-    :catch_0
-    :cond_0
-    const/4 p0, 0x3
 
     return p0
 .end method

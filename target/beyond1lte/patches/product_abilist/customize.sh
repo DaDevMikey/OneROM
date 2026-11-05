@@ -22,16 +22,39 @@ DECODE_APK "system" "system/priv-app/SecSettings/SecSettings.apk"
 python3 "$MODPATH/app-overrides/patch-resolution.py" "$APKTOOL_DIR/system/priv-app/SecSettings/SecSettings.apk/smali_classes3" || exit 1
 python3 "$MODPATH/settings-native/prepare.py" "$MODPATH/settings-native" "$APKTOOL_DIR/system/priv-app/SecSettings/SecSettings.apk" || exit 1
 python3 "$MODPATH/settings-native/patch_bixby.py" "$APKTOOL_DIR/system/priv-app/SecSettings/SecSettings.apk/smali_classes5" || exit 1
+SOURCE_BUILD_ID="$(GET_PROP "$WORK_DIR/system/system/build.prop" "ro.build.version.incremental")"
+[[ -z "$SOURCE_BUILD_ID" ]] && SOURCE_BUILD_ID="S721BXXSFEZJ1"
 SET_PROP "system" "ro.onerom.version" "$ROM_VERSION"
-SET_PROP "system" "ro.onerom.build" "OneROM Delta 9.0 ($TARGET_CODENAME)"
+SET_PROP "system" "ro.onerom.build" "OneROM Delta 9.0 ($TARGET_CODENAME) ($SOURCE_BUILD_ID)"
 SET_PROP "system" "ro.onerom.codename" "Delta"
 SET_PROP "system" "ro.onerom.device" "$TARGET_CODENAME"
 SET_PROP "system" "ro.onerom.build_date" "$(date +%Y-%m-%d)"
 SET_PROP "system" "ro.onerom.build.date" "$(date +%Y-%m-%d)"
-SET_PROP "system" "ro.build.display.id" "OneROM Delta 9.0 ($TARGET_CODENAME)"
-SET_PROP "product" "ro.build.display.id" "OneROM Delta 9.0 ($TARGET_CODENAME)"
+SET_PROP "system" "ro.build.display.id" "OneROM Delta 9.0 ($TARGET_CODENAME) ($SOURCE_BUILD_ID)"
+SET_PROP "product" "ro.build.display.id" "OneROM Delta 9.0 ($TARGET_CODENAME) ($SOURCE_BUILD_ID)"
 SET_PROP "system" "fw.max_users" "4"
 SET_PROP "system" "fw.show_multiuserui" "1"
+
+# USB Debugging & ADB Configuration based on build mode (--debug vs default/--release)
+if [[ "${DEBUG:-false}" == "true" ]]; then
+    echo "  -> Configuring early ADB and USB debugging for debug build"
+    SET_PROP "system" "ro.debuggable" "1"
+    SET_PROP "system" "ro.adb.secure" "0"
+    SET_PROP "system" "persist.service.adb.enable" "1"
+    SET_PROP "system" "persist.service.debuggable" "1"
+    SET_PROP "system" "persist.sys.usb.config" "mtp,adb"
+    SET_PROP "vendor" "ro.debuggable" "1"
+    SET_PROP "product" "ro.debuggable" "1"
+else
+    echo "  -> Configuring release build (USB debugging disabled by default)"
+    SET_PROP "system" "ro.debuggable" "0"
+    SET_PROP "system" "ro.adb.secure" "1"
+    SET_PROP "system" "persist.service.adb.enable" "0"
+    SET_PROP "system" "persist.service.debuggable" "0"
+    SET_PROP "system" "persist.sys.usb.config" "mtp"
+    SET_PROP "vendor" "ro.debuggable" "0"
+    SET_PROP "product" "ro.debuggable" "0"
+fi
 
 for keylayout in Generic Generic_internal Vendor_0075_Product_0100 Vendor_04e8; do
     keylayout_path="$WORK_DIR/system/system/usr/keylayout/$keylayout.kl"
