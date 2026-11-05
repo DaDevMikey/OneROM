@@ -192,28 +192,6 @@ def prepare(module, decoded):
         source = re.sub(pat, rep, source, flags=re.S)
         path.write_text(source)
 
-    # 11b. Kernel Version Branding: Display OneKernel 9.0
-    for path in decoded.glob("smali*/com/android/settings/deviceinfo/firmwareversion/KernelVersionPreferenceController.smali"):
-        source = path.read_text()
-        pat = r"(\.method public getSummary\(\)Ljava/lang/CharSequence;\n)(.*?)(\.end method)"
-        rep = (
-            r"\1    .locals 4\n"
-            r"    iget-object v0, p0, Lcom/android/settingslib/core/AbstractPreferenceController;->mContext:Landroid/content/Context;\n"
-            r"    invoke-static {}, Landroid/system/Os;->uname()Landroid/system/StructUtsname;\n"
-            r"    move-result-object v1\n"
-            r"    invoke-static {v0, v1}, Lcom/android/settingslib/DeviceInfoUtils;->formatKernelVersion(Landroid/content/Context;Landroid/system/StructUtsname;)Ljava/lang/String;\n"
-            r"    move-result-object v0\n"
-            r"    new-instance v1, Ljava/lang/StringBuilder;\n"
-            r"    invoke-direct {v1}, Ljava/lang/StringBuilder;-><init>()V\n"
-            r'    const-string v2, "OneKernel 9.0\\n"\n'
-            r"    invoke-virtual {v1, v2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;\n"
-            r"    invoke-virtual {v1, v0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;\n"
-            r"    invoke-virtual {v1}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;\n"
-            r"    move-result-object v0\n"
-            r"    return-object v0\n\3"
-        )
-        source = re.sub(pat, rep, source, flags=re.S)
-        path.write_text(source)
 
     # 12. Register activities in AndroidManifest.xml
     manifest_path = decoded / "AndroidManifest.xml"

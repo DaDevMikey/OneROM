@@ -82,11 +82,6 @@ for codec_library in "$WORK_DIR"/vendor/lib/omx/*.so "$WORK_DIR/vendor/lib/libst
 done
 rm -rf "$legacy_output"
 
-# S10 Stock Boot Animation (fixes late scaling jump at end of boot)
-cp -f "$legacy_source/system/system/media/bootsamsung.qmg" "$WORK_DIR/system/system/media/bootsamsung.qmg"
-cp -f "$legacy_source/system/system/media/bootsamsungloop.qmg" "$WORK_DIR/system/system/media/bootsamsungloop.qmg"
-SET_METADATA "system" "system/media/bootsamsung.qmg" 0 0 644 "u:object_r:system_file:s0"
-SET_METADATA "system" "system/media/bootsamsungloop.qmg" 0 0 644 "u:object_r:system_file:s0"
 
 # S10 Stock Wallpapers (Android 17 adapted)
 if [[ -f "$MODPATH/wallpaper-res/wallpaper-res.apk" ]]; then
