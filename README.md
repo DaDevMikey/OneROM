@@ -6,7 +6,7 @@ A fully native Samsung One UI 9 port for the Samsung Galaxy S10 LTE, built from 
 
 ---
 
-## Supported Device
+## Device catalog
 
 | Device | Platform | Codename | Model Number | Status |
 | :--- | :--- | :--- | :--- | :--- |
