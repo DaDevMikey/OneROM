@@ -94,36 +94,40 @@ SET_PROP "product" "bluetooth.profile.sap.server.enabled" "true"
 SET_PROP "product" "bluetooth.profile.ccp.server.enabled" "false"
 SET_PROP "product" "bluetooth.profile.vcp.controller.enabled" "false"
 
-ADD_TO_WORK_DIR "b0sxxx" "system" "system/apex/com.android.bt.apex" 0 0 644 "u:object_r:system_file:s0"
+if [[ "$SOURCE_API_LEVEL" -lt 37 ]]; then
+    ADD_TO_WORK_DIR "b0sxxx" "system" "system/apex/com.android.bt.apex" 0 0 644 "u:object_r:system_file:s0"
+fi
 LOG_STEP_OUT
 
 # BT-lib-patch
-if [ ! -f "$WORK_DIR/system/system/lib64/libbluetooth_jni.so" ]; then
-    LOG_STEP_IN "- Extracting libbluetooth_jni.so from com.android.bt.apex"
+if [[ "$SOURCE_API_LEVEL" -lt 37 ]]; then
+    if [ ! -f "$WORK_DIR/system/system/lib64/libbluetooth_jni.so" ]; then
+        LOG_STEP_IN "- Extracting libbluetooth_jni.so from com.android.bt.apex"
 
-    [ -d "$TMP_DIR" ] && EVAL "rm -rf \"$TMP_DIR\""
-    mkdir -p "$TMP_DIR"
+        [ -d "$TMP_DIR" ] && EVAL "rm -rf \"$TMP_DIR\""
+        mkdir -p "$TMP_DIR"
 
-    EVAL "unzip -j \"$WORK_DIR/system/system/apex/com.android.bt.apex\" \"apex_payload.img\" -d \"$TMP_DIR\""
+        EVAL "unzip -j \"$WORK_DIR/system/system/apex/com.android.bt.apex\" \"apex_payload.img\" -d \"$TMP_DIR\""
 
-    if 7z e "$TMP_DIR/apex_payload.img" lib64/libbluetooth_jni.so -o"$WORK_DIR/system/system/lib64" -y &> /dev/null; then
-        LOG "- Extracted libbluetooth_jni.so using 7z"
-    elif debugfs -R "dump lib64/libbluetooth_jni.so $WORK_DIR/system/system/lib64/libbluetooth_jni.so" "$TMP_DIR/apex_payload.img" &> /dev/null; then
-        LOG "- Extracted libbluetooth_jni.so using debugfs"
-    else
-        ABORT "Failed to extract libbluetooth_jni.so from apex_payload.img"
+        if 7z e "$TMP_DIR/apex_payload.img" lib64/libbluetooth_jni.so -o"$WORK_DIR/system/system/lib64" -y &> /dev/null; then
+            LOG "- Extracted libbluetooth_jni.so using 7z"
+        elif debugfs -R "dump lib64/libbluetooth_jni.so $WORK_DIR/system/system/lib64/libbluetooth_jni.so" "$TMP_DIR/apex_payload.img" &> /dev/null; then
+            LOG "- Extracted libbluetooth_jni.so using debugfs"
+        else
+            ABORT "Failed to extract libbluetooth_jni.so from apex_payload.img"
+        fi
+
+        rm -rf "$TMP_DIR"
+
+        SET_METADATA "system" "system/lib64/libbluetooth_jni.so" 0 0 644 "u:object_r:system_lib_file:s0"
+
+        LOG_STEP_OUT
     fi
 
-    rm -rf "$TMP_DIR"
-
-    SET_METADATA "system" "system/lib64/libbluetooth_jni.so" 0 0 644 "u:object_r:system_lib_file:s0"
-
-    LOG_STEP_OUT
+    # https://github.com/duhansysl/Bluetooth-Library-Patcher/blob/67e598ad142ed296b487a7a4585927c993d4f35d/hexpatcher.sh#L43
+    HEX_PATCH "$WORK_DIR/system/system/lib64/libbluetooth_jni.so" \
+        "289765394805003736008052" "289765392a00001436008052"
 fi
-
-# https://github.com/duhansysl/Bluetooth-Library-Patcher/blob/67e598ad142ed296b487a7a4585927c993d4f35d/hexpatcher.sh#L43
-HEX_PATCH "$WORK_DIR/system/system/lib64/libbluetooth_jni.so" \
-    "289765394805003736008052" "289765392a00001436008052"
 
 # Disable sead (Environment Adaptive Display) to avoid crash loop (~10/s) due to missing panel RGB calibration on Exynos 9820
 LOG_STEP_IN "- Disabling sead (EAD crash loop)"
