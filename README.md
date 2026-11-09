@@ -6,14 +6,15 @@ A fully native Samsung One UI 9 port for the Samsung Galaxy S10 LTE, built from 
 
 ---
 
-## Supported Device
+## Supported Devices
 
 | Device | Platform | Codename | Model Number | Status |
 | :--- | :--- | :--- | :--- | :--- |
 | **Galaxy S10 LTE** | Exynos 9820 | `beyond1lte` | SM-G973F / SM-G973N | **Official** |
+| **Galaxy S10+ LTE** | Exynos 9820 | `beyond2lte` | SM-G975F / SM-G975N | **Official** |
 
 > [!NOTE]
-> This release is tailored specifically for the Exynos 9820 Galaxy S10 (`beyond1lte`). Snapdragon variants and other Exynos models (`beyond0lte`, `beyond2lte`, `beyondx`) are not supported by this tree. However, contribution is appriciated.
+> This release natively supports the Exynos 9820 Galaxy S10 (`beyond1lte`) and Galaxy S10+ (`beyond2lte`). Snapdragon variants and other models (`beyond0lte`, `beyondx`) are not supported by this tree. Contributions are appreciated.
 
 ---
 
@@ -135,6 +136,7 @@ The final flashable package will be created in `out/OneROM_Delta_9.0.0.1_..._bey
 - **UN1CA / Salvo Giangreco**: For the UN1CA modular ROM framework and build tools.
 - **Creeeeger**: For the [Exynos 9820 Extreme Kernel](https://github.com/Creeeeger/9820_kernel) CPU/GPU overclock and kernel tree.
 - **ArtisanROM**: For the Exynos 9820 kernel lineage and vendor bringup reference.
+- **Rodrigo Brown / @rodrigonbrown-rgb**: For stellarRom, Galaxy S10+ (`beyond2lte`) bringup patches, dual front camera punch-hole assets, and Exynos 9820 platform optimizations.
 - **KernelSU Next Team**: For modern root support on Android 17.
 - **OneROM Contributors & @DaManMikey**: For the OneROM port, patches, and native One UI 9 adaptation.
 

@@ -1,0 +1,26 @@
+Subject: [PATCH] Fix camera cutout policy permission and disable AppZygote
+
+--- a/smali_classes2/com/android/server/wm/ActivityTaskManagerService.smali
++++ b/smali_classes2/com/android/server/wm/ActivityTaskManagerService.smali
+@@ -8086,10 +8086,6 @@
+ 
+ .method public final getCutoutPolicy$1(ILjava/lang/String;)I
+     .locals 3
+-
+-    const-string/jumbo v0, "getCutoutPolicy()"
+-
+-    invoke-static {v0}, Lcom/android/server/wm/ActivityTaskManagerService;->enforceTaskPermission(Ljava/lang/String;)V
+ 
+     invoke-static {}, Landroid/os/Binder;->clearCallingIdentity()J
+ 
+--- a/smali/com/android/server/am/ProcessList.smali
++++ b/smali/com/android/server/am/ProcessList.smali
+@@ -14480,7 +14480,7 @@
+     move/from16 v18, v1
+ 
+     :goto_19
+-    if-eqz v18, :cond_1f
++    goto :cond_1f
+ 
+     move-object v4, v3
+ 

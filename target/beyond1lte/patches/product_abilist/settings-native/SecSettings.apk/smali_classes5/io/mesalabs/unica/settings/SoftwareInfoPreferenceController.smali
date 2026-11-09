@@ -105,6 +105,25 @@
     return-object v0
 
     :ksu_version
+    const-string v1, "onerom_version_status"
+    invoke-virtual {v1, v0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+    move-result v1
+    if-eqz v1, :device_codename
+    const-string v0, "ro.onerom.official"
+    const-string v1, "false"
+    invoke-static {v0, v1}, Landroid/os/SemSystemProperties;->get(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+    move-result-object v0
+    const-string v1, "true"
+    invoke-virtual {v1, v0}, Ljava/lang/String;->equalsIgnoreCase(Ljava/lang/String;)Z
+    move-result v0
+    if-eqz v0, :unofficial_status
+    const-string v0, "Official"
+    return-object v0
+    :unofficial_status
+    const-string v0, "Unofficial"
+    return-object v0
+
+    :device_codename
     const-string v1, "onerom_device_codename"
     invoke-virtual {v1, v0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
     move-result v1

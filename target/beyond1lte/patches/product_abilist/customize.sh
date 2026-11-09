@@ -2,17 +2,18 @@
 SET_PROP "vendor" "ro.zygote" "zygote64"
 
 # Display Density & Scaling (lock across all partitions to prevent reboot shrinking)
+TARGET_MODEL_NAME="${TARGET_ASSERT_MODEL[0]:-SM-G973F}"
 for part in system vendor product odm; do
     SET_PROP "$part" "ro.sf.lcd_density" "$TARGET_LCD_DENSITY"
     SET_PROP "$part" "ro.sf.init.lcd_density" "$TARGET_LCD_DENSITY"
-    SET_PROP "$part" "ro.product.${part}.model" "SM-G973F"
-    SET_PROP "$part" "ro.product.${part}.name" "beyond1ltexx"
-    SET_PROP "$part" "ro.product.${part}.device" "beyond1lte"
+    SET_PROP "$part" "ro.product.${part}.model" "$TARGET_MODEL_NAME"
+    SET_PROP "$part" "ro.product.${part}.name" "${TARGET_CODENAME}xx"
+    SET_PROP "$part" "ro.product.${part}.device" "$TARGET_CODENAME"
 done
-SET_PROP "system" "ro.product.model" "SM-G973F"
-SET_PROP "system" "ro.product.name" "beyond1ltexx"
-SET_PROP "system" "ro.product.device" "beyond1lte"
-SET_PROP "system" "ro.build.product" "beyond1lte"
+SET_PROP "system" "ro.product.model" "$TARGET_MODEL_NAME"
+SET_PROP "system" "ro.product.name" "${TARGET_CODENAME}xx"
+SET_PROP "system" "ro.product.device" "$TARGET_CODENAME"
+SET_PROP "system" "ro.build.product" "$TARGET_CODENAME"
 
 ADD_TO_WORK_DIR "$TARGET_FIRMWARE" "system" "system/bin/prepare_param.sh"
 
@@ -24,14 +25,15 @@ python3 "$MODPATH/settings-native/prepare.py" "$MODPATH/settings-native" "$APKTO
 python3 "$MODPATH/settings-native/patch_bixby.py" "$APKTOOL_DIR/system/priv-app/SecSettings/SecSettings.apk/smali_classes5" || exit 1
 SOURCE_BUILD_ID="$(GET_PROP "$WORK_DIR/system/system/build.prop" "ro.build.version.incremental")"
 [[ -z "$SOURCE_BUILD_ID" ]] && SOURCE_BUILD_ID="S721BXXSFEZJ1"
+SET_PROP "system" "ro.onerom.official" "$ROM_IS_OFFICIAL"
 SET_PROP "system" "ro.onerom.version" "$ROM_VERSION"
-SET_PROP "system" "ro.onerom.build" "OneROM Delta 9.0 ($TARGET_CODENAME) ($SOURCE_BUILD_ID)"
+SET_PROP "system" "ro.onerom.build" "OneROM Delta 9.0.0.2 ($TARGET_CODENAME) ($SOURCE_BUILD_ID)"
 SET_PROP "system" "ro.onerom.codename" "Delta"
 SET_PROP "system" "ro.onerom.device" "$TARGET_CODENAME"
 SET_PROP "system" "ro.onerom.build_date" "$(date +%Y-%m-%d)"
 SET_PROP "system" "ro.onerom.build.date" "$(date +%Y-%m-%d)"
-SET_PROP "system" "ro.build.display.id" "OneROM Delta 9.0 ($TARGET_CODENAME) ($SOURCE_BUILD_ID)"
-SET_PROP "product" "ro.build.display.id" "OneROM Delta 9.0 ($TARGET_CODENAME) ($SOURCE_BUILD_ID)"
+SET_PROP "system" "ro.build.display.id" "$ROM_VERSION"
+SET_PROP "product" "ro.build.display.id" "$ROM_VERSION"
 SET_PROP "system" "fw.max_users" "4"
 SET_PROP "system" "fw.show_multiuserui" "1"
 
@@ -113,7 +115,17 @@ if [[ -f "$MODPATH/wallpaper-res/wallpaper-res.apk" ]]; then
     SET_METADATA "system" "system/priv-app/wallpaper-res/wallpaper-res.apk" 0 0 644 "u:object_r:system_file:s0"
 fi
 
-# S10 Lockscreen / Now Bar / Keyguard indication dimensions
+# S10 Lockscreen / Now Bar / Keyguard indication dimensions & Cutout Protection
+for rro_bools in "$APKTOOL_DIR"/product/overlay/SystemUI__*auto_generated_rro_product.apk/res/values/bools.xml; do
+    [[ -f "$rro_bools" ]] || continue
+    sed -i '/config_enableDisplayCutoutProtection/d' "$rro_bools"
+    sed -i '/<\/resources>/d' "$rro_bools"
+    cat >> "$rro_bools" << 'EOF'
+    <bool name="config_enableDisplayCutoutProtection">false</bool>
+</resources>
+EOF
+done
+
 for rro_dimens in "$APKTOOL_DIR"/product/overlay/SystemUI__*auto_generated_rro_product.apk/res/values/dimens.xml; do
     [[ -f "$rro_dimens" ]] || continue
     sed -i '/<\/resources>/d' "$rro_dimens"
@@ -121,8 +133,21 @@ for rro_dimens in "$APKTOOL_DIR"/product/overlay/SystemUI__*auto_generated_rro_p
     <dimen name="now_bar_bottom_margin">96.0dip</dimen>
     <dimen name="keyguard_indication_margin_bottom">152.0dip</dimen>
     <dimen name="keyguard_indication_margin_bottom_fingerprint_low_with_nowbar">152.0dip</dimen>
+    <dimen name="keyguard_indication_margin_bottom_fingerprint_low">152.0dip</dimen>
+    <dimen name="kg_pin_container_margin_bottom">40.0dip</dimen>
+    <dimen name="kg_password_container_margin_bottom">40.0dip</dimen>
+    <dimen name="kg_pattern_lock_pattern_view_margin_bottom">40.0dip</dimen>
+    <dimen name="kg_pattern_eca_margin_bottom">40.0dip</dimen>
 </resources>
 EOF
+done
+
+for sysui_dimens in "$APKTOOL_DIR"/system_ext/priv-app/SystemUI/SystemUI.apk/res/values/dimens.xml "$APKTOOL_DIR"/system/system_ext/priv-app/SystemUI/SystemUI.apk/res/values/dimens.xml; do
+    [[ -f "$sysui_dimens" ]] || continue
+    sed -i 's|<dimen name="kg_pin_container_margin_bottom">.*</dimen>|<dimen name="kg_pin_container_margin_bottom">40.0dip</dimen>|g' "$sysui_dimens"
+    sed -i 's|<dimen name="kg_password_container_margin_bottom">.*</dimen>|<dimen name="kg_password_container_margin_bottom">40.0dip</dimen>|g' "$sysui_dimens"
+    sed -i 's|<dimen name="kg_pattern_lock_pattern_view_margin_bottom">.*</dimen>|<dimen name="kg_pattern_lock_pattern_view_margin_bottom">40.0dip</dimen>|g' "$sysui_dimens"
+    sed -i 's|<dimen name="kg_pattern_eca_margin_bottom">.*</dimen>|<dimen name="kg_pattern_eca_margin_bottom">40.0dip</dimen>|g' "$sysui_dimens"
 done
 
 IFS=/ read -r sdhms_model sdhms_region sdhms_build <<< "$SOURCE_FIRMWARE"

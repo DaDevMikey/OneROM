@@ -13,7 +13,7 @@
         <Preference android:title="@string/onerom_rom_settings_title" android:key="onerom_rom_settings" android:summary="@string/onerom_rom_settings_summary" android:widgetLayout="@layout/preference_external_action_icon" android:fragment="io.mesalabs.unica.settings.UnicaSettingsFragment" />
         <Preference android:title="@string/onerom_developer_title" android:key="onerom_developer" android:summary="@string/onerom_developer_name" android:widgetLayout="@layout/preference_external_action_icon" settings:controller="io.mesalabs.unica.settings.DeveloperPreferenceController" />
         <Preference android:title="@string/onerom_build_date_title" android:key="onerom_build_date" android:summary="@string/summary_placeholder" android:fragment="io.mesalabs.unica.settings.ChangelogFragment" settings:controller="io.mesalabs.unica.settings.SoftwareInfoPreferenceController" />
-        <Preference android:title="Version Status" android:key="onerom_version_status" android:summary="Official" />
+        <Preference android:title="Version Status" android:key="onerom_version_status" android:summary="@string/summary_placeholder" settings:controller="io.mesalabs.unica.settings.SoftwareInfoPreferenceController" />
     </PreferenceCategory>
     <PreferenceCategory android:title="@string/onerom_system_status_title" android:key="onerom_system_status">
         <Preference android:enabled="false" android:title="@string/onerom_device_codename_title" android:key="onerom_device_codename" android:summary="@string/summary_placeholder" android:shouldDisableView="false" settings:controller="io.mesalabs.unica.settings.SoftwareInfoPreferenceController" />

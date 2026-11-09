@@ -1,9 +1,8 @@
 Subject: [PATCH] Fix S10 fingerprint sensor high position
 
-diff --git a/smali_classes4/com/android/systemui/util/DeviceState.smali b/smali_classes4/com/android/systemui/util/DeviceState.smali
 --- a/smali_classes4/com/android/systemui/util/DeviceState.smali
 +++ b/smali_classes4/com/android/systemui/util/DeviceState.smali
-@@ -1608,52 +1608,11 @@
+@@ -1608,49 +1608,8 @@
  .end method
  
  .method public static isInDisplayFpSensorPositionHigh()Z
@@ -44,18 +43,14 @@ diff --git a/smali_classes4/com/android/systemui/util/DeviceState.smali b/smali_
 -    cmpl-float v0, v1, v0
 -
 -    if-lez v0, :cond_0
-+    .locals 1
- 
-     const/4 v0, 0x1
- 
-     return v0
 -
--    :cond_0
--    const/4 v0, 0x0
+-    const/4 v0, 0x1
 -
 -    return v0
- .end method
+-
+-    :cond_0
++    .locals 1
++
+     const/4 v0, 0x0
  
- .method public static isLargeScreenTablet(Landroid/content/Context;)Z
--- 
-2.49.1
+     return v0
