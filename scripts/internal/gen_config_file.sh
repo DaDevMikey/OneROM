@@ -39,7 +39,14 @@ GET_BUILD_VAR()
 IS_EXTREMEROM_CERT_AVAILABLE()
 {
     local USES_EXTREMEROM_CERT="false"
-    [ -s "$SRC_DIR/security/extremerom_platform.pk8" ] && USES_EXTREMEROM_CERT="true"
+    if [ -s "$SRC_DIR/security/extremerom_platform.pk8" ]; then
+        local AOSP_KEY_SHA1="9280e7212bbe3c96c005bff495048eb974d73162"
+        local CURRENT_KEY_SHA1
+        CURRENT_KEY_SHA1="$(sha1sum "$SRC_DIR/security/extremerom_platform.pk8" 2>/dev/null | cut -d " " -f 1)"
+        if [[ -n "$CURRENT_KEY_SHA1" && "$CURRENT_KEY_SHA1" != "$AOSP_KEY_SHA1" ]]; then
+            USES_EXTREMEROM_CERT="true"
+        fi
+    fi
     echo "$USES_EXTREMEROM_CERT"
 }
 # ]

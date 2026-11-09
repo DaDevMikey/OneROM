@@ -8,3 +8,9 @@ F: target/beyond1lte/*
 F: platform/exynos9820/*
 F: unica/*
 F: scripts/*
+
+Galaxy S10+ LTE (Exynos, beyond2lte)
+M: Rodrigo Brown <@rodrigonbrown-rgb>
+M: mikey <@DaManMikey>
+S: Maintained
+F: target/beyond2lte/*

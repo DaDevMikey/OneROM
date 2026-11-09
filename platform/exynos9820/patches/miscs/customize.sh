@@ -27,10 +27,21 @@ LOG_STEP_IN "- Disabling A2DP Offload"
 SET_PROP "system" persist.bluetooth.a2dp_offload.disabled "true"
 LOG_STEP_OUT
 
-LOG_STEP_IN "- Setting SF flags"
+LOG_STEP_IN "- Setting SF flags and UI performance optimizations"
 SET_PROP "vendor" "debug.sf.latch_unsignaled" "1"
+SET_PROP "vendor" "debug.sf.enable_gl_backpressure" "0"
+SET_PROP "vendor" "debug.sf.disable_backpressure" "1"
+SET_PROP "vendor" "renderthread.skia.reduceopstasksplitting" "true"
+SET_PROP "vendor" "debug.hwui.render_dirty_regions" "false"
+SET_PROP "vendor" "debug.hwui.skia_tracing_enabled" "false"
+SET_PROP "vendor" "debug.hwui.skia_use_perfetto_track_events" "false"
 SET_PROP "vendor" "debug.sf.high_fps_late_app_phase_offset_ns" "0"
 SET_PROP "vendor" "debug.sf.high_fps_late_sf_phase_offset_ns" "0"
+SET_PROP "system" "persist.sys.scrollingcache" "3"
+SET_PROP "system" "windowsmgr.max_events_per_sec" "240"
+SET_PROP "system" "dalvik.vm.dex2oat-threads" "8"
+SET_PROP "system" "dalvik.vm.boot-dex2oat-threads" "8"
+SET_PROP "system" "dalvik.vm.image-dex2oat-threads" "8"
 LOG_STEP_OUT
 
 LOG_STEP_IN "- Disabling HFR"
@@ -90,26 +101,115 @@ LOG_STEP_OUT
 
 # BT-lib-patch
 if [[ "$SOURCE_API_LEVEL" -lt 37 ]]; then
-if [ ! -f "$WORK_DIR/system/system/lib64/libbluetooth_jni.so" ]; then
-    LOG_STEP_IN "- Extracting libbluetooth_jni.so from com.android.bt.apex"
+    if [ ! -f "$WORK_DIR/system/system/lib64/libbluetooth_jni.so" ]; then
+        LOG_STEP_IN "- Extracting libbluetooth_jni.so from com.android.bt.apex"
 
-    [ -d "$TMP_DIR" ] && EVAL "rm -rf \"$TMP_DIR\""
-    mkdir -p "$TMP_DIR"
+        [ -d "$TMP_DIR" ] && EVAL "rm -rf \"$TMP_DIR\""
+        mkdir -p "$TMP_DIR"
 
-    EVAL "unzip -j \"$WORK_DIR/system/system/apex/com.android.bt.apex\" \"apex_payload.img\" -d \"$TMP_DIR\""
+        EVAL "unzip -j \"$WORK_DIR/system/system/apex/com.android.bt.apex\" \"apex_payload.img\" -d \"$TMP_DIR\""
 
-    mkdir -p "$TMP_DIR/tmp_out"
-    7z e -y "$TMP_DIR/apex_payload.img" lib64/libbluetooth_jni.so -o"$TMP_DIR/tmp_out" &> /dev/null
-    cp "$TMP_DIR/tmp_out/libbluetooth_jni.so" "$WORK_DIR/system/system/lib64/libbluetooth_jni.so"
-    rm -rf "$TMP_DIR"
+        if 7z e "$TMP_DIR/apex_payload.img" lib64/libbluetooth_jni.so -o"$WORK_DIR/system/system/lib64" -y &> /dev/null; then
+            LOG "- Extracted libbluetooth_jni.so using 7z"
+        elif debugfs -R "dump lib64/libbluetooth_jni.so $WORK_DIR/system/system/lib64/libbluetooth_jni.so" "$TMP_DIR/apex_payload.img" &> /dev/null; then
+            LOG "- Extracted libbluetooth_jni.so using debugfs"
+        else
+            ABORT "Failed to extract libbluetooth_jni.so from apex_payload.img"
+        fi
 
-    SET_METADATA "system" "system/lib64/libbluetooth_jni.so" 0 0 644 "u:object_r:system_lib_file:s0"
+        rm -rf "$TMP_DIR"
 
-    LOG_STEP_OUT
+        SET_METADATA "system" "system/lib64/libbluetooth_jni.so" 0 0 644 "u:object_r:system_lib_file:s0"
+
+        LOG_STEP_OUT
+    fi
+
+    # https://github.com/duhansysl/Bluetooth-Library-Patcher/blob/67e598ad142ed296b487a7a4585927c993d4f35d/hexpatcher.sh#L43
+    HEX_PATCH "$WORK_DIR/system/system/lib64/libbluetooth_jni.so" \
+        "289765394805003736008052" "289765392a00001436008052"
 fi
 
-# https://github.com/duhansysl/Bluetooth-Library-Patcher/blob/67e598ad142ed296b487a7a4585927c993d4f35d/hexpatcher.sh#L43
-HEX_PATCH "$WORK_DIR/system/system/lib64/libbluetooth_jni.so" \
-    "289765394805003736008052" "289765392a00001436008052"
+# Disable sead (Environment Adaptive Display) to avoid crash loop (~10/s) due to missing panel RGB calibration on Exynos 9820
+LOG_STEP_IN "- Disabling sead (EAD crash loop)"
+CREW_SM=""
+if [ -d "$APKTOOL_DIR" ]; then
+    CREW_SM="$(grep -rl 'package="com.samsung.android.sead"' "$APKTOOL_DIR" --include=AndroidManifest.xml 2> /dev/null | head -n 1 || true)"
 fi
+if [ -z "$CREW_SM" ] && type DECODE_APK > /dev/null 2>&1; then
+    CREW_SA="$(find "$WORK_DIR/system/system/priv-app" "$WORK_DIR/system/system/app" -name '*.apk' 2> /dev/null | while read -r a; do
+        if unzip -p "$a" AndroidManifest.xml 2> /dev/null | grep -a -q 'com.samsung.android.sead'; then
+            echo "$a"
+            break
+        fi
+    done || true)"
+    if [ -n "$CREW_SA" ]; then
+        DECODE_APK "system" "${CREW_SA#"$WORK_DIR"/system/}" || true
+        CREW_SM="$(grep -rl 'package="com.samsung.android.sead"' "$APKTOOL_DIR" --include=AndroidManifest.xml 2> /dev/null | head -n 1 || true)"
+    fi
+fi
+if [ -n "$CREW_SM" ]; then
+    python3 -I - "$CREW_SM" <<'PYEOF' || LOGW "sead manifest edit failed"
+import re, sys
+f = sys.argv[1]; s = open(f).read()
+m = re.search(r'<application\b[^>]*>', s)
+if not m: sys.exit("no <application>")
+tag = m.group(0); new = tag
+new = re.sub(r'android:persistent="true"', 'android:persistent="false"', new)
+if 'android:enabled=' in new: new = re.sub(r'android:enabled="[^"]*"', 'android:enabled="false"', new)
+else: new = new.replace('<application', '<application android:enabled="false"', 1)
+s = s.replace(tag, new, 1); open(f, 'w').write(s)
+print("  sead: application enabled=false, persistent=false")
+PYEOF
+else
+    LOG "sead package not present in ROM - skipping"
+fi
+unset CREW_SM CREW_SA
+LOG_STEP_OUT
+
+# Fix GPIS cpuset pin for SurfaceFlinger (keep on 0-7 instead of 4-7 during blur to avoid stutter)
+if [ -f "$WORK_DIR/system/system/etc/task_profiles.json" ]; then
+python3 - "$WORK_DIR/system/system/etc/task_profiles.json" <<'GPIS_EOF'
+import json, sys
+p = sys.argv[1]
+try:
+    d = json.load(open(p))
+    n = 0
+    for pr in d.get("Profiles", []):
+        if pr.get("Name") == "GpisSfCpusetEnable":
+            for a in pr.get("Actions", []):
+                if a.get("Params", {}).get("Name") == "GpisSfCpuset":
+                    a["Params"]["Value"] = "0-7"
+                    n += 1
+    json.dump(d, open(p, "w"), indent=2)
+    print("  GpisSfCpusetEnable -> 0-7:", n)
+except Exception as e:
+    print("  Failed to patch task_profiles.json:", e)
+GPIS_EOF
+fi
+
+# HWC virtual display for smoother screen recording + /dev/jsqz permissions for camera JPEG squeezer
+LOG_STEP_IN "- Enabling HWC virtual display and /dev/jsqz access"
+SET_PROP "vendor" "debug.sf.enable_hwc_vds" "1"
+if [ -f "$WORK_DIR/vendor/ueventd.rc" ]; then
+    grep -q '^/dev/jsqz' "$WORK_DIR/vendor/ueventd.rc" || \
+        echo "/dev/jsqz                 0660   mediacodec     camera" >> "$WORK_DIR/vendor/ueventd.rc"
+fi
+LOG_STEP_OUT
+
+# Anti-thrash LMKD tuning for 8 GB RAM and dex2oat cpu-set pinning
+LOG_STEP_IN "- Applying LMKD anti-thrash and background dex2oat pinning"
+SET_PROP "product" "ro.lmk.use_psi" "true"
+SET_PROP "product" "ro.lmk.thrashing_limit" "30"
+SET_PROP "product" "ro.lmk.thrashing_limit_decay" "50"
+SET_PROP "product" "ro.lmk.swap_free_low_percentage" "15"
+SET_PROP "product" "ro.lmk.psi_partial_stall_ms" "70"
+SET_PROP "product" "ro.lmk.psi_complete_stall_ms" "500"
+SET_PROP "system" "persist.sys.fflag.override.settings_enable_monitor_phantom_procs" "false"
+SET_PROP "system" "dalvik.vm.background-dex2oat-threads" "2"
+SET_PROP "system" "dalvik.vm.background-dex2oat-cpu-set" "0,1,2,3"
+SET_PROP "system" "dalvik.vm.dex2oat-cpu-set" "0,1,2,3,4,5,6,7"
+SET_PROP "product" "pm.dexopt.first-boot" "speed-profile"
+SET_PROP "product" "pm.dexopt.boot-after-ota" "speed-profile"
+SET_PROP "product" "pm.dexopt.boot-after-mainline-update" "speed-profile"
+LOG_STEP_OUT
 

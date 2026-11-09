@@ -20,6 +20,7 @@ set -e
 
 #[
 source "$SRC_DIR/scripts/utils/module_utils.sh" || exit 1
+source "$SRC_DIR/scripts/utils/smali_utils.sh" || exit 1
 
 APPLY_MODULE()
 {

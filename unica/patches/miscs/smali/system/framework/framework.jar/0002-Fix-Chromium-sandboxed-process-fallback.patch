@@ -1,0 +1,74 @@
+--- a/smali/android/app/ActivityThread.smali
++++ b/smali/android/app/ActivityThread.smali
+@@ -9158,6 +9158,71 @@
+ 
+     iget-object v0, p1, Landroid/app/ActivityThread$CreateServiceData;->info:Landroid/content/pm/ServiceInfo;
+ 
++    if-eqz v0, :cond_native_fix
++
++    iget-object v1, v0, Landroid/content/pm/ServiceInfo;->name:Ljava/lang/String;
++
++    if-eqz v1, :cond_native_fix
++
++    const-string/jumbo v2, "NativeOnlySandboxedProcessService"
++
++    invoke-virtual {v1, v2}, Ljava/lang/String;->contains(Ljava/lang/CharSequence;)Z
++
++    move-result v3
++
++    if-eqz v3, :cond_native_fix
++
++    const-string/jumbo v3, "SandboxedProcessService"
++
++    invoke-virtual {v1, v2, v3}, Ljava/lang/String;->replace(Ljava/lang/CharSequence;Ljava/lang/CharSequence;)Ljava/lang/String;
++
++    move-result-object v1
++
++    iput-object v1, v0, Landroid/content/pm/ServiceInfo;->name:Ljava/lang/String;
++
++    :cond_native_fix
++    iget-object v1, p1, Landroid/app/ActivityThread$CreateServiceData;->intent:Landroid/content/Intent;
++
++    if-eqz v1, :cond_intent_fix
++
++    invoke-virtual {v1}, Landroid/content/Intent;->getComponent()Landroid/content/ComponentName;
++
++    move-result-object v2
++
++    if-eqz v2, :cond_intent_fix
++
++    invoke-virtual {v2}, Landroid/content/ComponentName;->getClassName()Ljava/lang/String;
++
++    move-result-object v3
++
++    if-eqz v3, :cond_intent_fix
++
++    const-string/jumbo v4, "NativeOnlySandboxedProcessService"
++
++    invoke-virtual {v3, v4}, Ljava/lang/String;->contains(Ljava/lang/CharSequence;)Z
++
++    move-result v5
++
++    if-eqz v5, :cond_intent_fix
++
++    const-string/jumbo v5, "SandboxedProcessService"
++
++    invoke-virtual {v3, v4, v5}, Ljava/lang/String;->replace(Ljava/lang/CharSequence;Ljava/lang/CharSequence;)Ljava/lang/String;
++
++    move-result-object v3
++
++    new-instance v4, Landroid/content/ComponentName;
++
++    invoke-virtual {v2}, Landroid/content/ComponentName;->getPackageName()Ljava/lang/String;
++
++    move-result-object v2
++
++    invoke-direct {v4, v2, v3}, Landroid/content/ComponentName;-><init>(Ljava/lang/String;Ljava/lang/String;)V
++
++    invoke-virtual {v1, v4}, Landroid/content/Intent;->setComponent(Landroid/content/ComponentName;)Landroid/content/Intent;
++
++    :cond_intent_fix
++
+     iget-object v0, v0, Landroid/content/pm/ServiceInfo;->applicationInfo:Landroid/content/pm/ApplicationInfo;
+ 
+     invoke-virtual {p0, v0}, Landroid/app/ActivityThread;->getPackageInfoNoCheck(Landroid/content/pm/ApplicationInfo;)Landroid/app/LoadedApk;

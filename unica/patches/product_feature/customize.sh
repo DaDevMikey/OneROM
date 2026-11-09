@@ -144,7 +144,7 @@ if ! $SOURCE_HAS_QHD_DISPLAY; then
         DECODE_APK "system" "system/priv-app/SecSettings/SecSettings.apk"
 
         ADD_TO_WORK_DIR "e2sxxx" "system" "media"
-        if [[ "$TARGET_CODENAME" == "beyond1lte" && "$SOURCE_API_LEVEL" -ge 37 ]]; then
+        if [[ ("$TARGET_CODENAME" == "beyond1lte" || "$TARGET_CODENAME" == "beyond2lte" || "$TARGET_PLATFORM" == "exynos9820") && "$SOURCE_API_LEVEL" -ge 37 ]]; then
             LOG "- Using Android 17 S10 resolution compatibility patches"
         else
             ADD_TO_WORK_DIR "$MODPATH/resolution/system" "system" "."
@@ -289,7 +289,7 @@ fi
 
 if [[ "$TARGET_DISPLAY_CUTOUT_TYPE" == "right" ]]; then
     LOG_STEP_IN "- Applying right cutout patch"
-    if [[ "$TARGET_CODENAME" == "beyond1lte" && "$SOURCE_API_LEVEL" -ge 37 ]]; then
+    if [[ ("$TARGET_CODENAME" == "beyond1lte" || "$TARGET_CODENAME" == "beyond2lte" || "$TARGET_PLATFORM" == "exynos9820") && "$SOURCE_API_LEVEL" -ge 37 ]]; then
         LOG "- Keeping donor-signed SystemUI; using the right-cutout framework overlay"
     else
         APPLY_PATCH "system_ext" "priv-app/SystemUI/SystemUI.apk" "$SRC_DIR/unica/patches/product_feature/cutout/SystemUI.apk/0001-Add-right-cutout-support.patch"

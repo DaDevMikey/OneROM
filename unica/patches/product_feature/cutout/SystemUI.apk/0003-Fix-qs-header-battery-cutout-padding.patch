@@ -1,0 +1,20 @@
+From a1b2c3d4e5f67890123456789abcdef012345678 Mon Sep 17 00:00:00 2001
+From: OneROM <onerom@project>
+Date: Tue, 27 Oct 2026 10:40:00 +0100
+Subject: [PATCH] Fix quick settings header battery cutout padding for right cutout devices
+
+---
+ res/values/dimens.xml | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/res/values/dimens.xml b/res/values/dimens.xml
+index 1000000..2000000 100644
+--- a/res/values/dimens.xml
++++ b/res/values/dimens.xml
+@@ -1354,7 +1354,7 @@
+     <dimen name="hover_system_icons_container_padding_bottom">0.0dip</dimen>
+-    <dimen name="hover_system_icons_container_padding_end">0.0dip</dimen>
++    <dimen name="hover_system_icons_container_padding_end">60.0dip</dimen>
+     <dimen name="hover_system_icons_container_padding_start">0.0dip</dimen>
+-- 
+2.34.1

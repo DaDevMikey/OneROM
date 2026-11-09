@@ -1,0 +1,37 @@
+Subject: [PATCH] Fix S10 keyguard fingerprint margin and UdfpsController overlay leak
+
+diff --git a/smali/com/android/keyguard/KeyguardSecSecurityContainerController.smali b/smali/com/android/keyguard/KeyguardSecSecurityContainerController.smali
+index a44212b..d82e5db 100644
+--- a/smali/com/android/keyguard/KeyguardSecSecurityContainerController.smali
++++ b/smali/com/android/keyguard/KeyguardSecSecurityContainerController.smali
+@@ -4093,8 +4093,6 @@
+     goto :goto_c
+ 
+     :cond_15
+-    if-eqz p1, :cond_16
+-
+     goto :goto_c
+ 
+     :cond_16
+diff --git a/smali_classes2/com/android/systemui/biometrics/UdfpsController.smali b/smali_classes2/com/android/systemui/biometrics/UdfpsController.smali
+index eb4a1c3..7c4f06f 100644
+--- a/smali_classes2/com/android/systemui/biometrics/UdfpsController.smali
++++ b/smali_classes2/com/android/systemui/biometrics/UdfpsController.smali
+@@ -2588,8 +2588,6 @@
+     return-void
+ 
+     :cond_0
+-    iput-object v2, v1, Lcom/android/systemui/biometrics/UdfpsController;->mOverlay:Lcom/android/systemui/biometrics/UdfpsControllerOverlay;
+-
+     iget v5, v2, Lcom/android/systemui/biometrics/UdfpsControllerOverlay;->requestReason:I
+ 
+     const/4 v0, 0x4
+@@ -2611,6 +2609,8 @@
+     return-void
+ 
+     :cond_1
++    iput-object v2, v1, Lcom/android/systemui/biometrics/UdfpsController;->mOverlay:Lcom/android/systemui/biometrics/UdfpsControllerOverlay;
++
+     iget-object v6, v1, Lcom/android/systemui/biometrics/UdfpsController;->mWakefulnessLifecycle:Lcom/android/systemui/keyguard/WakefulnessLifecycle;
+ 
+     const/4 v7, 0x0
