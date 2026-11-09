@@ -46,7 +46,7 @@ BUILD()
 
     LOG "- Building ${INPUT_FILE//$WORK_DIR/}"
 
-    if [[ "$TARGET_CODENAME" == "beyond1lte" && "$SOURCE_API_LEVEL" -ge 37 ]]; then
+    if [[ ("$TARGET_CODENAME" == "beyond1lte" || "$TARGET_CODENAME" == "beyond2lte" || "$TARGET_PLATFORM" == "exynos9820") && "$SOURCE_API_LEVEL" -ge 37 ]]; then
         case "$FILE" in
             system/priv-app/SettingsProvider/SettingsProvider.apk|\
             system/priv-app/BiometricSetting/BiometricSetting.apk|\
