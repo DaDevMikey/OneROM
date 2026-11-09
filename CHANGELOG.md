@@ -12,7 +12,6 @@
   - Enabled Hardware Composer Virtual Display (`debug.sf.enable_hwc_vds=1`) and configured `/dev/jsqz` ueventd permissions for stutter-free screen recording and hardware JPEG encoding.
   - Anti-thrashing LMKD memory tuning (`ro.lmk.thrashing_limit=30`, PSI thresholds) and background DEX2OAT CPU pinning (`0,1,2,3`) for 8 GB RAM longevity.
   - Disabled Android phantom process killer (`persist.sys.fflag.override.settings_enable_monitor_phantom_procs=false`) to prevent aggressive child process termination.
-- Bumped Android Security Patch Level to November 2026 (2026-11-05 ASB/SMR).
 - Fixed Chromium Web Browser Crashes & Website Loading: resolved `ClassNotFoundException` in `ActivityThread.handleCreateService` by intercepting `NativeOnlySandboxedProcessService` instantiation and seamlessly falling back to `SandboxedProcessService`, enabling stable multi-process browsing in Chrome, Samsung Internet, and system WebViews.
 - Dual Kernel Lineup Released for both Galaxy S10 (`beyond1lte`) and Galaxy S10+ (`beyond2lte`):
   - `OneKernel 9.0`: Stock frequency profile (2.73 GHz Cheetah M4, 2.31 GHz Cortex-A75, 1.95 GHz Cortex-A55, 702 MHz Mali-G76) for balanced performance and thermal efficiency.
