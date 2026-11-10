@@ -14,6 +14,10 @@
   - Resolved main-thread binder hang in SapProfile by replacing synchronous getConnectedDevices() with non-blocking list initialization.
   - Prevented showBudsData NullPointerException/ArrayIndexOutOfBoundsException when pairing Galaxy Buds in BudsUniteManagerPreference.
   - Disabled incompatible BudsUniteManager daemon on Exynos 9820 hardware, restoring smooth Bluetooth audio device operation.
+  - Resolved SystemUI ANR and termination on Galaxy Buds connection: removed undeclared vendor.samsung.hardware.bluetooth.a2dp and a2dpsink HAL entries from VINTF manifest.xml, eliminating HIDL getService() 1-second infinite retry loop on bt_main_thread.
+  - Enforced software A2DP properties (persist.bluetooth.a2dp_offload.disabled=true, ro.bluetooth.a2dp_offload.supported=false, persist.bluetooth.samsung.a2dp_offload.cap=none) across system/product properties and early init triggers.
+  - Locked Developer Options A2DP hardware offload switch to disabled state to prevent accidental offload enabling on Exynos 9820.
+  - Provided standalone flashable hotfix zip (OneROM_Delta_9.0.1.1_Bluetooth_Buds_Fix.zip) for existing users.
 - Fixed S10+ TWRP Installation Size Limit (E1001: Failed to update system image):
   - Streamlined system partition footprint by debloating unneeded heavy background analyzers (MediaSearch, mediacontextanalyzer, BudsUniteManager, and legacy test APKs), bringing total system image size comfortably under the standard 7000 MiB partition boundary.
   - Updated Exynos9820_Repartition.zip with 8000 MiB system partition allocation for future-proof headroom.
