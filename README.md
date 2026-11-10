@@ -11,7 +11,7 @@ A fully native Samsung One UI 9 port for the Samsung Galaxy S10 LTE, built from 
 | Device | Platform | Codename | Model Number | Status |
 | :--- | :--- | :--- | :--- | :--- |
 | **Galaxy S10 LTE** | Exynos 9820 | `beyond1lte` | SM-G973F / SM-G973N | **Official** |
-| **Galaxy S10+ LTE** | Exynos 9820 | `beyond2lte` | SM-G975F / SM-G975N | **WIP** |
+| **Galaxy S10+ LTE** | Exynos 9820 | `beyond2lte` | SM-G975F / SM-G975N | **OFFICIAL (WIP)** |
 | **Galaxy S10 5G** | Exynos 9820 | `beyondx` | SM-G977F / SM-G977N | **NOT SUPPORTED** |
 | **Galaxy S10e LTE** | Exynos 9820 | `beyond0lte` | SM-G970F / SM-G970N | **NOT SUPPORTED** |
 
