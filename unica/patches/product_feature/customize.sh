@@ -121,17 +121,14 @@ if [[ "$SOURCE_FP_SENSOR_CONFIG" != "$TARGET_FP_SENSOR_CONFIG" ]]; then
     LOG_STEP_OUT
 fi
 
-if [[ "$(GET_FP_SENSOR_TYPE "$TARGET_FP_SENSOR_CONFIG")" == "optical" ]]; then
+if [[ "$(GET_FP_SENSOR_TYPE "$TARGET_FP_SENSOR_CONFIG")" == "ultrasonic" ]]; then
     LOG "- Adding Ultrasonic FOD Animation"
 
     DECODE_APK "system" "system/priv-app/BiometricSetting/BiometricSetting.apk"
 
-    FTP="
-    system/priv-app/BiometricSetting/BiometricSetting.apk/smali/com/samsung/android/biometrics/app/setting/fingerprint/vi/VisualEffectContainer.smali
-    "
-    for f in $FTP; do
-        sed -i "s/green_circle/ripple/g" "$APKTOOL_DIR/$f"
-        sed -i "s/white_circle/ripple/g" "$APKTOOL_DIR/$f"
+    find "$APKTOOL_DIR/system/priv-app/BiometricSetting/BiometricSetting.apk" -name "VisualEffectContainer.smali" -type f | while IFS= read -r f; do
+        sed -i "s/green_circle/ripple/g" "$f"
+        sed -i "s/white_circle/ripple/g" "$f"
     done
 fi
 
