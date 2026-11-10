@@ -334,8 +334,32 @@ DECODE_APK "system" "system/framework/semwifi-service.jar"
 if $SOURCE_SUPPORT_HOTSPOT_DUALAP; then
     if ! $TARGET_SUPPORT_HOTSPOT_DUALAP; then
         LOG_STEP_IN "- Applying Hotspot DualAP patches"
-        APPLY_PATCH "system" "system/framework/semwifi-service.jar" "$SRC_DIR/unica/patches/product_feature/wifi/semwifi-service.jar/0001-Disable-DualAP-support.patch"
-        APPLY_PATCH "system" "system/priv-app/SecSettings/SecSettings.apk" "$SRC_DIR/unica/patches/product_feature/wifi/SecSettings.apk/0001-Disable-DualAP-support.patch"
+        if ! APPLY_PATCH "system" "system/framework/semwifi-service.jar" "$SRC_DIR/unica/patches/product_feature/wifi/semwifi-service.jar/0001-Disable-DualAP-support.patch" 2>/dev/null; then
+            LOG "- Using fallback patch for semwifi-service.jar DualAP"
+            python3 -c '
+import re, glob
+for path in glob.glob("'"$APKTOOL_DIR"'/system/framework/semwifi-service.jar/**/SemSoftApConfiguration.smali", recursive=True):
+    with open(path, "r", encoding="utf-8") as f: s = f.read()
+    s = re.sub(r"(\.method public isWifiApEnabledWithDualBand\(\)Z).*?(\.end method)", r"\1\n    .locals 1\n\n    const/4 v0, 0x0\n\n    return v0\n\2", s, flags=re.DOTALL)
+    with open(path, "w", encoding="utf-8") as f: f.write(s)
+'
+        fi
+        if ! APPLY_PATCH "system" "system/priv-app/SecSettings/SecSettings.apk" "$SRC_DIR/unica/patches/product_feature/wifi/SecSettings.apk/0001-Disable-DualAP-support.patch" 2>/dev/null; then
+            LOG "- Using fallback patch for SecSettings.apk DualAP"
+            python3 -c '
+import re, glob
+for path in glob.glob("'"$APKTOOL_DIR"'/system/priv-app/SecSettings/SecSettings.apk/**/Utils.smali", recursive=True):
+    with open(path, "r", encoding="utf-8") as f: s = f.read()
+    if "SPF_SupportMobileApDualAp" in s:
+        s = re.sub(r"sput-boolean (v\d+), Lcom/android/settings/Utils;->SPF_SupportMobileApDualAp:Z", r"const/4 \1, 0x0\n\n    sput-boolean \1, Lcom/android/settings/Utils;->SPF_SupportMobileApDualAp:Z", s)
+        with open(path, "w", encoding="utf-8") as f: f.write(s)
+for path in glob.glob("'"$APKTOOL_DIR"'/system/priv-app/SecSettings/SecSettings.apk/**/WifiApFrameworkUtils.smali", recursive=True):
+    with open(path, "r", encoding="utf-8") as f: s = f.read()
+    if "isBandSeekBarUxSupported" in s:
+        s = s.replace("const/4 v1, 0x2", "const/4 v1, 0x1").replace("const/4 v2, 0x2", "const/4 v2, 0x1")
+        with open(path, "w", encoding="utf-8") as f: f.write(s)
+'
+        fi
         LOG_STEP_OUT
     fi
 fi
@@ -351,7 +375,17 @@ fi
 if $SOURCE_SUPPORT_HOTSPOT_6GHZ; then
     if ! $TARGET_SUPPORT_HOTSPOT_6GHZ; then
         LOG_STEP_IN "- Applying Hotspot 6GHz patches"
-        APPLY_PATCH "system" "system/framework/semwifi-service.jar" "$SRC_DIR/unica/patches/product_feature/wifi/semwifi-service.jar/0003-Disable-Hotspot-6GHz-support.patch"
+        if ! APPLY_PATCH "system" "system/framework/semwifi-service.jar" "$SRC_DIR/unica/patches/product_feature/wifi/semwifi-service.jar/0003-Disable-Hotspot-6GHz-support.patch" 2>/dev/null; then
+            LOG "- Using fallback patch for semwifi-service.jar 6GHz"
+            python3 -c '
+import re, glob
+for path in glob.glob("'"$APKTOOL_DIR"'/system/framework/semwifi-service.jar/**/SemFrameworkFacade.smali", recursive=True):
+    with open(path, "r", encoding="utf-8") as f: s = f.read()
+    s = re.sub(r"(\.method public isSupportMobileAp6G\(\)Z\s+\.locals \d+\s+)const/4 p0, 0x1", r"\1const/4 p0, 0x0", s)
+    s = re.sub(r"(\.method public isSupported6Ghz\(\)Z\s+\.locals \d+\s+)const/4 p0, 0x1", r"\1const/4 p0, 0x0", s)
+    with open(path, "w", encoding="utf-8") as f: f.write(s)
+'
+        fi
         LOG_STEP_OUT
     fi
 fi
