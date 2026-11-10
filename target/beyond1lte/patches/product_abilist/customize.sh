@@ -2,7 +2,8 @@
 SET_PROP "vendor" "ro.zygote" "zygote64"
 
 # Display Density & Scaling (lock across all partitions to prevent reboot shrinking)
-TARGET_MODEL_NAME="${TARGET_ASSERT_MODEL[0]:-SM-G973F}"
+TARGET_MODEL_NAME="${TARGET_ASSERT_MODEL%%:*}"
+TARGET_MODEL_NAME="${TARGET_MODEL_NAME:-SM-G973F}"
 for part in system vendor product odm; do
     SET_PROP "$part" "ro.sf.lcd_density" "$TARGET_LCD_DENSITY"
     SET_PROP "$part" "ro.sf.init.lcd_density" "$TARGET_LCD_DENSITY"
@@ -23,17 +24,22 @@ DECODE_APK "system" "system/priv-app/SecSettings/SecSettings.apk"
 python3 "$MODPATH/app-overrides/patch-resolution.py" "$APKTOOL_DIR/system/priv-app/SecSettings/SecSettings.apk/smali_classes3" || exit 1
 python3 "$MODPATH/settings-native/prepare.py" "$MODPATH/settings-native" "$APKTOOL_DIR/system/priv-app/SecSettings/SecSettings.apk" || exit 1
 python3 "$MODPATH/settings-native/patch_bixby.py" "$APKTOOL_DIR/system/priv-app/SecSettings/SecSettings.apk/smali_classes5" || exit 1
+python3 "$MODPATH/patch_nfc.py" "$APKTOOL_DIR/system/priv-app/SecSettings/SecSettings.apk" || exit 1
 SOURCE_BUILD_ID="$(GET_PROP "$WORK_DIR/system/system/build.prop" "ro.build.version.incremental")"
 [[ -z "$SOURCE_BUILD_ID" ]] && SOURCE_BUILD_ID="S721BXXSFEZJ1"
+BUILD_DISPLAY_ID="OneROM Delta $ROM_VERSION ($TARGET_CODENAME) ($SOURCE_BUILD_ID) $(date +%Y%m%d)"
 SET_PROP "system" "ro.onerom.official" "$ROM_IS_OFFICIAL"
 SET_PROP "system" "ro.onerom.version" "$ROM_VERSION"
-SET_PROP "system" "ro.onerom.build" "OneROM Delta 9.0.0.2 ($TARGET_CODENAME) ($SOURCE_BUILD_ID)"
+SET_PROP "system" "ro.onerom.build" "$BUILD_DISPLAY_ID"
 SET_PROP "system" "ro.onerom.codename" "Delta"
 SET_PROP "system" "ro.onerom.device" "$TARGET_CODENAME"
 SET_PROP "system" "ro.onerom.build_date" "$(date +%Y-%m-%d)"
 SET_PROP "system" "ro.onerom.build.date" "$(date +%Y-%m-%d)"
-SET_PROP "system" "ro.build.display.id" "$ROM_VERSION"
-SET_PROP "product" "ro.build.display.id" "$ROM_VERSION"
+SET_PROP "system" "ro.build.display.id" "$BUILD_DISPLAY_ID"
+SET_PROP "product" "ro.build.display.id" "$BUILD_DISPLAY_ID"
+for part in system vendor product odm; do
+    SET_PROP "$part" "ro.vendor.nfc.info.antpos" "4"
+done
 SET_PROP "system" "fw.max_users" "4"
 SET_PROP "system" "fw.show_multiuserui" "1"
 
