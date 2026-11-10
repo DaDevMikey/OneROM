@@ -24,7 +24,11 @@ sed -i -e "${LINE}s/ext4/f2fs/g" -e "${LINE}s/$FROM/$TO/g" "$WORK_DIR/vendor/etc
 LOG_STEP_OUT
 
 LOG_STEP_IN "- Disabling A2DP Offload"
-SET_PROP "system" persist.bluetooth.a2dp_offload.disabled "true"
+SET_PROP "system" "persist.bluetooth.a2dp_offload.disabled" "true"
+SET_PROP "system" "ro.bluetooth.a2dp_offload.supported" "false"
+SET_PROP "product" "persist.bluetooth.a2dp_offload.disabled" "true"
+SET_PROP "product" "ro.bluetooth.a2dp_offload.supported" "false"
+SET_PROP "product" "persist.bluetooth.samsung.a2dp_offload.cap" "none"
 LOG_STEP_OUT
 
 LOG_STEP_IN "- Setting SF flags and UI performance optimizations"
