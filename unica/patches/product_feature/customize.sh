@@ -341,6 +341,17 @@ import re, glob
 for path in glob.glob("'"$APKTOOL_DIR"'/system/framework/semwifi-service.jar/**/SemSoftApConfiguration.smali", recursive=True):
     with open(path, "r", encoding="utf-8") as f: s = f.read()
     s = re.sub(r"(\.method public isWifiApEnabledWithDualBand\(\)Z).*?(\.end method)", r"\1\n    .locals 1\n\n    const/4 v0, 0x0\n\n    return v0\n\2", s, flags=re.DOTALL)
+    # If SparseIntArray channels has > 1 band, truncate to band 1
+    s = s.replace("invoke-virtual {v11, v0}, Landroid/net/wifi/SoftApConfiguration$Builder;->setChannels(Landroid/util/SparseIntArray;)Landroid/net/wifi/SoftApConfiguration$Builder;",
+                  "invoke-virtual {v0}, Landroid/util/SparseIntArray;->size()I\n    move-result v9\n    const/4 v10, 0x1\n    if-le v9, v10, :cond_sc_keep\n    const/4 v9, 0x0\n    invoke-virtual {v0, v9}, Landroid/util/SparseIntArray;->keyAt(I)I\n    move-result v10\n    invoke-virtual {v0, v9}, Landroid/util/SparseIntArray;->valueAt(I)I\n    move-result v9\n    new-instance v0, Landroid/util/SparseIntArray;\n    invoke-direct {v0}, Landroid/util/SparseIntArray;-><init>()V\n    invoke-virtual {v0, v10, v9}, Landroid/util/SparseIntArray;->put(II)V\n    :cond_sc_keep\n    invoke-virtual {v11, v0}, Landroid/net/wifi/SoftApConfiguration$Builder;->setChannels(Landroid/util/SparseIntArray;)Landroid/net/wifi/SoftApConfiguration$Builder;")
+    with open(path, "w", encoding="utf-8") as f: f.write(s)
+for path in glob.glob("'"$APKTOOL_DIR"'/system/framework/semwifi-service.jar/**/SemWifiApConfigStore.smali", recursive=True):
+    with open(path, "r", encoding="utf-8") as f: s = f.read()
+    s = s.replace("if-eqz v0, :cond_1", "goto :cond_1")
+    with open(path, "w", encoding="utf-8") as f: f.write(s)
+for path in glob.glob("'"$APKTOOL_DIR"'/system/framework/semwifi-service.jar/**/SemWifiApConfigStore$SemWifiApConfiguration.smali", recursive=True):
+    with open(path, "r", encoding="utf-8") as f: s = f.read()
+    s = s.replace("if-eqz v5, :cond_6", "goto :cond_6")
     with open(path, "w", encoding="utf-8") as f: f.write(s)
 '
         fi
@@ -358,6 +369,17 @@ for path in glob.glob("'"$APKTOOL_DIR"'/system/priv-app/SecSettings/SecSettings.
     if "isBandSeekBarUxSupported" in s:
         s = s.replace("const/4 v1, 0x2", "const/4 v1, 0x1").replace("const/4 v2, 0x2", "const/4 v2, 0x1")
         with open(path, "w", encoding="utf-8") as f: f.write(s)
+for path in glob.glob("'"$APKTOOL_DIR"'/system/priv-app/SecSettings/SecSettings.apk/**/WifiApBandConfig.smali", recursive=True):
+    with open(path, "r", encoding="utf-8") as f: s = f.read()
+    s = re.sub(r"(\.method public final isThisDualBand2GhzAnd5Ghz\(\)Z).*?(\.end method)", r"\1\n    .locals 1\n\n    const/4 v0, 0x0\n\n    return v0\n\2", s, flags=re.DOTALL)
+    with open(path, "w", encoding="utf-8") as f: f.write(s)
+for path in glob.glob("'"$APKTOOL_DIR"'/system/priv-app/SecSettings/SecSettings.apk/**/WifiApSoftApUtils.smali", recursive=True):
+    with open(path, "r", encoding="utf-8") as f: s = f.read()
+    target_band = "if-eqz v1, :cond_0\n\n    new-instance v1, Lcom/samsung/android/settings/wifi/mobileap/datamodels/WifiApBandConfig;\n\n    sget-object v3, Lcom/samsung/android/settings/wifi/mobileap/utils/WifiApSoftApUtils;->BAND_2GHZ_AND_5GHZ_ARRAY:[I"
+    repl_band = "goto :cond_0\n\n    new-instance v1, Lcom/samsung/android/settings/wifi/mobileap/datamodels/WifiApBandConfig;\n\n    sget-object v3, Lcom/samsung/android/settings/wifi/mobileap/utils/WifiApSoftApUtils;->BAND_2GHZ_AND_5GHZ_ARRAY:[I"
+    if target_band in s:
+        s = s.replace(target_band, repl_band, 1)
+    with open(path, "w", encoding="utf-8") as f: f.write(s)
 '
         fi
         LOG_STEP_OUT
