@@ -134,8 +134,10 @@ done
 
 for rro_dimens in "$APKTOOL_DIR"/product/overlay/SystemUI__*auto_generated_rro_product.apk/res/values/dimens.xml; do
     [[ -f "$rro_dimens" ]] || continue
+    sed -i '/hover_system_icons_container_padding_end/d' "$rro_dimens"
     sed -i '/<\/resources>/d' "$rro_dimens"
     cat >> "$rro_dimens" << 'EOF'
+    <dimen name="hover_system_icons_container_padding_end">60.0dip</dimen>
     <dimen name="now_bar_bottom_margin">96.0dip</dimen>
     <dimen name="keyguard_indication_margin_bottom">152.0dip</dimen>
     <dimen name="keyguard_indication_margin_bottom_fingerprint_low_with_nowbar">152.0dip</dimen>
@@ -146,6 +148,23 @@ for rro_dimens in "$APKTOOL_DIR"/product/overlay/SystemUI__*auto_generated_rro_p
     <dimen name="kg_pattern_eca_margin_bottom">40.0dip</dimen>
 </resources>
 EOF
+done
+
+# Ensure stale donor oat files for BiometricSetting are removed
+DELETE_FROM_WORK_DIR "system" "system/priv-app/BiometricSetting/oat"
+
+# Ensure OpenCL and GLES_mali vendor symlinks are valid and relative
+for vlib in "$WORK_DIR/vendor/lib" "$WORK_DIR/vendor/lib64"; do
+    [[ -d "$vlib" ]] || continue
+    for link_name in libGLES_mali.so libOpenCL.so libOpenCL.so.1 libOpenCL.so.1.1; do
+        target_path="$vlib/$link_name"
+        if [[ -L "$target_path" ]]; then
+            link_target="$(readlink "$target_path")"
+            if [[ "$link_target" == *"/tmp/"* || ! -e "$target_path" ]]; then
+                ln -sf "egl/libGLES_mali.so" "$target_path"
+            fi
+        fi
+    done
 done
 
 for sysui_dimens in "$APKTOOL_DIR"/system_ext/priv-app/SystemUI/SystemUI.apk/res/values/dimens.xml "$APKTOOL_DIR"/system/system_ext/priv-app/SystemUI/SystemUI.apk/res/values/dimens.xml; do
