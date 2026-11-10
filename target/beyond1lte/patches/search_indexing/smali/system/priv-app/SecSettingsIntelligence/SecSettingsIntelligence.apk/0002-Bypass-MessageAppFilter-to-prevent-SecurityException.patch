@@ -1,0 +1,13 @@
+Subject: [PATCH] Bypass MessageAppFilter to prevent SecurityException on search
+
+--- a/smali_classes2/com/samsung/android/settings/intelligence/search/filter/MessageAppFilter.smali
++++ b/smali_classes2/com/samsung/android/settings/intelligence/search/filter/MessageAppFilter.smali
+@@ -34,6 +34,8 @@
+ .method public filterSearchResult(Landroid/content/Context;Ljava/util/List;)Ljava/util/List;
+     .locals 4
+ 
++    return-object p2
++
+     invoke-virtual {p0, p1}, Lcom/samsung/android/settings/intelligence/search/filter/MessageAppFilter;->initializeFilter(Landroid/content/Context;)V
+ 
+     iget-object p1, p0, Lcom/samsung/android/settings/intelligence/search/filter/MessageAppFilter;->mPackageNameToExclude:Ljava/lang/String;

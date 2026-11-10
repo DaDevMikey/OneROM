@@ -1,5 +1,23 @@
 # OneROM Changelog
 
+# 9.0.1.1
+- Production Release Mode:
+  - Transitioned from development debug mode to optimized release build (ro.debuggable=0, persist.service.adb.enable=0, ro.adb.secure=1).
+  - Removed early boot debugging service (init.s10-debug.rc) from release packages to preserve default security and standard USB configurations.
+- Fixed Settings Search Crash:
+  - Resolved SecurityException: uid 10131 does not have android.permission.MANAGE_APP_OPS_MODES in SecSettingsIntelligence by bypassing MessageAppFilter role-grant invocation during live search results aggregation and granting required privapp permissions.
+  - Re-enabled policy resource lookup protection in DevicePolicyResourcesUtils, preventing Resources$NotFoundException on missing XML attribute lookups.
+- Fixed Developer Options Main Page Misbehavior:
+  - Fixed issue where Developer Options appeared enabled on homepage even when toggled off.
+  - Eliminated automatic force-enable in DeveloperOptionsPreferenceController constructor and tied homepage availability strictly to DevelopmentSettingsEnabler.isDevelopmentSettingsEnabled.
+- Fixed Settings Crash & Freeze with Galaxy Buds:
+  - Resolved main-thread binder hang in SapProfile by replacing synchronous getConnectedDevices() with non-blocking list initialization.
+  - Prevented showBudsData NullPointerException/ArrayIndexOutOfBoundsException when pairing Galaxy Buds in BudsUniteManagerPreference.
+  - Disabled incompatible BudsUniteManager daemon on Exynos 9820 hardware, restoring smooth Bluetooth audio device operation.
+- Fixed S10+ TWRP Installation Size Limit (E1001: Failed to update system image):
+  - Streamlined system partition footprint by debloating unneeded heavy background analyzers (MediaSearch, mediacontextanalyzer, BudsUniteManager, and legacy test APKs), bringing total system image size comfortably under the standard 7000 MiB partition boundary.
+  - Updated Exynos9820_Repartition.zip with 8000 MiB system partition allocation for future-proof headroom.
+
 # 9.0.1.0
 - Merged Galaxy S10+ (`beyond2lte`, SM-G975F/SM-G975N) target support from Rodrigo Brown's `stellarRom`:
   - Full hardware target integration featuring the dual front camera punch-hole cutout (`b2` pill) with native cutout animation assets.
