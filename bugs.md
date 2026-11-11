@@ -52,13 +52,14 @@ This document tracks verified active issues and bug hunting targets for **OneROM
   Updater process ended with ERROR: 1
   Failed to mount '/system_root' (Invalid argument)
   ```
-- **Cause**: The device has stock Samsung partition sizes (~4.5 GB for `/system`). OneROM Delta requires an extended system partition (~6.0 GB).
+- **Cause**: The device has stock Samsung partition sizes (~5.2 GB for `/system`) or an outdated 7GB layout. OneROM Delta Android 16 system image is ~7.5 GB, so it runs out of space mid-write on unrepartitioned devices. Additionally, TWRP may keep partitions mounted during package installation.
 - **Solution**:
   1. Boot into TWRP Recovery.
-  2. Flash `Exynos9820_Repartition.zip`.
+  2. Flash the official 13GB `Exynos9820_Repartition.zip` (available in the release folder / GoFile share).
   3. Reboot recovery (`Reboot -> Recovery`).
   4. Perform data format (`Wipe -> Format Data -> type 'yes'`).
   5. Flash the OneROM Delta ROM zip.
+- **ROM Updater Safety**: The flashable zip generator now automatically unmounts `/system`, `/system_root`, `/vendor`, `/product`, `/odm`, `/prism`, and `/optics` before executing `block_image_update`.
 
 ---
 

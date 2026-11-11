@@ -367,6 +367,8 @@ GENERATE_UPDATER_SCRIPT()
             echo    '));'
         fi
         echo    'show_progress(1, 200);'
+        echo    'ui_print("Unmounting partitions before update...");'
+        echo    'run_program("/sbin/sh", "-c", "umount -f /system /system_root /vendor /product /odm /prism /optics /cache 2>/dev/null || true");'
         if $HAS_SYSTEM; then
             echo -e "\n# Patch partition system\n"
             echo    'ui_print("Patching system image unconditionally...");'

@@ -114,8 +114,11 @@ system/priv-app/MateAgent
 
 # Telemetry / diagnostics / factory test / non-essential heavy tools
 SYSTEM_DEBLOAT+="
+system/priv-app/DeviceDiagnostics
 system/priv-app/DeviceQualityAgent
 system/priv-app/DeviceQualityAgent36
+system/priv-app/DeviceQualityAgent38
+system/priv-app/DiagMonAgent97
 system/priv-app/SEMFactoryApp
 system/app/FactoryCameraFB
 system/app/FactoryAirCommandManager
@@ -131,4 +134,12 @@ system/app/VoiceAccess
 system/app/FacAtFunction
 system/app/ParentalCare
 system/app/TalkBack
+system/app/HiyaService
+system/app/BBCAgent
+system/app/DRParser
+system/app/DsmsAPK
+system/app/AASAservice
+system/app/HMT
+system/app/AllShareAware
+system/app/AllshareMediaShare
 "

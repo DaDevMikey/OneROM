@@ -225,3 +225,41 @@ SET_PROP "product" "pm.dexopt.boot-after-ota" "speed-profile"
 SET_PROP "product" "pm.dexopt.boot-after-mainline-update" "speed-profile"
 LOG_STEP_OUT
 
+# Performance optimizations for Exynos 9820 (compiler, storage I/O, zygote usap, freezer)
+LOG_STEP_IN "- Exynos 9820 CPU compiler tuning & smoothness optimizations"
+SET_PROP "system" "dalvik.vm.dex2oat64.enabled" "true"
+SET_PROP "system" "dalvik.vm.systemuicompilerfilter" "speed"
+SET_PROP "system" "dalvik.vm.systemservercompilerfilter" "speed"
+SET_PROP "system" "dalvik.vm.dex2oat-threads" "6"
+SET_PROP "system" "dalvik.vm.boot-dex2oat-threads" "8"
+SET_PROP "system" "dalvik.vm.image-dex2oat-threads" "8"
+SET_PROP "system" "persist.device_config.runtime_native.usap_pool_enabled" "true"
+SET_PROP "system" "persist.device_config.activity_manager_native_boot.use_freezer" "true"
+SET_PROP "system" "debug.hwui.skia_atrace_enabled" "false"
+SET_PROP "vendor" "renderthread.skia.reduceopstasksplitting" "true"
+SET_PROP "product" "debug.hwui.use_hint_manager" "true"
+SET_PROP "product" "debug.sf.latch_unsignaled" "1"
+SET_PROP "product" "debug.sf.disable_backpressure" "1"
+SET_PROP "product" "debug.sf.enable_gl_backpressure" "0"
+SET_PROP "product" "debug.sf.high_fps_late_app_phase_offset_ns" "0"
+SET_PROP "product" "debug.sf.high_fps_late_sf_phase_offset_ns" "0"
+
+for PF_P in persist.logd.logpersistd persist.logd.logpersistd.buffer persist.logd.logpersistd.size persist.logd.size; do
+    SET_PROP "system" "$PF_P" --delete
+done
+unset PF_P
+LOG_STEP_OUT
+
+# Safeguard Galaxy AI feature version
+LOG_STEP_IN "- Verifying Galaxy AI feature version 20263"
+FF_PATH="$WORK_DIR/system/system/etc/floating_feature.xml"
+if [ -f "$FF_PATH" ]; then
+    if grep -q "SEC_FLOATING_FEATURE_COMMON_CONFIG_AI_VERSION" "$FF_PATH"; then
+        sed -i 's|<SEC_FLOATING_FEATURE_COMMON_CONFIG_AI_VERSION>.*</SEC_FLOATING_FEATURE_COMMON_CONFIG_AI_VERSION>|<SEC_FLOATING_FEATURE_COMMON_CONFIG_AI_VERSION>20263</SEC_FLOATING_FEATURE_COMMON_CONFIG_AI_VERSION>|g' "$FF_PATH"
+    else
+        sed -i 's|</SecFloatingFeatureSet>|    <SEC_FLOATING_FEATURE_COMMON_CONFIG_AI_VERSION>20263</SEC_FLOATING_FEATURE_COMMON_CONFIG_AI_VERSION>\n</SecFloatingFeatureSet>|' "$FF_PATH"
+    fi
+fi
+LOG_STEP_OUT
+
+
