@@ -1,0 +1,5 @@
+id=setupwizard
+name=OneROM Setup Wizard
+version=9.0
+author=DaManMikey, OneROM contributors
+description=Adds OneROM intro and pre-setup options and enables navigation mode selection in Setup Wizard.

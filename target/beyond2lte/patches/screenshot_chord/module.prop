@@ -1,0 +1,4 @@
+id=screenshot_chord
+name=Power + Vol Down Screenshot
+author=crew, OneROM contributors
+description=Enables Power + Volume Down hardware key screenshot chord on Exynos 9820 devices by configuring FUNCTION_KEY_MENU=TRUE.
