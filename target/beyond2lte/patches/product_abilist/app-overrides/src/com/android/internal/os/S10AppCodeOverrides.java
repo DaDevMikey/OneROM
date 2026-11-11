@@ -20,7 +20,8 @@ public final class S10AppCodeOverrides {
             "/system/priv-app/SecSettings/SecSettings.apk",
             "/system/priv-app/BiometricSetting/BiometricSetting.apk",
             "/system/system_ext/priv-app/SystemUI/SystemUI.apk",
-            "/system_ext/priv-app/SystemUI/SystemUI.apk"
+            "/system_ext/priv-app/SystemUI/SystemUI.apk",
+            "/system/priv-app/FotaAgent/FotaAgent.apk"
         };
         for (String source : allowed) {
             if (!source.equals(dexPath)) {

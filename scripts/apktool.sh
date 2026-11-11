@@ -50,6 +50,8 @@ BUILD()
         case "$FILE" in
             system/priv-app/SettingsProvider/SettingsProvider.apk|\
             system/priv-app/BiometricSetting/BiometricSetting.apk|\
+            system/priv-app/FotaAgent/FotaAgent.apk|\
+            priv-app/FotaAgent/FotaAgent.apk|\
             system/system_ext/priv-app/SystemUI/SystemUI.apk|\
             priv-app/SystemUI/SystemUI.apk)
                 LOG "- Keeping donor-signed shared-UID APK: $FILE"
