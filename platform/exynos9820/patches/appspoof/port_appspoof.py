@@ -276,7 +276,7 @@ CLASS_SMALI = f""".class public final {CLS}
 
     if-eqz v1, :none
 
-{prop_case(".model", MODEL, "not_model")}{prop_case(".device", DEVICE, "not_device")}{prop_case(".name", PRODUCT, "none")}:none
+{prop_case(".model", MODEL, "not_model")}{prop_case(".device", DEVICE, "not_device")}{prop_case(".name", PRODUCT, "none")}
     const/4 v0, 0x0
 
     return-object v0

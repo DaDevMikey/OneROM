@@ -369,6 +369,10 @@ GENERATE_UPDATER_SCRIPT()
         echo    'show_progress(1, 200);'
         echo    'ui_print("Unmounting partitions before update...");'
         echo    'run_program("/sbin/sh", "-c", "umount -f /system /system_root /vendor /product /odm /prism /optics /cache 2>/dev/null || true");'
+        if [ "$TARGET_SUPER_PARTITION_SIZE" -eq 0 ] && [ "$TARGET_PLATFORM" == "exynos9820" ]; then
+            echo    'ui_print("Checking system partition capacity...");'
+            echo    'run_program("/sbin/sh", "-c", "DEV=\"'"$TARGET_BOOT_DEVICE_PATH"'/system\"; if [ -e \"$DEV\" ]; then SZ=\$(blockdev --getsize64 \"$DEV\" 2>/dev/null || echo 0); if [ \"\$SZ\" -gt 0 ] && [ \"\$SZ\" -lt 7000000000 ]; then echo \"===============================================\"; echo \"FATAL ERROR: System partition is too small!\"; echo \"Detected capacity: \$SZ bytes (< 7 GB)\"; echo \"You MUST flash Exynos9820_Repartition.zip in TWRP\"; echo \"before installing OneROM Delta!\"; echo \"===============================================\"; exit 1; fi; fi");'
+        fi
         if $HAS_SYSTEM; then
             echo -e "\n# Patch partition system\n"
             echo    'ui_print("Patching system image unconditionally...");'

@@ -91,6 +91,7 @@ BUILD()
 
         # shellcheck disable=SC2046
         wait $(jobs -p) || exit 1
+        rm -rf "$OUTPUT_PATH"/smali*
     fi
 
     # Copy original META-INF

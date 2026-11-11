@@ -3,7 +3,9 @@ REGION=$(echo -n "$TARGET_FIRMWARE" | cut -d "/" -f 2)
 
 # Set build ID & OneROM branding
 SET_PROP "system" "ro.build.display.id" "OneROM Delta 9.0 ($TARGET_CODENAME)"
-SET_PROP "system" "ro.onerom.version" "9.0.0.1"
+SET_PROP "system" "ro.onerom.version" "$ROM_VERSION"
+SET_PROP "system" "ro.onerom.channel" "${ROM_CHANNEL:-testing}"
+SET_PROP "system" "ro.onerom.version.status" "${ROM_CHANNEL:-testing}"
 SET_PROP "system" "ro.onerom.codename" "Delta"
 SET_PROP "system" "ro.onerom.device" "$TARGET_CODENAME"
 SET_PROP "system" "ro.onerom.build_date" "$(date +%Y-%m-%d)"

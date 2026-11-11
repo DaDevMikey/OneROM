@@ -165,7 +165,11 @@ def main():
 
 {ind}iget {T}, {T}, Landroid/graphics/Rect;->left:I
 
-{ind}invoke-static {{}}, Landroid/content/res/Resources;->getSystem()Landroid/content/res/Resources;
+{ind}iget-object {U}, {P}, {PROPS}->context:Landroid/content/Context;
+
+{ind}if-eqz {U}, :{TAG}_ret
+
+{ind}invoke-virtual {{{U}}}, Landroid/content/Context;->getResources()Landroid/content/res/Resources;
 
 {ind}move-result-object {U}
 
@@ -183,7 +187,7 @@ def main():
 
 {ind}if-lez {U}, :{TAG}_ret
 
-{gap}
+{ind}const/16 {W}, 0x24
 
 {ind}add-int/2addr {U}, {W}
 
@@ -207,9 +211,10 @@ def main():
         die("nothing patched")
 
     # Syntax/register check of just the edited classes.
-    if not already and shutil.which("smali"):
+    smali_bin = shutil.which("smali") or "/home/mikey/Downloads/OneROM/out/tools/bin/smali"
+    if not already and smali_bin and Path(smali_bin).exists():
         with tempfile.TemporaryDirectory() as tmp:
-            cmd = ["smali", "a", "-a", "34", "-o", f"{tmp}/t.dex"] + [str(i["path"]) for i in changed]
+            cmd = [smali_bin, "a", "-a", "34", "-o", f"{tmp}/t.dex"] + [str(i["path"]) for i in changed]
             r = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
             if r.returncode != 0:
                 for i in changed:
