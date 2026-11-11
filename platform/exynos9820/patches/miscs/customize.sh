@@ -31,6 +31,14 @@ SET_PROP "product" "ro.bluetooth.a2dp_offload.supported" "false"
 SET_PROP "product" "persist.bluetooth.samsung.a2dp_offload.cap" "none"
 LOG_STEP_OUT
 
+LOG_STEP_IN "- Patching Bluetooth APEX for Exynos 9820 software A2DP"
+if [ -f "$WORK_DIR/system/system/apex/com.android.bt.apex" ]; then
+    python3 "$SRC_DIR/scripts/patch_bluetooth_apex.py" "$WORK_DIR/system/system/apex/com.android.bt.apex"
+elif [ -f "$WORK_DIR/system/apex/com.android.bt.apex" ]; then
+    python3 "$SRC_DIR/scripts/patch_bluetooth_apex.py" "$WORK_DIR/system/apex/com.android.bt.apex"
+fi
+LOG_STEP_OUT
+
 LOG_STEP_IN "- Setting SF flags and UI performance optimizations"
 SET_PROP "vendor" "debug.sf.latch_unsignaled" "1"
 SET_PROP "vendor" "debug.sf.enable_gl_backpressure" "0"
