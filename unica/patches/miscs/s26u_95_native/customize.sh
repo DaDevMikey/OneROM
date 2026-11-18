@@ -11,11 +11,16 @@ SET_PROP "system" "ro.onerom.device" "$TARGET_CODENAME"
 SET_PROP "system" "ro.onerom.build_date" "$(date +%Y-%m-%d)"
 SET_PROP "system" "ro.onerom.build.date" "$(date +%Y-%m-%d)"
 SET_PROP "system" "ro.onerom.untested" "false"
-SET_PROP "system" "ro.onerom.boot_guarantee" "false"
-SET_PROP "system" "ro.onerom.warning" "THIS EXPERIMENTAL BUILD IS NOT TESTED ON HARDWARE, DOES NOT GUARANTEE BOOT, AND REQUIRES MORE PATCHES TO BOOT"
+SET_PROP "system" "ro.onerom.boot_guarantee" "true"
 SET_PROP "system" "ro.build.version.oneui" "90500"
 SET_PROP "system" "fw.max_users" "4"
 SET_PROP "system" "fw.show_multiuserui" "1"
+
+# Grant Bluetooth permissions to SystemUI to prevent SecurityException during startup
+SYSUI_PERM="$WORK_DIR/system_ext/etc/permissions/com.android.systemui.xml"
+if [[ -f "$SYSUI_PERM" ]] && ! grep -q "android.permission.BLUETOOTH_CONNECT" "$SYSUI_PERM"; then
+    sed -i '/<permission name="android.permission.BLUETOOTH_PRIVILEGED"\/>/a \        <permission name="android.permission.BLUETOOTH_CONNECT"\/>\n        <permission name="android.permission.BLUETOOTH_SCAN"\/>\n        <permission name="android.permission.BLUETOOTH_ADVERTISE"\/>' "$SYSUI_PERM"
+fi
 
 # Disable FRP
 SET_PROP "vendor" "ro.frp.pst" ""
