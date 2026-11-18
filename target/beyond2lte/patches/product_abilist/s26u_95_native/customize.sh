@@ -47,6 +47,8 @@ if [[ "${DEBUG:-false}" == "true" ]]; then
     SET_PROP "system" "persist.service.adb.enable" "1"
     SET_PROP "system" "persist.service.debuggable" "1"
     SET_PROP "system" "persist.sys.usb.config" "mtp,adb"
+    SET_PROP "system" "persist.sys.disable_rescue" "true"
+    SET_PROP "system" "persist.device_config.configuration.disable_rescue_party" "true"
     SET_PROP "vendor" "ro.debuggable" "1"
     SET_PROP "product" "ro.debuggable" "1"
     cp -a "$MODPATH/init.s10-debug.rc" "$WORK_DIR/system/system/etc/init/init.s10-debug.rc"
