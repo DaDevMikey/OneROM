@@ -136,7 +136,6 @@ system/app/ParentalCare
 system/app/TalkBack
 system/app/HiyaService
 system/app/BBCAgent
-system/app/DRParser
 system/app/DsmsAPK
 system/app/AASAservice
 system/app/HMT

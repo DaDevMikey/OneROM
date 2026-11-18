@@ -220,9 +220,9 @@ SET_PROP "system" "persist.sys.fflag.override.settings_enable_monitor_phantom_pr
 SET_PROP "system" "dalvik.vm.background-dex2oat-threads" "2"
 SET_PROP "system" "dalvik.vm.background-dex2oat-cpu-set" "0,1,2,3"
 SET_PROP "system" "dalvik.vm.dex2oat-cpu-set" "0,1,2,3,4,5,6,7"
-SET_PROP "product" "pm.dexopt.first-boot" "speed-profile"
-SET_PROP "product" "pm.dexopt.boot-after-ota" "speed-profile"
-SET_PROP "product" "pm.dexopt.boot-after-mainline-update" "speed-profile"
+SET_PROP "product" "pm.dexopt.first-boot" "verify"
+SET_PROP "product" "pm.dexopt.boot-after-ota" "verify"
+SET_PROP "product" "pm.dexopt.boot-after-mainline-update" "verify"
 LOG_STEP_OUT
 
 # Performance optimizations for Exynos 9820 (compiler, storage I/O, zygote usap, freezer)
