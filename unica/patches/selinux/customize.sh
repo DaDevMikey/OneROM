@@ -185,5 +185,33 @@ if os.path.exists(prod_p):
         with open(prod_p, 'w') as f:
             f.writelines(clean_prod)
         print('- Cleaned duplicate declarations from product_sepolicy.cil')
+
+# Sanitize mac_permissions.xml files (fix Android 17 ignore_mac_permissions_package crash on signer stanzas without seinfo)
+import glob, xml.etree.ElementTree as ET
+for mac_file in glob.glob(os.path.join(work_dir, '**/etc/selinux/*mac_permissions.xml'), recursive=True):
+    try:
+        m_tree = ET.parse(mac_file)
+        m_root = m_tree.getroot()
+        m_changed = False
+        for s in m_root.findall('signer'):
+            seinfos = s.findall('seinfo')
+            packages = s.findall('package')
+            if not seinfos and packages:
+                val = 'default'
+                for p in packages:
+                    psi = p.find('seinfo')
+                    if psi is not None and psi.attrib.get('value'):
+                        val = psi.attrib.get('value')
+                        break
+                new_se = ET.SubElement(s, 'seinfo')
+                new_se.set('value', val)
+                for p in packages:
+                    s.remove(p)
+                m_changed = True
+        if m_changed:
+            m_tree.write(mac_file, encoding='utf-8', xml_declaration=True)
+            print(f'- Sanitized signer stanzas in {os.path.relpath(mac_file, work_dir)}')
+    except Exception as e:
+        print(f'Failed to sanitize {mac_file}: {e}')
 EOF
 
