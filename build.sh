@@ -34,12 +34,12 @@ if $IS_95; then
         exit 1
     fi
     echo "=========================================================="
-    echo " Starting OneROM 9.5 Test Build for $TARGET"
-    echo " Source Donor: Galaxy S26 Ultra Beta (SM-S948B / S948BXXU6ZZKN / One UI 9.5)"
+    echo " Starting OneROM Zeta 9.5 Test Build for $TARGET"
+    echo " Source Donor: Galaxy S26 Ultra Beta (SM-S948B / S948BXXU6ZZKN / Android 17 QPR2 / One UI 9.5)"
     echo " Target Base: ArtisanROM Exynos 9820 HALs / Kernel"
     echo " Build Engine: OneROM Native"
     echo " Developer Mode: Private 9.5 Beta Build"
-    echo " WARNING: THIS BUILD IS UNTESTED AND DOES NOT GUARANTEE BOOT"
+    echo " WARNING: THIS BUILD IS UNTESTED, DOES NOT GUARANTEE BOOT, AND REQUIRES MORE PATCHES TO BOOT"
     echo "=========================================================="
     source buildenv.sh "$TARGET" --9.5
 else

@@ -618,7 +618,8 @@ PRINT_HEADER()
     if [[ "${BUILD_ONEUI_95:-false}" == "true" ]]; then
         echo    'ui_print("****************************************************");'
         echo    'ui_print("WARNING: UNTESTED EXPERIMENTAL PREVIEW BUILD");'
-        echo    'ui_print("DOES NOT GUARANTEE BOOT - FLASH AT YOUR OWN RISK");'
+        echo    'ui_print("DOES NOT GUARANTEE BOOT - REQUIRES MORE PATCHES TO BOOT");'
+        echo    'ui_print("FLASH STRICTLY AT YOUR OWN RISK");'
         echo    'ui_print("****************************************************");'
     fi
     echo    'ui_print("OneROM Delta for Galaxy S10");'

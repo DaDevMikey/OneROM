@@ -72,8 +72,8 @@ if [[ "${BUILD_ONEUI_95:-false}" == "true" ]]; then
         source "$SRC_DIR/unica/configs/$SINGLE_SYSTEM_IMAGE.sh" || exit 1
     fi
     ROM_VERSION="9.5.0.0"
-    ROM_CODENAME="M3Q-Dev"
-    ROM_NAME="OneROM 9.5 Developer Beta [UNTESTED]"
+    ROM_CODENAME="Zeta"
+    ROM_NAME="OneROM Zeta 9.5 [UNTESTED]"
     ROM_CHANNEL="testing"
 else
     SINGLE_SYSTEM_IMAGE="$TARGET_SINGLE_SYSTEM_IMAGE"

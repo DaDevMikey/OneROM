@@ -1,18 +1,18 @@
 MODEL=$(echo -n "$TARGET_FIRMWARE" | cut -d "/" -f 1)
 REGION=$(echo -n "$TARGET_FIRMWARE" | cut -d "/" -f 2)
 
-# Set build ID & OneROM 9.5 branding with explicit untested marks
-SET_PROP "system" "ro.build.display.id" "OneROM 9.5 Beta ($TARGET_CODENAME) [UNTESTED - NO BOOT GUARANTEE]"
+# Set build ID & OneROM Zeta 9.5 branding with explicit untested marks
+SET_PROP "system" "ro.build.display.id" "OneROM Zeta 9.5 ($TARGET_CODENAME) [UNTESTED - REQUIRES MORE PATCHES TO BOOT]"
 SET_PROP "system" "ro.onerom.version" "$ROM_VERSION"
 SET_PROP "system" "ro.onerom.channel" "testing"
 SET_PROP "system" "ro.onerom.version.status" "testing"
-SET_PROP "system" "ro.onerom.codename" "Delta-9.5"
+SET_PROP "system" "ro.onerom.codename" "Zeta"
 SET_PROP "system" "ro.onerom.device" "$TARGET_CODENAME"
 SET_PROP "system" "ro.onerom.build_date" "$(date +%Y-%m-%d)"
 SET_PROP "system" "ro.onerom.build.date" "$(date +%Y-%m-%d)"
 SET_PROP "system" "ro.onerom.untested" "true"
 SET_PROP "system" "ro.onerom.boot_guarantee" "false"
-SET_PROP "system" "ro.onerom.warning" "THIS EXPERIMENTAL BUILD IS NOT TESTED ON HARDWARE AND DOES NOT GUARANTEE BOOT"
+SET_PROP "system" "ro.onerom.warning" "THIS EXPERIMENTAL BUILD IS NOT TESTED ON HARDWARE, DOES NOT GUARANTEE BOOT, AND REQUIRES MORE PATCHES TO BOOT"
 SET_PROP "system" "ro.build.version.oneui" "90500"
 SET_PROP "system" "fw.max_users" "4"
 SET_PROP "system" "fw.show_multiuserui" "1"
