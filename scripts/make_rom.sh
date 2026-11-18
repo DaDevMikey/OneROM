@@ -138,9 +138,24 @@ if $BUILD_ROM; then
     [ -f "$WORK_DIR/.completed" ] && rm -f "$WORK_DIR/.completed"
 
     if [ ! -f "$FW_DIR/$SOURCE_FIRMWARE_PATH/.extracted" ] || [ ! -f "$FW_DIR/$TARGET_FIRMWARE_PATH/.extracted" ]; then
-        if [ ! -f "$ODIN_DIR/$SOURCE_FIRMWARE_PATH/.downloaded" ] || [ ! -f "$ODIN_DIR/$TARGET_FIRMWARE_PATH/.downloaded" ]; then
+        NEED_DOWNLOAD=false
+        DOWNLOAD_ARGS=()
+        if [ ! -f "$FW_DIR/$SOURCE_FIRMWARE_PATH/.extracted" ] && [ ! -f "$ODIN_DIR/$SOURCE_FIRMWARE_PATH/.downloaded" ]; then
+            NEED_DOWNLOAD=true
+        fi
+        if [ ! -f "$FW_DIR/$TARGET_FIRMWARE_PATH/.extracted" ] && [ ! -f "$ODIN_DIR/$TARGET_FIRMWARE_PATH/.downloaded" ]; then
+            NEED_DOWNLOAD=true
+        fi
+
+        if $NEED_DOWNLOAD; then
+            if [ -f "$FW_DIR/$SOURCE_FIRMWARE_PATH/.extracted" ] || [ -f "$ODIN_DIR/$SOURCE_FIRMWARE_PATH/.downloaded" ]; then
+                DOWNLOAD_ARGS+=("--ignore-source")
+            fi
+            if [ -f "$FW_DIR/$TARGET_FIRMWARE_PATH/.extracted" ] || [ -f "$ODIN_DIR/$TARGET_FIRMWARE_PATH/.downloaded" ]; then
+                DOWNLOAD_ARGS+=("--ignore-target")
+            fi
             LOG_STEP_IN true "Downloading required firmwares"
-            "$SRC_DIR/scripts/download_fw.sh" || exit 1
+            "$SRC_DIR/scripts/download_fw.sh" "${DOWNLOAD_ARGS[@]}" || exit 1
             LOG_STEP_OUT
         fi
         LOG_STEP_IN true "Extracting required firmwares"

@@ -158,6 +158,9 @@ PARSE_FIRMWARE_STRING()
     elif [[ "${#THIRD}" -ge "8" ]] && [[ "${#THIRD}" -le "15" ]] && [[ "$THIRD" =~ ^[+-]?[0-9]+$ ]]; then
         # Allow uncomplete IMEIs as samloader can generate them by providing the first 8 numbers (TAC)
         IMEI="$THIRD"
+    elif [ -f "$ODIN_DIR/${MODEL}_${CSC}/.downloaded" ] || [ -f "$FW_DIR/${MODEL}_${CSC}/.extracted" ]; then
+        # Firmware is already locally available (e.g. developer test build / custom PDA)
+        PDA="$THIRD"
     else
         LOGE "No valid IMEI/SN in \"$STRING\": $THIRD"
         return 1
