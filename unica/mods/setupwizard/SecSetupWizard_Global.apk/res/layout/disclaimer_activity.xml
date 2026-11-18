@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fillViewport="true"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingStart="24dp"
+        android:paddingEnd="24dp"
+        android:paddingBottom="24dp">
+
+        <TextView
+            android:id="@id/disclaimer_description"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Welcome to OneROM 9!\n\nOneROM includes customized Exynos 9820 optimizations, OneKernel with KernelSU Next, flagship Galaxy S26 Ultra app spoofing, and advanced ROM Settings.\n\nConfigure your initial device preferences below. You can change these anytime in ROM Settings."
+            android:textSize="15sp"
+            android:textColor="?android:attr/textColorSecondary"
+            android:paddingBottom="16dp" />
+
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <Switch
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:minHeight="56dp"
+                android:text="Play boot sound"
+                android:checked="true"
+                android:onClick="onBootSoundChanged" />
+            <Switch
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:minHeight="56dp"
+                android:text="Force peak refresh rate"
+                android:checked="false"
+                android:onClick="onMaxRefreshRateChanged" />
+            <Switch
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:minHeight="56dp"
+                android:text="Show IMEI in Settings"
+                android:checked="true"
+                android:onClick="onImeiVisibilityChanged" />
+            <Switch
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:minHeight="56dp"
+                android:text="Show serial number in Settings"
+                android:checked="true"
+                android:onClick="onSerialVisibilityChanged" />
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingTop="16dp"
+                android:text="Bixby key"
+                android:textStyle="bold"
+                android:textSize="16sp" />
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Single press" />
+            <Button
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Voice assistant"
+                android:onClick="onBixbySingleActionChanged" />
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Double press" />
+            <Button
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Voice assistant"
+                android:onClick="onBixbyDoubleActionChanged" />
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Press and hold" />
+            <Button
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Voice assistant"
+                android:onClick="onBixbyHoldActionChanged" />
+        </LinearLayout>
+    </LinearLayout>
+</ScrollView>

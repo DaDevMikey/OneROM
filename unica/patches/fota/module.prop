@@ -1,0 +1,6 @@
+id=fota
+name=OneROM FOTA Updater Interceptor
+version=1.0
+versionCode=1
+author=mikey
+description=Routes FotaAgent check requests to OneROM Release Tracker

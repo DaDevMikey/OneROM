@@ -208,7 +208,8 @@ def prepare(module, decoded):
             anchor = ".method public isValidFragment(Ljava/lang/String;)Z\n    .locals 4"
             if anchor in source:
                 checks = (
-                    '\n    const-string v0, "io.mesalabs.unica.settings."\n'
+                    '\n    if-eqz p1, :onerom_standard_fragment\n'
+                    '    const-string v0, "io.mesalabs.unica.settings."\n'
                     "    invoke-virtual {p1, v0}, Ljava/lang/String;->startsWith(Ljava/lang/String;)Z\n"
                     "    move-result v0\n"
                     "    if-eqz v0, :onerom_native_fragment\n"
@@ -235,6 +236,7 @@ def prepare(module, decoded):
             def inject(match):
                 return match.group(1) + str(max(3, int(match.group(2)))) + f'''
 
+    if-eqz p0, :onerom_show_{identity}
     invoke-virtual {{p0}}, Landroid/content/Context;->getContentResolver()Landroid/content/ContentResolver;
     move-result-object v0
     const-string v1, "onerom_show_{identity}"

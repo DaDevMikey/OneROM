@@ -151,7 +151,7 @@
     <!-- Super Slow Motion features -->
     <local name="SUPPORT_SUPER_SLOW_MOTION_AUTO_DETECT_PREPARE" value="true"/>
 
-    <local name="SUPPORT_RECORDING_MULTI_MIC_ZOOM_FOCUS" value="true"/>
+    <local name="SUPPORT_RECORDING_MULTI_MIC_ZOOM_FOCUS" value="false"/>
 
     <local name="DISPLAY_CUTOUT_ANIMATION_INFO" num-of-display-cutout="1" display-cutout-0-type="1" display-cutout-0-left="271" display-cutout-0-top="2" display-cutout-0-right="348" display-cutout-0-bottom="41" display-cutout-0-inner-left="275.2" display-cutout-0-inner-top="5.2" display-cutout-0-inner-right="343.8" display-cutout-0-inner-bottom="37.8"/>
 
@@ -209,7 +209,7 @@
     
     <!-- new pro/pro video features -->
     <local name="SUPPORT_PRO_AE_PRIORITY_MODE" value="true"/>
-    <local name="SUPPORT_PRO_VIDEO_8K" value="true"/>
+    <local name="SUPPORT_PRO_VIDEO_8K" value="false"/>
     <local name="SUPPORT_HISTOGRAM" value="true"/>
     <local name="SUPPORT_PRO_VIDEO_FOCUS_PEAKING" value="true"/>
     <local name="SUPPORT_PRO_VIDEO_AUDIO_INPUT_CONTROL" value="true"/>
@@ -219,11 +219,11 @@
     <local name="SUPPORT_BACK_WIDE_PRO" value="true"/>
 
     <!-- single take features -->
-    <local name="SINGLE_TAKE_CAPTURE_INTERVAL" value="300"/>
+    <local name="SINGLE_TAKE_CAPTURE_INTERVAL" value="500"/>
     <local name="SINGLE_TAKE_USING_CONTINUOUS_AF" value="true"/>
     <local name="SINGLE_TAKE_USING_SINGLE_LENS_ONLY" value="true"/>
-    <local name="SUPPORT_SINGLE_TAKE_BURST_CAPTURE" value="true"/>
-    <local name="SUPPORT_SINGLE_TAKE_DYNAMIC_SLOW_MO" value="true"/>
+    <local name="SUPPORT_SINGLE_TAKE_BURST_CAPTURE" value="false"/>
+    <local name="SUPPORT_SINGLE_TAKE_DYNAMIC_SLOW_MO" value="false"/>
     <local name="SUPPORT_SINGLE_TAKE_EXTENDED_CAPTURE" value="true"/>
     <local name="SUPPORT_SINGLE_TAKE_FILTERED_VIDEOS" value="true"/>
     <local name="SUPPORT_SINGLE_TAKE_HIGHLIGHT_VIDEOS" value="true"/>
@@ -254,6 +254,6 @@
     <local name="SUPPORT_CAMERA_ASSISTANT_SOFTEN_PICTURE" value="true"/>
 
     <!-- OneROM -->
-    <local name="SUPPORT_DEFAULT_HEVC" value="true"/>
+    <local name="SUPPORT_DEFAULT_HEVC" value="false"/>
     <local name="SUPPORT_LOG_VIDEO" value="true"/>
 </resources>

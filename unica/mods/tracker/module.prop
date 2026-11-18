@@ -1,0 +1,6 @@
+id=oneromtracker
+name=OneROM Release Tracker
+version=1.0
+versionCode=1
+author=Mikey
+description=Background release tracker and update notifier for OneROM on GitHub.

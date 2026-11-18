@@ -47,7 +47,7 @@ _GET_SRC_DIR()
 
 _PRINT_USAGE()
 {
-    echo "Usage: source buildenv.sh [--debug] <target>" >&2
+    echo "Usage: source buildenv.sh [--debug] [--9.5] <target>" >&2
     echo "Available devices:" >&2
     printf '%s\n' "${TARGETS[@]}" >&2
 }
@@ -146,21 +146,38 @@ while IFS= read -r t; do
     TARGETS+=("$t")
 done < <(find "$SRC_DIR/target" -mindepth 1 -maxdepth 1 -type d -printf "%f\n" | sort)
 
-while [[ "$1" == "-"* ]]; do
-    if [[ "$1" == "--debug" ]]; then
-        export DEBUG=true
-    elif [[ "$1" == "--help" ]] || [[ "$1" == "-h" ]]; then
-        _PRINT_USAGE
-        return 0
-    else
-        echo "Unknown option: $1" >&2
-        _PRINT_USAGE
-        return 1
-    fi
+export BUILD_ONEUI_95="${BUILD_ONEUI_95:-false}"
+POSITIONAL_ARGS=()
+while [ "$#" -gt 0 ]; do
+    case "$1" in
+        "--debug")
+            export DEBUG=true
+            ;;
+        "--help" | "-h")
+            _PRINT_USAGE
+            return 0
+            ;;
+        "--9.5" | "--oneui9.5")
+            DEV_95_DIR="/home/mikey/oneui9.5/output_ZZKN"
+            if [[ ! -d "$DEV_95_DIR" ]]; then
+                echo "Error: --9.5 is restricted to the developer environment (missing $DEV_95_DIR)" >&2
+                return 1
+            fi
+            export BUILD_ONEUI_95=true
+            ;;
+        "-"*)
+            echo "Unknown option: $1" >&2
+            _PRINT_USAGE
+            return 1
+            ;;
+        *)
+            POSITIONAL_ARGS+=("$1")
+            ;;
+    esac
     shift
 done
 
-if [ "$#" -ne 1 ]; then
+if [ "${#POSITIONAL_ARGS[@]}" -eq 0 ]; then
     echo "No target specified. Please choose from the available devices below:"
 
     select SELECTED_TARGET in "${TARGETS[@]}"; do
@@ -170,8 +187,12 @@ if [ "$#" -ne 1 ]; then
             echo "Invalid selection. Please try again."
         fi
     done
+elif [ "${#POSITIONAL_ARGS[@]}" -eq 1 ]; then
+    SELECTED_TARGET="${POSITIONAL_ARGS[0]}"
 else
-    SELECTED_TARGET="$1"
+    echo "Too many targets specified." >&2
+    _PRINT_USAGE
+    return 1
 fi
 
 if [ ! -d "$SRC_DIR/target/$SELECTED_TARGET" ]; then
@@ -181,6 +202,15 @@ if [ ! -d "$SRC_DIR/target/$SELECTED_TARGET" ]; then
 fi
 
 unset -f _PRINT_USAGE
+
+if [[ "${BUILD_ONEUI_95:-false}" == "true" ]]; then
+    DEV_95_DIR="/home/mikey/oneui9.5/output_ZZKN"
+    mkdir -p "$ODIN_DIR/SM-S948B_OXM"
+    for f in "$DEV_95_DIR"/*.tar.md5; do
+        [[ -f "$f" ]] && ln -sf "$f" "$ODIN_DIR/SM-S948B_OXM/$(basename "$f")"
+    done
+    echo -n "S948BXXU6ZZKN/OXM/S948BXXU6ZZKN/S948BXXU6ZZKN" > "$ODIN_DIR/SM-S948B_OXM/.downloaded"
+fi
 
 export APKTOOL_DIR="$OUT_DIR/target/$SELECTED_TARGET/apktool"
 export WORK_DIR="$OUT_DIR/target/$SELECTED_TARGET/work_dir"

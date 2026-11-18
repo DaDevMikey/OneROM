@@ -1,7 +1,7 @@
 Subject: [PATCH] Keep the unsupported S10 A2DP offload toggle disabled
 
---- a/smali_classes2/com/android/settings/development/BluetoothA2dpHwOffloadPreferenceController.smali
-+++ b/smali_classes2/com/android/settings/development/BluetoothA2dpHwOffloadPreferenceController.smali
+--- a/smali/com/android/settings/development/BluetoothA2dpHwOffloadPreferenceController.smali
++++ b/smali/com/android/settings/development/BluetoothA2dpHwOffloadPreferenceController.smali
 @@ -90,36 +90,11 @@
  .end method
  

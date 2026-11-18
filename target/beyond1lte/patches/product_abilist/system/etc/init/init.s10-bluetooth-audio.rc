@@ -5,3 +5,11 @@ service vendor.s10-bluetooth-audio /vendor/bin/hw/s10-bluetooth-audio64
     interface vendor.samsung.hardware.bluetooth.audio@2.1::ISehBluetoothAudioProvidersFactory default
     interface vendor.samsung.hardware.bluetooth.audio@2.0::ISehBluetoothAudioProvidersFactory default
     updatable
+
+on early-init
+    setprop persist.bluetooth.a2dp_offload.disabled true
+    setprop ro.bluetooth.a2dp_offload.supported false
+
+on post-fs-data
+    setprop persist.bluetooth.a2dp_offload.disabled true
+    setprop ro.bluetooth.a2dp_offload.supported false
