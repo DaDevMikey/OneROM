@@ -223,6 +223,77 @@ for old, new in patches:
     data[i:i + len(old)] = new
 open(sys.argv[2], "wb").write(data)
 EOF
+
+# Tethering libservice-connectivity aborts on missing BPF ringbuf on 4.14; run a patched lib64 overlay from /system
+mkdir -p "$NBL_TMP/system/framework/s10-connectivity-lib64"
+7z e -y "$NBL_TMP/payload.img" lib64/* -o"$NBL_TMP/system/framework/s10-connectivity-lib64" > /dev/null || exit 1
+python3 - "$NBL_TMP/system/framework/s10-connectivity-lib64/libservice-connectivity.so" <<'LIB_PATCH_EOF' || exit 1
+import struct, sys
+path = sys.argv[1]
+data = bytearray(open(path, "rb").read())
+def words(*w): return struct.pack("<%dI" % len(w), *w)
+
+NOP = 0xd503201f
+MOV_W0_WZR = 0x2a1f03e0
+MOV_X0_XZR = 0xaa1f03e0
+RET = 0xd65f03c0
+MOV_W1_800 = 0x52810001
+MOVK_W1_8 = 0x72a00101
+
+# Calculate BL to eventfd@plt (0x14f80) from 0xdf14
+bl_eventfd = 0x94000000 | (((0x14f80 - 0xdf14) // 4) & 0x3ffffff)
+
+patches = [
+    # Site 1: df08..df18 -> call eventfd(0, 0x80800) instead of GetRingbuf()
+    (words(0x94001b8a, 0xb9401800, 0x528080c1, 0x2a1f03e2, 0x94001b8a),
+     words(MOV_W0_WZR, MOV_W1_800, MOVK_W1_8, bl_eventfd, NOP)),
+    # Site 2: f340 (cbnz w8, f37c) -> nop
+    (words(0x350001e8), words(NOP)),
+    # Site 3: f3ac (bl abort) -> nop
+    (words(0x94001555), words(NOP)),
+    # Site 4: e2a0 (bl ConsumeAllEv) -> nop
+    (words(0x94001ac0), words(NOP)),
+    # Site 5: 11dbc (LoopbackEventHandler::GetPoller) -> mov x0, xzr; ret
+    (words(0xd503233f, 0xa9bf7bfd, 0x910003fd, 0xd503201f, 0x10052da8),
+     words(MOV_X0_XZR, RET, NOP, NOP, NOP)),
+    # Site 6: 12018..12020 (LoopbackEventHandler bl abort) -> nop
+    (words(0x528000c0, 0x94000abd, 0x94000a38),
+     words(0x528000c0, 0x94000abd, NOP)),
+    # Site 7: 12028 (LoopbackEventHandler::Start) -> mov w0, wzr; ret
+    (words(0xd503233f, 0xd10143ff, 0xa9027bfd, 0xf9001bf5, 0xa9044ff4, 0x910083fd, 0xd53bd055, 0xd0000053),
+     words(MOV_W0_WZR, RET, NOP, NOP, NOP, NOP, NOP, NOP)),
+    # Site 8: 122ac (LoopbackEventHandler::Stop) -> mov w0, wzr; ret
+    (words(0xd503233f, 0xa9bf7bfd, 0x910003fd, 0xd503201f, 0x10050628),
+     words(MOV_W0_WZR, RET, NOP, NOP, NOP)),
+]
+for old, new in patches:
+    if data.count(old) != 1:
+        sys.exit("libservice-connectivity patch site not found: " + old.hex())
+    i = data.find(old)
+    data[i:i + len(old)] = new
+open(path, "wb").write(data)
+LIB_PATCH_EOF
+ADD_TO_WORK_DIR "$NBL_TMP" "system" "system/framework/s10-connectivity-lib64" 0 0 755 "u:object_r:system_file:s0"
+for lib_file in "$WORK_DIR/system/system/framework/s10-connectivity-lib64/"*; do
+    SET_METADATA "system" "system/framework/s10-connectivity-lib64/${lib_file##*/}" 0 0 644 "u:object_r:system_file:s0"
+done
+
+# Provide libcom.android.tethering.connectivity_native.so in /system/lib64 for native clients (e.g. gpsd)
+cp -f "$NBL_TMP/system/framework/s10-connectivity-lib64/libcom.android.tethering.connectivity_native.so" "$WORK_DIR/system/system/lib64/libcom.android.tethering.connectivity_native.so"
+SET_METADATA "system" "system/lib64/libcom.android.tethering.connectivity_native.so" 0 0 644 "u:object_r:system_lib_file:s0"
+
+mkdir -p "$WORK_DIR/system/system/etc/init"
+cat > "$WORK_DIR/system/system/etc/init/init.s10-connectivity-overlay.rc" <<'RC_EOF'
+on post-fs-data
+    mount none /system/framework/s10-connectivity-lib64 /apex/com.android.tethering/lib64 bind ro
+    mount none /system/framework/s10-connectivity-lib64/libservice-connectivity.so /apex/com.android.tethering/lib64/libservice-connectivity.so bind ro
+
+on property:apexd.status=activated
+    mount none /system/framework/s10-connectivity-lib64 /apex/com.android.tethering/lib64 bind ro
+    mount none /system/framework/s10-connectivity-lib64/libservice-connectivity.so /apex/com.android.tethering/lib64/libservice-connectivity.so bind ro
+RC_EOF
+SET_METADATA "system" "system/etc/init/init.s10-connectivity-overlay.rc" 0 0 644 "u:object_r:system_file:s0"
+
 rm -rf "$NBL_TMP"
 SET_METADATA "system" "system/bin/netbpfload_s10" 0 2000 750 "u:object_r:bpfloader_exec:s0"
 
