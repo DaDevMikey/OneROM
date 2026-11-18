@@ -342,6 +342,29 @@ for old, new in patches:
 open(path, "wb").write(data)
 EOF
 
+# CameraService addListenerHelper fails with -ENOSYS on legacy binder linkToDeath; bypass abort in cameraserver
+if [[ -f "$WORK_DIR/system/system/bin/cameraserver" ]]; then
+    python3 - "$WORK_DIR/system/system/bin/cameraserver" <<'CAM_EOF' || exit 1
+import struct, sys
+path = sys.argv[1]
+data = bytearray(open(path, "rb").read())
+def words(*w): return struct.pack("<%dI" % len(w), *w)
+
+pat1 = (words(0x2a0003fc, 0x340013c0), words(0x2a1f03fc, 0x1400009e))
+pat2 = (words(0xd63f0100, 0xf9400bf5, 0x2a0003f4, 0xb4000255),
+        words(0xd63f0100, 0xf9400bf5, 0x2a1f03f4, 0xb4000255))
+
+for old, new in [pat1, pat2]:
+    if data.count(new) == 1 and data.count(old) == 0:
+        continue
+    if data.count(old) != 1:
+        sys.exit("cameraserver patch site not found exactly once: " + old.hex())
+    i = data.find(old)
+    data[i:i + len(old)] = new
+open(path, "wb").write(data)
+CAM_EOF
+fi
+
 # Exynos RIL and TEEGRIS rc replacements for Snapdragon base
 if [[ -f "$MODPATH/init.rilchip.slsi.rc" ]]; then
     DELETE_FROM_WORK_DIR "system" "system/etc/init/init.rilchip.qcom.rc"
