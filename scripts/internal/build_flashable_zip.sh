@@ -615,6 +615,12 @@ PRINT_HEADER()
     echo -n 'ui_print("'
     echo -n "Welcome to ${ROM_NAME:-OneROM} $ROM_VERSION (${ROM_CODENAME:-Delta}) for $TARGET_NAME!"
     echo    '");'
+    if [[ "${BUILD_ONEUI_95:-false}" == "true" ]]; then
+        echo    'ui_print("****************************************************");'
+        echo    'ui_print("WARNING: UNTESTED EXPERIMENTAL PREVIEW BUILD");'
+        echo    'ui_print("DOES NOT GUARANTEE BOOT - FLASH AT YOUR OWN RISK");'
+        echo    'ui_print("****************************************************");'
+    fi
     echo    'ui_print("OneROM Delta for Galaxy S10");'
     echo    'ui_print("Developer: mikey @XDAforums");'
     echo    'ui_print("====================================================");'

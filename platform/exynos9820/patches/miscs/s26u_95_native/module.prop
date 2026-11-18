@@ -1,0 +1,4 @@
+id=miscs
+name=Exynos 9820 misc patches (One UI 9.5)
+author=salvo_giangri, ExtremeXT, OneROM Contributors
+description=Hardware optimizations, fstab, and performance flags for Exynos 9820 on One UI 9.5.

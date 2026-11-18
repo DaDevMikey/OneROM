@@ -39,6 +39,7 @@ if $IS_95; then
     echo " Target Base: ArtisanROM Exynos 9820 HALs / Kernel"
     echo " Build Engine: OneROM Native"
     echo " Developer Mode: Private 9.5 Beta Build"
+    echo " WARNING: THIS BUILD IS UNTESTED AND DOES NOT GUARANTEE BOOT"
     echo "=========================================================="
     source buildenv.sh "$TARGET" --9.5
 else

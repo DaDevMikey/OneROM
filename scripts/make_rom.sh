@@ -184,9 +184,14 @@ if $BUILD_ROM; then
         LOG_STEP_OUT
     fi
 
-    if [ -d "$SRC_DIR/unica/mods" ]; then
+    MODS_DIR="$SRC_DIR/unica/mods"
+    if $BUILD_ONEUI_95 && [ -d "$SRC_DIR/unica/mods_95" ]; then
+        MODS_DIR="$SRC_DIR/unica/mods_95"
+    fi
+
+    if [ -d "$MODS_DIR" ]; then
         LOG_STEP_IN true "Applying ROM mods"
-        "$SRC_DIR/scripts/internal/apply_modules.sh" "$SRC_DIR/unica/mods" || exit 1
+        "$SRC_DIR/scripts/internal/apply_modules.sh" "$MODS_DIR" || exit 1
         LOG_STEP_OUT
     fi
 

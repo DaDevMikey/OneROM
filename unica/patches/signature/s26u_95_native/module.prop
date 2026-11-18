@@ -1,0 +1,6 @@
+id=signature
+name=Custom platform signature (Untested 9.5 Stub)
+version=1.0
+versionCode=1
+author=Salvo Giangreco, Rodrigo Brown
+description=Skips signature patch on One UI 9.5 DEX container services.jar

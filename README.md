@@ -1,6 +1,12 @@
-# OneROM Delta 9.0
+# OneROM 9.5 Developer Beta (seventeenqpr2)
 
-**Official One UI 9 / Android 17 Port for the Samsung Galaxy S10 Exynos (`beyond1lte`)**
+> [!WARNING]
+> **EXPERIMENTAL / UNTESTED PREVIEW (Android 17 / One UI 9.5 Beta - Galaxy S26 Ultra / M3Q)**
+> This branch (`seventeenqpr2`) contains developer preview work bringing up One UI 9.5 ported from the Galaxy S26 Ultra Beta (`SM-S948B / S948BXXU6ZZKN`).
+> **THIS BUILD HAS NOT BEEN TESTED ON ANY HARDWARE DEVICE AND DOES NOT GUARANTEE BOOT.**
+> Flash strictly at your own risk. For the daily-driver stable build, use the `main` or `seventeen` branch (One UI 9.0).
+
+**Experimental One UI 9.5 Port for the Samsung Galaxy S10 / S10+ Exynos (`beyond1lte` / `beyond2lte`)**
 
 A fully native Samsung One UI 9 port for the Samsung Galaxy S10 LTE, built from Galaxy S24 FE (`SM-S721B`) donor firmware with customized Exynos 9820 hardware adaptations. This is a native One UI 9 port—not a Generic System Image (GSI) or AOSP build.
 

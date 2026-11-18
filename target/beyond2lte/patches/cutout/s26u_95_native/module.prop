@@ -1,0 +1,6 @@
+id=cutout
+name=Display cutout (Untested 9.5 Stub)
+version=1.0
+versionCode=1
+author=OneROM Team
+description=Configures punch hole without decoding SystemUI DEX container

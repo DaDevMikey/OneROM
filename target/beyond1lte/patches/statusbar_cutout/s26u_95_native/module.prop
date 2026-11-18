@@ -1,0 +1,4 @@
+id=statusbar_cutout
+name=Status Bar Cutout (One UI 9.5 Disabled)
+author=OneROM Contributors
+description=Status bar cutout patching skipped for One UI 9.5 DEX container stability.
