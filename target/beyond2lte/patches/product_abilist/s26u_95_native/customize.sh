@@ -185,3 +185,15 @@ DELETE_FROM_WORK_DIR "system" "system/etc/init/fabric_crypto.rc"
 DELETE_FROM_WORK_DIR "system" "system/etc/vintf/manifest/fabric_crypto_manifest.xml"
 DELETE_FROM_WORK_DIR "system" "system/lib64/vendor.samsung.hardware.security.fkeymaster-V1-cpp.so"
 DELETE_FROM_WORK_DIR "system" "system/lib64/vendor.samsung.hardware.security.fkeymaster-V1-ndk.so"
+
+# Purge Qualcomm Snapdragon 8 Gen 5 ODM blobs on Exynos 9820 to fit in 4 MB ODM partition
+if [[ -d "$WORK_DIR/odm/lib64" ]]; then
+    DELETE_FROM_WORK_DIR "odm" "lib64"
+fi
+
+# Ensure product fits in 1500 MB physical product partition
+for bloat in "app/Chrome" "app/Chrome64" "app/SpeechRecognitionAndSynthesisFromGoogle"; do
+    if [[ -d "$WORK_DIR/product/$bloat" ]]; then
+        DELETE_FROM_WORK_DIR "product" "$bloat"
+    fi
+done

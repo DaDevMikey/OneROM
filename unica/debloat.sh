@@ -48,11 +48,13 @@ etc/init/vendor_flash_recovery.rc
 
 # Apps debloat
 PRODUCT_DEBLOAT+="
+app/Chrome
 app/Chrome64
 app/Duo
 app/Gmail2
 app/Maps
 app/YouTube
+app/SpeechRecognitionAndSynthesisFromGoogle
 overlay/GmsConfigOverlaySearchSelector.apk
 priv-app/SearchSelector
 "

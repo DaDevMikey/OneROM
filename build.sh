@@ -41,7 +41,7 @@ if $IS_95; then
     echo " Developer Mode: Private 9.5 Beta Build"
     echo " WARNING: THIS BUILD IS UNTESTED, DOES NOT GUARANTEE BOOT, AND REQUIRES MORE PATCHES TO BOOT"
     echo "=========================================================="
-    source buildenv.sh "$TARGET" --9.5
+    source buildenv.sh "$TARGET" --9.5 "${MAKE_ARGS[@]}"
 else
     echo "=========================================================="
     echo " Starting OneROM Delta 9.0 Build for $TARGET"

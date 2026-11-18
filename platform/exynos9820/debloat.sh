@@ -20,6 +20,11 @@
 # - DO NOT add the partition name at the start of any entry (eg. "/system/dpolicy_system")
 # - DO NOT add a slash at the start of any entry (eg. "/dpolicy_system")
 
+# Exynos 9820 ODM partition is 4MB; purge Snapdragon/foreign ODM libraries
+ODM_DEBLOAT+="
+lib64
+"
+
 # Camera SDK
 SYSTEM_DEBLOAT+="
 system/etc/default-permissions/default-permissions-com.samsung.android.globalpostprocmgr.xml
