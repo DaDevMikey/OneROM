@@ -62,28 +62,14 @@ else
     source "$SRC_DIR/target/$1/config.sh" || exit 1
 fi
 
-if [[ "${BUILD_ONEUI_95:-false}" == "true" ]]; then
-    SINGLE_SYSTEM_IMAGE="s26u_95_native"
-    if [ ! -f "$SRC_DIR/unica/configs/$SINGLE_SYSTEM_IMAGE.sh" ]; then
-        LOGE "\"$SINGLE_SYSTEM_IMAGE\" is not a valid system image"
-        exit 1
-    else
-        source "$SRC_DIR/unica/configs/$SINGLE_SYSTEM_IMAGE.sh" || exit 1
-    fi
-    ROM_VERSION="9.5.0.0"
-    ROM_CODENAME="M3Q-Dev"
-    ROM_NAME="OneROM 9.5 Developer Beta"
-    ROM_CHANNEL="testing"
-else
-    SINGLE_SYSTEM_IMAGE="$TARGET_SINGLE_SYSTEM_IMAGE"
-    [[ "$TARGET_SINGLE_SYSTEM_IMAGE" == "essi" ]] && SINGLE_SYSTEM_IMAGE="essi_64"
+SINGLE_SYSTEM_IMAGE="$TARGET_SINGLE_SYSTEM_IMAGE"
+[[ "$TARGET_SINGLE_SYSTEM_IMAGE" == "essi" ]] && SINGLE_SYSTEM_IMAGE="essi_64"
 
-    if [ ! -f "$SRC_DIR/unica/configs/$SINGLE_SYSTEM_IMAGE.sh" ]; then
-        LOGE "\"$SINGLE_SYSTEM_IMAGE\" is not a valid system image"
-        exit 1
-    else
-        source "$SRC_DIR/unica/configs/$SINGLE_SYSTEM_IMAGE.sh" || exit 1
-    fi
+if [ ! -f "$SRC_DIR/unica/configs/$SINGLE_SYSTEM_IMAGE.sh" ]; then
+    LOGE "\"$SINGLE_SYSTEM_IMAGE\" is not a valid system image"
+    exit 1
+else
+    source "$SRC_DIR/unica/configs/$SINGLE_SYSTEM_IMAGE.sh" || exit 1
 fi
 
 if [ -f "$OUT_DIR/config.sh" ]; then
