@@ -197,3 +197,89 @@ for bloat in "app/Chrome" "app/Chrome64" "app/SpeechRecognitionAndSynthesisFromG
         DELETE_FROM_WORK_DIR "product" "$bloat"
     fi
 done
+
+sed -i '/^[[:space:]]*wait_for_prop bpf\.progs_loaded 1[[:space:]]*$/d' \
+    "$WORK_DIR/system/system/etc/init/netbpfload.rc"
+
+# Tethering netbpfload refuses the 5.4-reporting kernel (25Q4 needs 5.10); run a gate-patched copy from /system
+NBL_TMP="$(mktemp -d)"
+unzip -p "$WORK_DIR/system/system/apex/com.google.android.tethering_compressed.apex" original_apex > "$NBL_TMP/original.apex" || exit 1
+unzip -p "$NBL_TMP/original.apex" apex_payload.img > "$NBL_TMP/payload.img" || exit 1
+7z e -y "$NBL_TMP/payload.img" bin/netbpfload -o"$NBL_TMP" > /dev/null || exit 1
+python3 - "$NBL_TMP/netbpfload" "$WORK_DIR/system/system/bin/netbpfload_s10" <<'EOF' || exit 1
+import struct, sys
+data = bytearray(open(sys.argv[1], "rb").read())
+def words(*w): return struct.pack("<%dI" % len(w), *w)
+patches = [
+    # 25Q4 requires 5.10 / kernel gate jump at 0x9280: cmp w11, #0x140 -> b 0x9334
+    (words(0x7105017f, 0x54000168), words(0x1400002d, 0x54000168)),
+    # BPF objects stay in the APEX; drop the object-vs-executable same-device check at 0xaf48: b.ne -> nop
+    (words(0xeb05009f, 0x54006fa1), words(0xeb05009f, 0xd503201f)),
+]
+for old, new in patches:
+    if data.count(old) != 1:
+        sys.exit("netbpfload gate not found exactly once: " + old.hex())
+    i = data.find(old)
+    data[i:i + len(old)] = new
+open(sys.argv[2], "wb").write(data)
+EOF
+rm -rf "$NBL_TMP"
+SET_METADATA "system" "system/bin/netbpfload_s10" 0 2000 750 "u:object_r:bpfloader_exec:s0"
+
+if ! grep -q '^service bpfloader_s10 ' "$WORK_DIR/system/system/etc/init/netbpfload.rc"; then
+    sed -i 's/^\([[:space:]]*\)exec_start bpfloader$/\1exec_start bpfloader_s10\n\1setprop bpf.progs_loaded 1/' "$WORK_DIR/system/system/etc/init/netbpfload.rc"
+    cat >> "$WORK_DIR/system/system/etc/init/netbpfload.rc" <<'EOF'
+
+service bpfloader_s10 /system/bin/netbpfload_s10
+    disabled
+    capabilities CHOWN SYS_ADMIN NET_ADMIN SYSLOG
+    group root graphics network_stack net_admin net_bw_acct net_bw_stats net_raw system
+    user root
+    file /dev/kmsg w
+    rlimit memlock 1073741824 1073741824
+    oneshot
+EOF
+fi
+
+# 4.14 lacks Android 17 netd BPF support; skip libnetd_updatable_init and tolerate BandwidthController failure
+python3 - "$WORK_DIR/system/system/bin/netd" <<'EOF' || exit 1
+import struct, sys
+path = sys.argv[1]
+data = bytearray(open(path, "rb").read())
+def words(*w): return struct.pack("<%dI" % len(w), *w)
+NOP = 0xd503201f
+MOV_W0_WZR = 0x2a1f03e0
+RET = 0xd65f03c0
+patches = [
+    # Site 1: main bl libnetd_updatable_init -> mov w0, wzr
+    (words(0x9a931520, 0x9401d886, 0x35000320),
+     words(0x9a931520, MOV_W0_WZR, 0x35000320)),
+    # Site 2: oneshot main tail call -> return 0
+    (words(0xb0fffbc0, 0x912d7800, 0x910e03ff, 0xa9434ff4, 0xf9400bfc, 0xa94257f6, 0xa8c47bfd, 0xd50323bf, 0x1401d8b0),
+     words(MOV_W0_WZR, NOP, 0x910e03ff, 0xa9434ff4, 0xf9400bfc, 0xa94257f6, 0xa8c47bfd, 0xd50323bf, RET)),
+    # Site 3: Controllers::init BandwidthController check -> nop
+    (words(0x97ffc585, 0x350040a0, 0x940172fb),
+     words(0x97ffc585, NOP, 0x940172fb)),
+]
+for old, new in patches:
+    if data.count(new) == 1 and data.count(old) == 0:
+        continue
+    if data.count(old) != 1:
+        sys.exit("netd patch site not found exactly once: " + old.hex())
+    i = data.find(old)
+    data[i:i + len(old)] = new
+open(path, "wb").write(data)
+EOF
+
+# Exynos RIL and TEEGRIS rc replacements for Snapdragon base
+if [[ -f "$MODPATH/init.rilchip.slsi.rc" ]]; then
+    DELETE_FROM_WORK_DIR "system" "system/etc/init/init.rilchip.qcom.rc"
+    cp -f "$MODPATH/init.rilchip.slsi.rc" "$WORK_DIR/system/system/etc/init/init.rilchip.slsi.rc"
+    SET_METADATA "system" "system/etc/init/init.rilchip.slsi.rc" 0 0 644 "u:object_r:system_file:s0"
+fi
+
+if [[ -f "$MODPATH/insthk_teegris.rc" ]]; then
+    DELETE_FROM_WORK_DIR "system" "system/etc/init/insthk_qsee.rc"
+    cp -f "$MODPATH/insthk_teegris.rc" "$WORK_DIR/system/system/etc/init/insthk_teegris.rc"
+    SET_METADATA "system" "system/etc/init/insthk_teegris.rc" 0 0 644 "u:object_r:system_file:s0"
+fi
