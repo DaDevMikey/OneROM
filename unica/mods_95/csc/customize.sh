@@ -55,28 +55,3 @@ done <<< "$(find "$WORK_DIR/optics" -type f -name "cscfeature.xml")"
 # shellcheck disable=SC2046
 wait $(jobs -p) || exit 1
 LOG_STEP_OUT
-
-LOG_STEP_IN "- Patching APKs for network speed monitoring"
-
-DECODE_APK "system" "system/priv-app/SecSettings/SecSettings.apk"
-DECODE_APK "system_ext" "priv-app/SystemUI/SystemUI.apk"
-
-FTP="
-system/priv-app/SecSettings/SecSettings.apk/smali_classes4/com/samsung/android/settings/eternal/provider/items/NotificationsItem.smali
-system/priv-app/SecSettings/SecSettings.apk/smali_classes3/com/samsung/android/settings/notification/ConfigureNotificationMoreSettings\$1.smali
-system/priv-app/SecSettings/SecSettings.apk/smali_classes3/com/samsung/android/settings/notification/StatusBarNetworkSpeedController.smali
-system_ext/priv-app/SystemUI/SystemUI.apk/smali/com/android/systemui/Rune.smali
-system_ext/priv-app/SystemUI/SystemUI.apk/smali/com/android/systemui/QpRune.smali
-"
-for f in $FTP; do
-    if [ -f "$APKTOOL_DIR/$f" ]; then
-        sed -i "s/CscFeature_Common_SupportZProjectFunctionInGlobal/CscFeature_Setting_SupportRealTimeNetworkSpeed/g" "$APKTOOL_DIR/$f"
-    else
-        _pkg_path="${f%%/smali*}"
-        _target_file="$(find "$APKTOOL_DIR/$_pkg_path" -name "$(basename "$f")" 2>/dev/null | head -n 1)"
-        if [ -n "$_target_file" ] && [ -f "$_target_file" ]; then
-            sed -i "s/CscFeature_Common_SupportZProjectFunctionInGlobal/CscFeature_Setting_SupportRealTimeNetworkSpeed/g" "$_target_file"
-        fi
-    fi
-done
-LOG_STEP_OUT
