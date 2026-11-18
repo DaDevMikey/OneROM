@@ -32,10 +32,10 @@ $ROM_IS_OFFICIAL && ROM_STATUS="OFFICIAL"
 ZIP_FILE_SUFFIX="-sign.zip"
 $DEBUG && ! $ROM_IS_OFFICIAL && ZIP_FILE_SUFFIX=".zip"
 
-FILE_NAME="OneROM_${ROM_CODENAME:-Delta}_${ROM_VERSION}_$(date +%Y%m%d)_${TARGET_CODENAME}${ZIP_FILE_SUFFIX}"
+FILE_NAME="OneROM_${ROM_CODENAME:-Zeta}_${ROM_VERSION}_$(date +%Y%m%d)_${TARGET_CODENAME}${ZIP_FILE_SUFFIX}"
 while [ -f "$OUT_DIR/$FILE_NAME" ]; do
     INCREMENTAL=$((INCREMENTAL + 1))
-    FILE_NAME="OneROM_${ROM_CODENAME:-Delta}_${ROM_VERSION}_$(date +%Y%m%d)-${INCREMENTAL}_${TARGET_CODENAME}${ZIP_FILE_SUFFIX}"
+    FILE_NAME="OneROM_${ROM_CODENAME:-Zeta}_${ROM_VERSION}_$(date +%Y%m%d)-${INCREMENTAL}_${TARGET_CODENAME}${ZIP_FILE_SUFFIX}"
 done
 
 PRIVATE_KEY_PATH="$SRC_DIR/security/"
@@ -371,7 +371,7 @@ GENERATE_UPDATER_SCRIPT()
         echo    'run_program("/sbin/sh", "-c", "umount -f /system /system_root /vendor /product /odm /prism /optics /cache 2>/dev/null || true");'
         if [ "$TARGET_SUPER_PARTITION_SIZE" -eq 0 ] && [ "$TARGET_PLATFORM" == "exynos9820" ]; then
             echo    'ui_print("Checking system partition capacity...");'
-            echo    'run_program("/sbin/sh", "-c", "DEV=\"'"$TARGET_BOOT_DEVICE_PATH"'/system\"; if [ -e \"$DEV\" ]; then SZ=\$(blockdev --getsize64 \"$DEV\" 2>/dev/null || echo 0); if [ \"\$SZ\" -gt 0 ] && [ \"\$SZ\" -lt 7000000000 ]; then echo \"===============================================\"; echo \"FATAL ERROR: System partition is too small!\"; echo \"Detected capacity: \$SZ bytes (< 7 GB)\"; echo \"You MUST flash Exynos9820_Repartition.zip in TWRP\"; echo \"before installing OneROM Delta!\"; echo \"===============================================\"; exit 1; fi; fi");'
+            echo    'run_program("/sbin/sh", "-c", "DEV=\"'"$TARGET_BOOT_DEVICE_PATH"'/system\"; if [ -e \"$DEV\" ]; then SZ=\$(blockdev --getsize64 \"$DEV\" 2>/dev/null || echo 0); if [ \"\$SZ\" -gt 0 ] && [ \"\$SZ\" -lt 7000000000 ]; then echo \"===============================================\"; echo \"FATAL ERROR: System partition is too small!\"; echo \"Detected capacity: \$SZ bytes (< 7 GB)\"; echo \"You MUST flash Exynos9820_Repartition.zip in TWRP\"; echo \"before installing OneROM Zeta!\"; echo \"===============================================\"; exit 1; fi; fi");'
         fi
         if $HAS_SYSTEM; then
             echo -e "\n# Patch partition system\n"
@@ -639,7 +639,7 @@ PRINT_HEADER()
     echo    'ui_print("Proceeding with installation!");'
     echo    'ui_print("====================================================");'
     echo    'ui_print("****************************************************");'
-    echo    'ui_print("                   OneROM Delta                     ");'
+    echo    'ui_print("                   OneROM Zeta                      ");'
     echo    'ui_print("****************************************************");'
 }
 # ]
