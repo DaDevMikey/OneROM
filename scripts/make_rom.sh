@@ -116,6 +116,7 @@ fi
 
 if $FORCE; then
     BUILD_ROM=true
+    [ -d "$WORK_DIR" ] && rm -rf "$WORK_DIR"
 else
     if [ -f "$WORK_DIR/.completed" ]; then
         if [[ "$(cat "$WORK_DIR/.completed")" == "$(GET_WORK_DIR_HASH)" ]]; then
