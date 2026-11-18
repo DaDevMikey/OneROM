@@ -74,6 +74,36 @@ with open(path, "wb") as target:
     target.write(data)
 PY
 
+if [[ -f "$WORK_DIR/system/system/lib64/libprocessgroup_setup.so" ]]; then
+    python3 - "$WORK_DIR/system/system/lib64/libprocessgroup_setup.so" <<'PY'
+import sys
+
+path = sys.argv[1]
+with open(path, "rb") as source:
+    data = bytearray(source.read())
+
+# Kernel 4.14 lacks cgroup2 memory_recursiveprot mount option (introduced in Linux 5.7+).
+# Replace:
+#   adrp x4, 1000
+#   add  x4, x4, #0xd9e  (pointer to "memory_recursiveprot")
+# with:
+#   mov  x4, xzr
+#   nop                  (pass NULL data pointer to mount())
+target = bytes.fromhex("e4ffffb084783691")
+replacement = bytes.fromhex("e4031faa1f2003d5")
+
+if target in data:
+    data = data.replace(target, replacement)
+    with open(path, "wb") as target_file:
+        target_file.write(data)
+    print("Patched libprocessgroup_setup.so for legacy kernel cgroup2 support")
+elif replacement in data:
+    print("libprocessgroup_setup.so already patched")
+else:
+    print("Warning: target instruction sequence not found in libprocessgroup_setup.so")
+PY
+fi
+
 # Set Edge Lighting model
 MODEL=$(echo "$TARGET_FIRMWARE" | sed -E 's/^([^/]+)\/.*/\1/')
 SET_PROP "system" "ro.factory.model" "$MODEL"
