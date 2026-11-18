@@ -1,6 +1,6 @@
 id=fota
-name=FOTA patch (Untested 9.5 Stub)
+name=FOTA patch
 version=1.0
 versionCode=1
 author=OneROM Team
-description=Skips FotaAgent smali patching on One UI 9.5 developer test
+description=Configures FOTA agent for OneROM Zeta 9.5

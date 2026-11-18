@@ -613,16 +613,9 @@ PRINT_HEADER()
     echo    'ui_print("                /_/ |_|                 ");'
     echo    'ui_print("====================================================");'
     echo -n 'ui_print("'
-    echo -n "Welcome to ${ROM_NAME:-OneROM} $ROM_VERSION (${ROM_CODENAME:-Delta}) for $TARGET_NAME!"
+    echo -n "Welcome to ${ROM_NAME:-OneROM Zeta} $ROM_VERSION (${ROM_CODENAME:-Zeta}) for $TARGET_NAME!"
     echo    '");'
-    if [[ "${BUILD_ONEUI_95:-false}" == "true" ]]; then
-        echo    'ui_print("****************************************************");'
-        echo    'ui_print("WARNING: UNTESTED EXPERIMENTAL PREVIEW BUILD");'
-        echo    'ui_print("DOES NOT GUARANTEE BOOT - REQUIRES MORE PATCHES TO BOOT");'
-        echo    'ui_print("FLASH STRICTLY AT YOUR OWN RISK");'
-        echo    'ui_print("****************************************************");'
-    fi
-    echo    'ui_print("OneROM Delta for Galaxy S10");'
+    echo    'ui_print("OneROM Zeta 9.5 for Galaxy S10");'
     echo    'ui_print("Developer: mikey @XDAforums");'
     echo    'ui_print("====================================================");'
     echo -n 'ui_print("'

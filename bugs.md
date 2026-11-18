@@ -1,6 +1,6 @@
-# Known Bugs & Active Issues — OneROM Delta 9.0
+# Known Bugs & Active Issues — OneROM Zeta 9.5
 
-This document tracks verified active issues and bug hunting targets for **OneROM Delta 9.0** on the Samsung Galaxy S10 series (`beyond1lte` SM-G973F/SM-G973N and `beyond2lte` SM-G975F/SM-G975N, Exynos 9820).
+This document tracks verified active issues and bug hunting targets for **OneROM Zeta 9.5** on the Samsung Galaxy S10 series (`beyond1lte` SM-G973F/SM-G973N and `beyond2lte` SM-G975F/SM-G975N, Exynos 9820).
 
 > [!NOTE]
 > Previously resolved issues from earlier builds (Front camera crash, Chromium/WebView isolated sandboxed process soft reboot, in-display fingerprint sensor overlapping PIN bouncer layout, official build status tag, and hardware JPEG screen recording acceleration) have been verified and integrated in source.

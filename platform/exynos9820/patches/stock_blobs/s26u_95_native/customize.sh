@@ -52,15 +52,3 @@ fi
 ADD_TO_WORK_DIR "$TARGET_FIRMWARE" "system" "system/priv-app/LedBackCoverAppBeyond/LedBackCoverAppBeyond.apk" 0 0 644 "u:object_r:system_file:s0"
 ADD_TO_WORK_DIR "$TARGET_FIRMWARE" "system" "system/etc/permissions/privapp-permissions-com.samsung.android.app.ledbackcover.xml" 0 0 644 "u:object_r:system_file:s0"
 LOG_STEP_OUT
-
-# Cutout assets injected directly into SystemUI without decoding
-SYSUI_APK="$WORK_DIR/system/system/system_ext/priv-app/SystemUI/SystemUI.apk"
-[[ ! -f "$SYSUI_APK" ]] && SYSUI_APK="$WORK_DIR/system/system_ext/priv-app/SystemUI/SystemUI.apk"
-if [[ -f "$SYSUI_APK" && -d "$SRC_DIR/platform/$TARGET_PLATFORM/patches/stock_blobs/assets" ]]; then
-    LOG_STEP_IN "- Adding stock cutout assets to SystemUI directly"
-    (
-        cd "$SRC_DIR/platform/$TARGET_PLATFORM/patches/stock_blobs"
-        zip -q -u "$SYSUI_APK" assets/* 2>/dev/null || true
-    )
-    LOG_STEP_OUT
-fi

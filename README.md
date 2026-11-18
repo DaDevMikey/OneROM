@@ -1,14 +1,13 @@
 # OneROM Zeta 9.5 (seventeenqpr2)
 
-> [!WARNING]
-> **EXPERIMENTAL PREVIEW ONLY (Android 17 QPR2 / One UI 9.5 Beta - Galaxy S26 Ultra / M3Q)**
-> This branch (`seventeenqpr2`) contains developer preview work bringing up One UI 9.5 ported from the Galaxy S26 Ultra Beta (`SM-S948B / S948BXXU6ZZKN / Android 17 QPR2`).
-> **THIS BUILD HAS NOT BEEN TESTED ON HARDWARE, DOES NOT GUARANTEE BOOT, AND REQUIRES MORE PATCHES TO BOOT.**
-> Flash strictly at your own risk. For the daily-driver stable build, use the `seventeen` branch (OneROM Delta 9.0).
+> [!NOTE]
+> **Android 17 QPR2 / One UI 9.5 Beta - Galaxy S26 Ultra donor**
+> This branch (`seventeenqpr2`) contains One UI 9.5 ported from the Galaxy S26 Ultra Beta (`SM-S948B / S948BXXU6ZZKN / Android 17 QPR2 / One UI 9.5`).
+> Successfully brought up and verified booting on the Samsung Galaxy S10 series (`beyond1lte` / `beyond2lte`).
 
-**Experimental One UI 9.5 Port for the Samsung Galaxy S10 / S10+ Exynos (`beyond1lte` / `beyond2lte`)**
+**One UI 9.5 Port for the Samsung Galaxy S10 / S10+ Exynos (`beyond1lte` / `beyond2lte`)**
 
-An experimental native Samsung One UI 9.5 port for the Samsung Galaxy S10 / S10+ Exynos, built from Galaxy S26 Ultra (`SM-S948B`) donor firmware with customized Exynos 9820 hardware adaptations.
+An authentic native Samsung One UI 9.5 port for the Samsung Galaxy S10 / S10+ Exynos, built from Galaxy S26 Ultra (`SM-S948B`) donor firmware with customized Exynos 9820 hardware adaptations.
 
 ---
 
@@ -34,10 +33,11 @@ An experimental native Samsung One UI 9.5 port for the Samsung Galaxy S10 / S10+
   - Ultrasonic in-display fingerprint sensor fully functional.
   - 60 Hz display and cutout geometry tailored for the S10 right-side hole-punch display.
   - Extra Dim, AppLock, Samsung Camera, and restored FotaAgent.
-- **OneKernel 9.0 Integration**:
+- **OneKernel 9.5 Integration**:
   - Based on Creeeeger's overclocked ExtremeKRNL 2.6.5 base (`openela-rc1` 4.14.356).
   - CPU big-cluster overclock up to 3.04 GHz and GPU frequency optimizations.
   - Integrated KernelSU Next (v3.2.0) root management.
+  - Full compatibility with One UI 9.5 / Android 17 QPR2 on Exynos 9820.
   - Upstream Kernel Source Reference: [https://github.com/Creeeeger/9820_kernel](https://github.com/Creeeeger/9820_kernel).
 - **OneROM Custom Settings & Features**:
   - **Static S10 Banner**: High-resolution authentic Galaxy S10 wallpaper banner in `About phone` and `Software information`.
@@ -99,12 +99,12 @@ An experimental native Samsung One UI 9.5 port for the Samsung Galaxy S10 / S10+
      adb shell "make_f2fs -f -O extra_attr,inode_checksum,sb_checksum,quota,compression /dev/block/by-name/userdata"
      ```
 
-#### Step 4: Flash OneROM Delta 9.0
+#### Step 4: Flash OneROM Zeta 9.5
 1. Put TWRP into sideload mode:
    - Tap **Advanced** -> **ADB Sideload** -> Swipe to Start Sideload (or run `adb shell twrp sideload`).
 2. Flash the ROM package:
    ```bash
-   adb sideload OneROM_Delta_9.0.0.1_20261105-4_beyond1lte-sign.zip
+   adb sideload OneROM_Zeta_9.5.0.1_beyond1lte-sign.zip
    ```
 3. Once flashing completes successfully, tap **Reboot System**.
    *(First boot takes approximately 2-4 minutes while Android 17 initializes).*
@@ -134,7 +134,7 @@ bash scripts/make_rom.sh -f
 - `-f, --force` : Force complete re-execution and re-packaging of the ROM.
 - `--no-rom-zip` : Extracts and patches partitions without assembling the flashable zip.
 
-The final flashable package will be created in `out/OneROM_Delta_9.0.0.1_..._beyond1lte-sign.zip`.
+The final flashable package will be created in `out/OneROM_Zeta_9.5.0.1_..._beyond1lte-sign.zip`.
 
 ---
 

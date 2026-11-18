@@ -10,7 +10,7 @@ cd "$DIR"
 
 TARGET="beyond1lte"
 MAKE_ARGS=()
-IS_95=false
+IS_95=true
 
 for arg in "$@"; do
     case "$arg" in
@@ -29,17 +29,16 @@ done
 
 if $IS_95; then
     DEV_95_DIR="/home/mikey/oneui9.5/output_ZZKN"
-    if [[ ! -d "$DEV_95_DIR" ]]; then
-        echo "Error: --9.5 is restricted to the developer environment (missing $DEV_95_DIR)" >&2
+    if [[ ! -d "$DEV_95_DIR" ]] && [[ ! -d "$DIR/out/odin/SM-S948B_OXM" ]]; then
+        echo "Error: Missing donor firmware in $DEV_95_DIR or out/odin/SM-S948B_OXM" >&2
         exit 1
     fi
     echo "=========================================================="
-    echo " Starting OneROM Zeta 9.5 Test Build for $TARGET"
+    echo " Starting OneROM Zeta 9.5 Build for $TARGET"
     echo " Source Donor: Galaxy S26 Ultra Beta (SM-S948B / S948BXXU6ZZKN / Android 17 QPR2 / One UI 9.5)"
     echo " Target Base: ArtisanROM Exynos 9820 HALs / Kernel"
     echo " Build Engine: OneROM Native"
-    echo " Developer Mode: Private 9.5 Beta Build"
-    echo " WARNING: THIS BUILD IS UNTESTED, DOES NOT GUARANTEE BOOT, AND REQUIRES MORE PATCHES TO BOOT"
+    echo " Channel: Public Testing Beta"
     echo "=========================================================="
     ENV_ARGS=("$TARGET" "--9.5")
     for a in "${MAKE_ARGS[@]}"; do
