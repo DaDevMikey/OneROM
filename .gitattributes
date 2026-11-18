@@ -24,6 +24,8 @@ prebuilts/bootable/deprecated-ota/updater binary
 prebuilts/*/*/*/** binary
 unica/mods/csc/*/** binary
 unica/mods/rezetprop/system/bin/rezetprop binary
+unica/mods_95/rezetprop/system/bin/rezetprop binary
+unica/mods_95/bootlogo/*.bin binary
 unica/patches/product_feature/resolution/system/system/bin/* binary
 
 # Platform-specific prebuilt blobs
