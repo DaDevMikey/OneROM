@@ -93,3 +93,8 @@ DELETE_FROM_WORK_DIR "system" "system/etc/permissions/privapp-permissions-com.sa
 DELETE_FROM_WORK_DIR "system" "system/etc/permissions/privapp-permissions-com.samsung.android.knox.kpecore.xml"
 DELETE_FROM_WORK_DIR "system" "system/etc/permissions/privapp-permissions-com.samsung.android.knox.pushmanager.xml"
 DELETE_FROM_WORK_DIR "system" "system/etc/permissions/privapp-permissions-com.samsung.android.knox.sandbox.xml"
+
+# Reset Knox & WFD props
+SET_PROP "system" "ro.config.iccc_version" ""
+SET_PROP "system" "wlan.wfd.hdcp" "disable"
+

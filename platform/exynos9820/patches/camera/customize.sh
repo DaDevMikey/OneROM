@@ -115,5 +115,42 @@ done
 # shellcheck disable=SC2046
 wait $(jobs -p) || exit 1
 
-# Keep multi-language SamsungCamera donor-signed (Samsung Cert) to retain SYSTEM_CAMERA permission
+LOG_STEP_IN "- Configuring One UI 6 SamsungCamera"
+local CAM_APK="$WORK_DIR/system/system/priv-app/SamsungCamera/SamsungCamera.apk"
+if [ -f "$CAM_APK" ]; then
+    zip -d "$CAM_APK" "META-INF/*" > /dev/null 2>&1 || true
+
+    if [[ "$TARGET_CODENAME" == "beyond2lte" ]]; then
+        LOG "- Adding stock cutout assets for beyond2lte"
+        local TMP_DIR
+        TMP_DIR=$(mktemp -d)
+        mkdir -p "$TMP_DIR/res/raw"
+        cp -a "$MODPATH/assets/lottie_camera_punchcut_timer_b2.json" "$TMP_DIR/res/raw/lottie_camera_punchcut_timer_b0.json"
+        cp -a "$MODPATH/assets/face_unlocking_cutout_ic_b2.json" "$TMP_DIR/res/raw/face_unlocking_cutout_ic_b0.json"
+        zip -d "$CAM_APK" "res/raw/lottie_camera_punchcut_timer_b0.json" "res/raw/face_unlocking_cutout_ic_b0.json" > /dev/null 2>&1 || true
+        (cd "$TMP_DIR" && zip -0 "$CAM_APK" res/raw/lottie_camera_punchcut_timer_b0.json res/raw/face_unlocking_cutout_ic_b0.json > /dev/null)
+        rm -rf "$TMP_DIR"
+    elif [[ "$TARGET_CODENAME" == "beyondx" ]]; then
+        LOG "- Adding stock cutout assets for beyondx"
+        local TMP_DIR
+        TMP_DIR=$(mktemp -d)
+        mkdir -p "$TMP_DIR/res/raw"
+        cp -a "$MODPATH/assets/lottie_camera_punchcut_timer_bx.json" "$TMP_DIR/res/raw/lottie_camera_punchcut_timer_b0.json"
+        cp -a "$MODPATH/assets/face_unlocking_cutout_ic_bx.json" "$TMP_DIR/res/raw/face_unlocking_cutout_ic_b0.json"
+        zip -d "$CAM_APK" "res/raw/lottie_camera_punchcut_timer_b0.json" "res/raw/face_unlocking_cutout_ic_b0.json" > /dev/null 2>&1 || true
+        (cd "$TMP_DIR" && zip -0 "$CAM_APK" res/raw/lottie_camera_punchcut_timer_b0.json res/raw/face_unlocking_cutout_ic_b0.json > /dev/null)
+        rm -rf "$TMP_DIR"
+    fi
+
+    local CERT_PREFIX="aosp"
+    $ROM_IS_OFFICIAL && CERT_PREFIX="extremerom"
+
+    LOG "- Signing SamsungCamera.apk"
+    signapk "$SRC_DIR/security/${CERT_PREFIX}_platform.x509.pem" "$SRC_DIR/security/${CERT_PREFIX}_platform.pk8" "$CAM_APK" "$CAM_APK.signed"
+    zipalign -p -f 4 "$CAM_APK.signed" "$CAM_APK"
+    rm -f "$CAM_APK.signed"
+
+    SET_METADATA "system" "system/priv-app/SamsungCamera" 0 0 755 "u:object_r:system_file:s0"
+    SET_METADATA "system" "system/priv-app/SamsungCamera/SamsungCamera.apk" 0 0 644 "u:object_r:system_file:s0"
+fi
 LOG_STEP_OUT
