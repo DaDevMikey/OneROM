@@ -100,7 +100,7 @@ BUILD()
     mkdir -p "$OUTPUT_PATH/build/apk"
     cp -a "$OUTPUT_PATH/original/META-INF" "$OUTPUT_PATH/build/apk/META-INF"
 
-    EVAL "apktool b -j \"$THREAD_COUNT\" -p \"$FRAMEWORK_DIR\" \"$OUTPUT_PATH\"" || exit 1
+    EVAL "apktool b -p \"$FRAMEWORK_DIR\" \"$OUTPUT_PATH\"" || exit 1
 
     find "$OUTPUT_PATH" -maxdepth 1 -type f -name "*.dex" -delete
 
