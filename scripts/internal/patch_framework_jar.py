@@ -197,6 +197,31 @@ def main():
         new_classes_dex = dex_dir / "classes.dex"
         subprocess.check_call(["smali", "a", "--api", "34", "-j", "16", "-o", str(new_classes_dex), str(smali_dir)])
 
+        # 6b. Patch classes3.dex to make Build.isBuildConsistent() always return true
+        classes3_dex = dex_dir / "classes3.dex"
+        if classes3_dex.is_file():
+            print("[*] Disassembling classes3.dex to patch Build.isBuildConsistent()...")
+            smali3_dir = td_path / "smali3"
+            subprocess.check_call(["baksmali", "d", "--api", "34", "-j", "16", "-o", str(smali3_dir), str(classes3_dex)])
+            build_smali = smali3_dir / "android/os/Build.smali"
+            if build_smali.is_file():
+                build_text = build_smali.read_text(encoding="utf-8")
+                pattern = r"\.method public static isBuildConsistent\(\)Z.*?\n\.end method"
+                replacement = """.method public static isBuildConsistent()Z
+    .registers 1
+
+    const/4 v0, 0x1
+
+    return v0
+.end method"""
+                new_build_text, count = re.subn(pattern, replacement, build_text, flags=re.S)
+                if count > 0:
+                    build_smali.write_text(new_build_text, encoding="utf-8")
+                    subprocess.check_call(["smali", "a", "--api", "34", "-j", "16", "-o", str(classes3_dex), str(smali3_dir)])
+                    print("[*] Successfully patched Build.isBuildConsistent() -> true in classes3.dex")
+                else:
+                    print("[!] Warning: Build.isBuildConsistent() pattern not found in classes3.dex")
+
         # 7. Repack framework.jar preserving non-dex resources and storing dex files uncompressed (ZIP_STORED) for direct mmap
         print("[*] Packaging updated framework.jar...")
         tmp_jar = td_path / "framework_patched.jar"

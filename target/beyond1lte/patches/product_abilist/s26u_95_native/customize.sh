@@ -376,3 +376,36 @@ if [[ -f "$WORK_DIR/system/system/framework/framework.jar" ]]; then
     python3 "$SRC_DIR/scripts/internal/patch_framework_jar.py" "$WORK_DIR/system/system/framework/framework.jar" || exit 1
     SET_METADATA "system" "system/framework/framework.jar" 0 0 644 "u:object_r:system_file:s0"
 fi
+
+# Patch SDHMS to suppress SSRM Warning
+if [[ -f "$WORK_DIR/system/system/priv-app/SamsungDeviceHealthManagerService/SamsungDeviceHealthManagerService.apk" ]]; then
+    echo "  -> Patching SamsungDeviceHealthManagerService to suppress SSRM Warning"
+    python3 "$SRC_DIR/scripts/internal/patch_sdhms.py" "$WORK_DIR/system/system/priv-app/SamsungDeviceHealthManagerService/SamsungDeviceHealthManagerService.apk" "$WORK_DIR" || exit 1
+    SET_METADATA "system" "system/framework/s10-app-overrides/SamsungDeviceHealthManagerService.apk" 0 0 755 "u:object_r:system_file:s0"
+    SET_METADATA "system" "system/framework/s10-app-overrides/SamsungDeviceHealthManagerService.apk/classes.jar" 0 0 644 "u:object_r:system_file:s0"
+    SET_METADATA "system" "system/framework/s10-app-overrides/SamsungDeviceHealthManagerService.apk/apk.sha256" 0 0 644 "u:object_r:system_file:s0"
+fi
+
+# S Pen removal for Galaxy S10
+echo "  -> Removing S Pen support and AirCommand"
+rm -rf "$WORK_DIR/system/system/priv-app/AirCommand"
+
+if [[ -f "$WORK_DIR/system/system/etc/floating_feature.xml" ]]; then
+    python3 - "$WORK_DIR/system/system/etc/floating_feature.xml" <<'SPEN_EOF'
+import sys, re
+path = sys.argv[1]
+with open(path, "r", encoding="utf-8") as f:
+    content = f.read()
+
+content = re.sub(r"<SEC_FLOATING_FEATURE_FRAMEWORK_CONFIG_SPEN_VERSION>\d+</SEC_FLOATING_FEATURE_FRAMEWORK_CONFIG_SPEN_VERSION>",
+                 "<SEC_FLOATING_FEATURE_FRAMEWORK_CONFIG_SPEN_VERSION>0</SEC_FLOATING_FEATURE_FRAMEWORK_CONFIG_SPEN_VERSION>", content)
+content = re.sub(r"<SEC_FLOATING_FEATURE_FACTORY_SUPPORT_FTL_SPEN_TYPE>[^<]*</SEC_FLOATING_FEATURE_FACTORY_SUPPORT_FTL_SPEN_TYPE>",
+                 "<SEC_FLOATING_FEATURE_FACTORY_SUPPORT_FTL_SPEN_TYPE>none</SEC_FLOATING_FEATURE_FACTORY_SUPPORT_FTL_SPEN_TYPE>", content)
+content = re.sub(r"\s*<SEC_FLOATING_FEATURE_FRAMEWORK_CONFIG_SPEN_GARAGE_SPEC>[^<]*</SEC_FLOATING_FEATURE_FRAMEWORK_CONFIG_SPEN_GARAGE_SPEC>", "", content)
+content = re.sub(r"\s*<SEC_FLOATING_FEATURE_COMMON_CONFIG_SPEN_DETECT_MAGNET>[^<]*</SEC_FLOATING_FEATURE_COMMON_CONFIG_SPEN_DETECT_MAGNET>", "", content)
+content = re.sub(r"\s*<SEC_FLOATING_FEATURE_COMMON_CONFIG_SPEN_SENSITIVITY_ADJUSTMENT>[^<]*</SEC_FLOATING_FEATURE_COMMON_CONFIG_SPEN_SENSITIVITY_ADJUSTMENT>", "", content)
+
+with open(path, "w", encoding="utf-8") as f:
+    f.write(content)
+SPEN_EOF
+fi

@@ -109,17 +109,8 @@ def prepare(module, decoded):
         except Exception:
             pass
 
-    # 7. Main Settings Homepage: REMOVE OneROM entry
-    homepage_path = decoded / "res/xml/sec_top_level_settings.xml"
-    if homepage_path.exists():
-        homepage = ET.parse(homepage_path).getroot()
-        changed = False
-        for item in list(homepage):
-            if item.get(ANDROID + "key") in {"top_level_onerom", "onerom_guide"}:
-                homepage.remove(item)
-                changed = True
-        if changed:
-            write_xml(homepage, homepage_path)
+    # 7. Main Settings Homepage: (handled programmatically via OneROMHelper)
+    pass
 
     # 8. Ensure Software Info Settings has banner and OneROM settings shortcut
     software_xml_path = decoded / "res/xml/sec_software_info_settings.xml"
@@ -210,34 +201,33 @@ def prepare(module, decoded):
     if activity_path.exists():
         source = activity_path.read_text(encoding="utf-8")
         if ":onerom_native_fragment" not in source:
-            anchor = ".method public isValidFragment(Ljava/lang/String;)Z\n    .locals 4"
-            if anchor in source:
-                checks = (
-                    '\n    if-eqz p1, :onerom_standard_fragment\n'
-                    '    const-string v0, "io.mesalabs.unica.settings."\n'
-                    "    invoke-virtual {p1, v0}, Ljava/lang/String;->startsWith(Ljava/lang/String;)Z\n"
-                    "    move-result v0\n"
-                    "    if-eqz v0, :onerom_native_fragment\n"
-                    "    goto :onerom_standard_fragment\n"
-                    "    :onerom_native_fragment\n"
-                    "    const/4 v0, 0x1\n"
-                    "    return v0\n"
-                    "    :onerom_standard_fragment\n"
-                )
-                source = source.replace(anchor, anchor + checks, 1)
-                activity_path.write_text(source, encoding="utf-8")
+            pattern = r"(\.method public isValidFragment\(Ljava/lang/String;\)Z\s*\.locals \d+)"
+            checks = (
+                r"\1\n"
+                r"    if-eqz p1, :onerom_standard_fragment\n"
+                r'    const-string v0, "io.mesalabs.unica.settings."\n'
+                r"    invoke-virtual {p1, v0}, Ljava/lang/String;->startsWith(Ljava/lang/String;)Z\n"
+                r"    move-result v0\n"
+                r"    if-eqz v0, :onerom_native_fragment\n"
+                r"    goto :onerom_standard_fragment\n"
+                r"    :onerom_native_fragment\n"
+                r"    const/4 v0, 0x1\n"
+                r"    return v0\n"
+                r"    :onerom_standard_fragment\n"
+            )
+            source = re.sub(pattern, checks, source, count=1)
+            activity_path.write_text(source, encoding="utf-8")
 
     # 14. IMEI and Serial privacy masking in SecDeviceInfoUtils.smali
     utils_path = decoded / "smali_classes3/com/samsung/android/settings/deviceinfo/SecDeviceInfoUtils.smali"
     if utils_path.exists():
         source = utils_path.read_text(encoding="utf-8")
-        for identity, signature in (
-            ("imei", "getImei(Landroid/content/Context;IZ)Ljava/lang/String;"),
-            ("serial", "getSerialNumber(Landroid/content/Context;)Ljava/lang/String;"),
+        for identity, pattern_str in (
+            ("imei", r"(\.method public static getImei\(Landroid/content/Context;I[^\n]*\n\s*\.locals )(\d+)"),
+            ("serial", r"(\.method public static getSerialNumber\(Landroid/content/Context;\)Ljava/lang/String;\n\s*\.locals )(\d+)"),
         ):
             if f":onerom_show_{identity}" in source:
                 continue
-            pattern = rf"(\.method public static {re.escape(signature)}\n    \.locals )(\d+)"
             def inject(match):
                 return match.group(1) + str(max(3, int(match.group(2)))) + f'''
 
@@ -245,14 +235,14 @@ def prepare(module, decoded):
     invoke-virtual {{p0}}, Landroid/content/Context;->getContentResolver()Landroid/content/ContentResolver;
     move-result-object v0
     const-string v1, "onerom_show_{identity}"
-    const/4 v2, 0x1
+    const/4 v2, 0x0
     invoke-static {{v0, v1, v2}}, Landroid/provider/Settings$System;->getInt(Landroid/content/ContentResolver;Ljava/lang/String;I)I
     move-result v0
     if-nez v0, :onerom_show_{identity}
     const-string v0, "********"
     return-object v0
     :onerom_show_{identity}'''
-            source, count = re.subn(pattern, inject, source)
+            source, count = re.subn(pattern_str, inject, source)
         utils_path.write_text(source, encoding="utf-8")
 
     print("[+] prepare.py: OneROM Zeta 9.5 SecSettings customization completed successfully")
