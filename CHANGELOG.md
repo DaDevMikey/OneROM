@@ -1,5 +1,32 @@
 # OneROM Changelog
 
+# 9.5.0.1 (Zeta)
+- First Public Release of OneROM Zeta 9.5 based on Android 17 QPR2 / One UI 9.5 Beta (Galaxy S26 Ultra SM-S948B / S948BXXU6ZZKN).
+- Device Support:
+  - Official support for Samsung Galaxy S10 LTE (beyond1lte, SM-G973F/SM-G973N).
+  - Official support for Samsung Galaxy S10+ LTE (beyond2lte, SM-G975F/SM-G975N).
+- Kernel and Branding:
+  - Bundled OneKernel 9.5 based on Creeeeger ExtremeKRNL 4.14.356 (openela-rc1) with CPU/GPU optimizations and integrated KernelSU Next (v3.2.0).
+  - Hex-patched and synchronized kernel banners to OneKernel-9.5+.
+  - Official ROM codename updated to Zeta across all system properties, recovery, and UI strings.
+- Camera Integration:
+  - Restored One UI 6 camera (version 14.1.01.17) with full Exynos 9820 HAL and sensor compatibility, eliminating IllegalArgumentException 90500 crashes.
+  - S10 and S10+ punch-hole cutout timer animations and face unlocking assets aligned.
+- Display and Cutout Geometries:
+  - Restored right corner punch-hole cutout geometry via RRO display overlay (config_mainBuiltInDisplayCutout) for S10 and S10+.
+  - Fixed status bar padding in SystemUI (IndicatorGardenAlgorithm, IndicatorGardenAlgorithmNoCutout, IndicatorGardenAlgorithmCenterCutout, IndicatorGardenAlgorithmSidelingCenterCutout), preventing status bar icons and clock from overlapping the corner camera.
+  - Aligned config_screenBrightnessNits and config_screenBrightnessNitsPrivacy to resolve SystemServer boot phase 500 crash.
+  - Disabled unsupported hardware toggles (Privacy Display and Motion Smoothness / 120Hz) in Display Settings via Rune.smali.
+- Custom Settings and UI:
+  - Restored OneROM Zeta 9.5 banner in Software Information (SoftwareInfoSettings).
+  - Added OneROM Zeta 9.5 dialog on double-tapping About Phone (SecTopLevelAboutDevicePreferenceController).
+  - Restored Battery Health (BSOH) in Settings -> Battery (BatteryRegulatoryPreferenceController set to AVAILABLE).
+  - Native App Lock retained natively in One UI 9.5.
+  - Restored custom boot sound (PowerOn.ogg) in /system/media/audio/ui/.
+- Platform Architecture:
+  - Multi-DEX container disassembly and assembly support in apktool.sh and build_app_code_override.sh for Android 17 ART containers.
+  - Donor signature preservation via s10-app-overrides for SecSettings.apk, SystemUI.apk, SettingsProvider.apk, and FotaAgent.apk.
+
 # 9.0.1.1
 - Production Release Mode:
   - Transitioned from development debug mode to optimized release build (ro.debuggable=0, persist.service.adb.enable=0, ro.adb.secure=1).

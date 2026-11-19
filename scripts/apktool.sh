@@ -51,6 +51,8 @@ BUILD()
             system/framework/services.jar|\
             framework/services.jar|\
             system/priv-app/SettingsProvider/SettingsProvider.apk|\
+            system/priv-app/SecSettings/SecSettings.apk|\
+            priv-app/SecSettings/SecSettings.apk|\
             system/priv-app/BiometricSetting/BiometricSetting.apk|\
             system/priv-app/FotaAgent/FotaAgent.apk|\
             priv-app/FotaAgent/FotaAgent.apk|\
@@ -113,9 +115,10 @@ BUILD()
         local CERT_PREFIX="aosp"
         $ROM_IS_OFFICIAL && CERT_PREFIX="extremerom"
 
-        LOG "- Signing ${INPUT_FILE//$WORK_DIR/}"
-        EVAL "signapk \"$SRC_DIR/security/${CERT_PREFIX}_platform.x509.pem\" \"$SRC_DIR/security/${CERT_PREFIX}_platform.pk8\" \"$OUTPUT_PATH/dist/$FILE_NAME\" \"$OUTPUT_PATH/dist/temp.apk\"" || exit 1
-        mv -f "$OUTPUT_PATH/dist/temp.apk" "$OUTPUT_PATH/dist/$FILE_NAME"
+        LOG "- Zipaligning and signing ${INPUT_FILE//$WORK_DIR/}"
+        EVAL "zipalign -p -f 4 \"$OUTPUT_PATH/dist/$FILE_NAME\" \"$OUTPUT_PATH/dist/temp_aligned.apk\"" || exit 1
+        EVAL "signapk \"$SRC_DIR/security/${CERT_PREFIX}_platform.x509.pem\" \"$SRC_DIR/security/${CERT_PREFIX}_platform.pk8\" \"$OUTPUT_PATH/dist/temp_aligned.apk\" \"$OUTPUT_PATH/dist/$FILE_NAME\"" || exit 1
+        rm -f "$OUTPUT_PATH/dist/temp_aligned.apk"
     else
         LOG "- Zipaligning ${INPUT_FILE//$WORK_DIR/}"
         EVAL "zipalign -p 4 \"$OUTPUT_PATH/dist/$FILE_NAME\" \"$OUTPUT_PATH/dist/temp\"" || exit 1
@@ -165,39 +168,31 @@ DECODE()
     # - Use a sequential numbering scheme for labels
     EVAL "apktool d -b -o \"$OUTPUT_PATH\" -p \"$FRAMEWORK_DIR\" -t \"$FRAMEWORK_TAG\" -s \"$INPUT_FILE\"" || exit 1
 
-    # DEX format version might not be matching minSdkVersion, currently we handle
-    # baksmali manually as apktool will by default use minSdkVersion when available
-    # instead of the actual DEX format version used in the input apk
-    if [[ "$INPUT_FILE" == *services.jar* ]]; then
-        EVAL "baksmali d -a 36 --ac false --di false -j \"$THREAD_COUNT\" -l -o \"$OUTPUT_PATH/smali\" --sl \"$INPUT_FILE\"/classes.dex" &
-        EVAL "baksmali d -a 36 --ac false --di false -j \"$THREAD_COUNT\" -l -o \"$OUTPUT_PATH/smali_classes2\" --sl \"$INPUT_FILE\"/classes.dex/2" &
-        wait $(jobs -p) || exit 1
-        echo -n "35" > "$OUTPUT_PATH/dex_api_version"
-        find "$OUTPUT_PATH" -maxdepth 1 -type f -name "*.dex" -delete
-    fi
+    local DEX_ENTRIES=()
+    while IFS= read -r entry; do
+        [[ -n "$entry" ]] && DEX_ENTRIES+=("$entry")
+    done < <(baksmali list dex "$INPUT_FILE" 2>/dev/null)
 
-    if [ -f "$OUTPUT_PATH/classes.dex" ] && [[ "$INPUT_FILE" != *services.jar* ]]; then
-        local DEX_API_LEVEL
-        local SMALI_OUT
+    if [ "${#DEX_ENTRIES[@]}" -gt 0 ]; then
+        local DEX_API_LEVEL="34"
+        if [ -f "$OUTPUT_PATH/classes.dex" ]; then
+            DEX_API_LEVEL="$(DEX_TO_API "$OUTPUT_PATH/classes.dex" 2>/dev/null)"
+            [ "$DEX_API_LEVEL" ] || DEX_API_LEVEL="34"
+        fi
+        echo -n "$DEX_API_LEVEL" > "$OUTPUT_PATH/dex_api_version"
 
-        while IFS= read -r f; do
-            DEX_API_LEVEL="$(DEX_TO_API "$f")"
-            [ "$DEX_API_LEVEL" ] || exit 1
-            echo -n "$DEX_API_LEVEL" > "$OUTPUT_PATH/dex_api_version"
-
-            if [[ "$f" == *"classes.dex" ]]; then
-                SMALI_OUT="smali"
-            else
-                SMALI_OUT="smali_$(basename "${f//.dex/}")"
+        for entry in "${DEX_ENTRIES[@]}"; do
+            local SMALI_OUT="smali"
+            if [[ "$entry" == classes.dex/* ]]; then
+                local idx="${entry#classes.dex/}"
+                SMALI_OUT="smali_classes${idx}"
+            elif [[ "$entry" =~ classes([0-9]+)\.dex ]]; then
+                local idx="${BASH_REMATCH[1]}"
+                SMALI_OUT="smali_classes${idx}"
             fi
 
-            # Disassemble DEX file with the following flags:
-            # - Disabled synthetic accessors comments
-            # - Disabled debug info
-            # - Use .locals directive instead of the .registers one
-            # - Use a sequential numbering scheme for labels
-            EVAL "baksmali d -a \"$DEX_API_LEVEL\" --ac false --di false -j \"$THREAD_COUNT\" -l -o \"$OUTPUT_PATH/$SMALI_OUT\" --sl \"$f\"" &
-        done < <(find "$OUTPUT_PATH" -maxdepth 1 -type f -name "*.dex")
+            EVAL "baksmali d -a \"$DEX_API_LEVEL\" --ac false --di false -j \"$THREAD_COUNT\" -l -o \"$OUTPUT_PATH/$SMALI_OUT\" --sl \"$INPUT_FILE/$entry\"" &
+        done
 
         # shellcheck disable=SC2046
         wait $(jobs -p) || exit 1

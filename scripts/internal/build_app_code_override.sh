@@ -20,9 +20,10 @@ for smali_directory in "$decoded"/smali*; do
     else
         dex="${name#smali_}.dex"
     fi
-    smali assemble --api 34 --output "$temporary/$dex" "$smali_directory"
+    smali assemble --api 34 --output "$temporary/$dex" "$smali_directory" &
     dex_count=$((dex_count + 1))
 done
+wait
 test -f "$temporary/classes.dex"
 for ((index = 2; index <= dex_count; index++)); do
     if [[ ! -f "$temporary/classes$index.dex" ]]; then

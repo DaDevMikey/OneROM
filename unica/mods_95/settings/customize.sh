@@ -1,3 +1,10 @@
+LOG_STEP_IN "- Customizing SecSettings for OneROM Zeta 9.5"
+DECODE_APK "system" "system/priv-app/SecSettings/SecSettings.apk"
+python3 "$MODPATH/patch_secsettings.py" "$APKTOOL_DIR/system/priv-app/SecSettings/SecSettings.apk"
+cp -fa "$MODPATH/SecSettings.apk/res/drawable/logo.png" "$WORK_DIR/system/system/media/rom_logo.png"
+SET_METADATA "system" "system/media/rom_logo.png" 0 0 644 "u:object_r:system_file:s0"
+LOG_STEP_OUT
+
 LOG_STEP_IN "- Enabling Cached App Freezer"
 SET_PROP "system" "persist.device_config.activity_manager_native_boot.use_freezer" "true"
 LOG_STEP_OUT
