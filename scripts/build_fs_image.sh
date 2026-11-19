@@ -65,6 +65,15 @@ BUILD_IMAGE_MKFS()
                 fi
             fi
 
+            if [[ "$PARTITION" == "system" ]] && [ -d "$INPUT_DIR/system/framework/s10-app-overrides" ]; then
+                if ! grep -q "^/system/framework/s10-app-overrides " "$FILE_CONTEXT_FILE"; then
+                    echo "/system/framework/s10-app-overrides u:object_r:system_file:s0" >> "$FILE_CONTEXT_FILE"
+                fi
+                if ! grep -q "s10-app-overrides(/\.\*)?" "$FILE_CONTEXT_FILE"; then
+                    echo "/system/framework/s10-app-overrides(/.*)? u:object_r:system_file:s0" >> "$FILE_CONTEXT_FILE"
+                fi
+            fi
+
             if ! grep -q -F "lost+found" "$FS_CONFIG_FILE"; then
                 if [[ "$PARTITION" == "system" ]]; then
                     echo "lost+found 0 0 700 capabilities=0x0" >> "$FS_CONFIG_FILE"

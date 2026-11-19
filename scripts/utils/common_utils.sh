@@ -564,18 +564,21 @@ SET_METADATA()
 
     LOG "- Adding metadata for /$ENTRY (uid:$USER gid:$GROUP mode:$MODE selabel:$LABEL)"
 
-    local PATTERN
-    PATTERN="${ENTRY//\//\\/}"
-    sed -i "/^$PATTERN /d" "$WORK_DIR/configs/fs_config-$PARTITION"
+    (
+        flock -x 200
+        local PATTERN
+        PATTERN="${ENTRY//\//\\/}"
+        sed -i "/^$PATTERN /d" "$WORK_DIR/configs/fs_config-$PARTITION"
 
-    echo "$ENTRY $USER $GROUP $MODE capabilities=0x0" >> "$WORK_DIR/configs/fs_config-$PARTITION"
+        echo "$ENTRY $USER $GROUP $MODE capabilities=0x0" >> "$WORK_DIR/configs/fs_config-$PARTITION"
 
-    PATTERN="$(_HANDLE_SPECIAL_CHARS "$ENTRY")"
-    PATTERN="${PATTERN//\\/\\\\}"
-    PATTERN="${PATTERN//\//\\/}"
-    sed -i "/^\/$PATTERN /d" "$WORK_DIR/configs/file_context-$PARTITION"
+        PATTERN="$(_HANDLE_SPECIAL_CHARS "$ENTRY")"
+        PATTERN="${PATTERN//\\/\\\\}"
+        PATTERN="${PATTERN//\//\\/}"
+        sed -i "/^\/$PATTERN /d" "$WORK_DIR/configs/file_context-$PARTITION"
 
-    echo "/$(_HANDLE_SPECIAL_CHARS "$ENTRY") $LABEL" >> "$WORK_DIR/configs/file_context-$PARTITION"
+        echo "/$(_HANDLE_SPECIAL_CHARS "$ENTRY") $LABEL" >> "$WORK_DIR/configs/file_context-$PARTITION"
+    ) 200>"$WORK_DIR/configs/.metadata_lock"
 
     return 0
 }

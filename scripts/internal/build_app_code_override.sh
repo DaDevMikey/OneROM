@@ -39,3 +39,4 @@ SET_METADATA "system" "system/framework/s10-app-overrides" 0 0 755 "u:object_r:s
 SET_METADATA "system" "$relative" 0 0 755 "u:object_r:system_file:s0"
 SET_METADATA "system" "$relative/classes.jar" 0 0 644 "u:object_r:system_file:s0"
 SET_METADATA "system" "$relative/apk.sha256" 0 0 644 "u:object_r:system_file:s0"
+echo "/system/framework/s10-app-overrides(/.*)? u:object_r:system_file:s0" >> "$WORK_DIR/configs/file_context-system"
