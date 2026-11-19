@@ -367,3 +367,12 @@ if [[ -f "$MODPATH/insthk_teegris.rc" ]]; then
     cp -f "$MODPATH/insthk_teegris.rc" "$WORK_DIR/system/system/etc/init/insthk_teegris.rc"
     SET_METADATA "system" "system/etc/init/insthk_teegris.rc" 0 0 644 "u:object_r:system_file:s0"
 fi
+
+
+
+# S10 app code overrides in framework.jar
+if [[ -f "$WORK_DIR/system/system/framework/framework.jar" ]]; then
+    echo "  -> Patching framework.jar for S10 app code overrides"
+    python3 "$SRC_DIR/scripts/internal/patch_framework_jar.py" "$WORK_DIR/system/system/framework/framework.jar" || exit 1
+    SET_METADATA "system" "system/framework/framework.jar" 0 0 644 "u:object_r:system_file:s0"
+fi

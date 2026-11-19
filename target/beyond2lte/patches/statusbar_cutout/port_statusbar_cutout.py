@@ -187,7 +187,7 @@ def main():
 
 {ind}if-lez {U}, :{TAG}_ret
 
-{ind}const/16 {W}, 0x24
+{ind}const/16 {W}, 0x4c
 
 {ind}add-int/2addr {U}, {W}
 

@@ -112,7 +112,7 @@ helper_dir.mkdir(parents=True, exist_ok=True)
 """)
 print("  + Injected OneROMHelper and dialog controller")
 
-# 2. BatteryRegulatoryPreferenceController
+# 2. BatteryRegulatoryPreferenceController & BatteryInfoUtils
 for bat_file in apk_dir.glob("**/BatteryRegulatoryPreferenceController.smali"):
     bat_txt = bat_file.read_text(encoding="utf-8")
     bat_txt = re.sub(
@@ -122,6 +122,16 @@ for bat_file in apk_dir.glob("**/BatteryRegulatoryPreferenceController.smali"):
     )
     bat_file.write_text(bat_txt, encoding="utf-8")
     print(f"  + Patched BatteryRegulatoryPreferenceController in {bat_file.parent.name}")
+
+for util_file in apk_dir.glob("**/BatteryInfoUtils.smali"):
+    util_txt = util_file.read_text(encoding="utf-8")
+    util_txt = re.sub(
+        r"\.method public static isAvailableBatteryRegulatory\(Landroid/content/Context;\)Z.*?\n\.end method",
+        ".method public static isAvailableBatteryRegulatory(Landroid/content/Context;)Z\n    .locals 1\n\n    const/4 v0, 0x1\n\n    return v0\n.end method",
+        util_txt, flags=re.S
+    )
+    util_file.write_text(util_txt, encoding="utf-8")
+    print(f"  + Patched BatteryInfoUtils in {util_file.parent.name}")
 
 # 3. Rune.smali
 for rune_file in apk_dir.glob("**/com/samsung/android/settings/Rune.smali"):
@@ -207,5 +217,15 @@ for soft_file in apk_dir.glob("**/SoftwareInfoSettings.smali"):
         )
         soft_file.write_text(soft_txt, encoding="utf-8")
         print(f"  + Added OneROM banner hook to {soft_file.name}")
+
+# 6. ScreenResolutionFragment (ensure 1520x720, 2280x1080, 3040x1440 dimension labels)
+for res_file in apk_dir.glob("**/ScreenResolutionFragment.smali"):
+    res_txt = res_file.read_text(encoding="utf-8")
+    old_code = "iget p1, p0, Lcom/samsung/android/settings/display/ScreenResolutionFragment;->mScreenResolution:I\n\n    const/4 v3, 0x3\n\n    const/4 v4, 0x2\n\n    if-eq p1, v1, :cond_6"
+    new_code = "const/4 p1, 0x2\n\n    const/4 v3, 0x3\n\n    const/4 v4, 0x2\n\n    if-eq p1, v1, :cond_6"
+    if old_code in res_txt:
+        res_txt = res_txt.replace(old_code, new_code)
+        res_file.write_text(res_txt, encoding="utf-8")
+        print(f"  + Patched ScreenResolutionFragment (enforced WQHD+ dimension calculation) in {res_file.name}")
 
 print("- OneROM Zeta 9.5 SecSettings smali patches completed successfully")

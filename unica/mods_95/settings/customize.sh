@@ -1,8 +1,27 @@
 LOG_STEP_IN "- Customizing SecSettings for OneROM Zeta 9.5"
 DECODE_APK "system" "system/priv-app/SecSettings/SecSettings.apk"
-python3 "$MODPATH/patch_secsettings.py" "$APKTOOL_DIR/system/priv-app/SecSettings/SecSettings.apk"
-cp -fa "$MODPATH/SecSettings.apk/res/drawable/logo.png" "$WORK_DIR/system/system/media/rom_logo.png"
-SET_METADATA "system" "system/media/rom_logo.png" 0 0 644 "u:object_r:system_file:s0"
+
+# 1. Unica OneROM features, banners, drawables, strings, IMEI privacy, and fragment validation
+python3 "$MODPATH/prepare.py" "$MODPATH" "$APKTOOL_DIR/system/priv-app/SecSettings/SecSettings.apk" || exit 1
+
+# 2. Map Bixby key actions through BixbyKeyActionActivity
+if [ -d "$APKTOOL_DIR/system/priv-app/SecSettings/SecSettings.apk/smali_classes5" ]; then
+    python3 "$MODPATH/patch_bixby.py" "$APKTOOL_DIR/system/priv-app/SecSettings/SecSettings.apk/smali_classes5" || exit 1
+fi
+
+# 3. Patch NFC antenna validation crash
+python3 "$MODPATH/patch_nfc.py" "$APKTOOL_DIR/system/priv-app/SecSettings/SecSettings.apk" || exit 1
+
+# 4. Patch screen resolution scaling to lock 19:9 width/height/density
+python3 "$MODPATH/patch_resolution.py" "$APKTOOL_DIR/system/priv-app/SecSettings/SecSettings.apk/smali_classes3" || exit 1
+
+# 5. Disable unsupported Privacy Display and 120Hz, enable Battery Health (BSOH), and add OneROM dialog helper
+python3 "$MODPATH/patch_secsettings.py" "$APKTOOL_DIR/system/priv-app/SecSettings/SecSettings.apk" || exit 1
+
+if [ -f "$MODPATH/SecSettings.apk/res/drawable/logo.png" ]; then
+    cp -fa "$MODPATH/SecSettings.apk/res/drawable/logo.png" "$WORK_DIR/system/system/media/rom_logo.png"
+    SET_METADATA "system" "system/media/rom_logo.png" 0 0 644 "u:object_r:system_file:s0"
+fi
 LOG_STEP_OUT
 
 LOG_STEP_IN "- Enabling Cached App Freezer"
