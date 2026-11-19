@@ -15,12 +15,20 @@ python3 "$MODPATH/patch_nfc.py" "$APKTOOL_DIR/system/priv-app/SecSettings/SecSet
 # 4. Patch screen resolution scaling to lock 19:9 width/height/density
 python3 "$MODPATH/patch_resolution.py" "$APKTOOL_DIR/system/priv-app/SecSettings/SecSettings.apk/smali_classes3" || exit 1
 
-# 5. Disable unsupported Privacy Display and 120Hz, enable Battery Health (BSOH), and add OneROM dialog helper
-python3 "$MODPATH/patch_secsettings.py" "$APKTOOL_DIR/system/priv-app/SecSettings/SecSettings.apk" || exit 1
+# 5. Rune.smali patching (S Pen, Private Display, High Refresh Rate) now handled inside prepare.py (step 15/16)
 
+# 6. Stage OneROM wallpaper and logo media assets
 if [ -f "$MODPATH/SecSettings.apk/res/drawable/logo.png" ]; then
     cp -fa "$MODPATH/SecSettings.apk/res/drawable/logo.png" "$WORK_DIR/system/system/media/rom_logo.png"
     SET_METADATA "system" "system/media/rom_logo.png" 0 0 644 "u:object_r:system_file:s0"
+fi
+if [ -f "$MODPATH/SecSettings.apk/res/drawable-nodpi/onerom_s10_wallpaper.png" ]; then
+    cp -fa "$MODPATH/SecSettings.apk/res/drawable-nodpi/onerom_s10_wallpaper.png" "$WORK_DIR/system/system/media/onerom_wallpaper.png"
+    SET_METADATA "system" "system/media/onerom_wallpaper.png" 0 0 644 "u:object_r:system_file:s0"
+fi
+if [ -f "$MODPATH/SecSettings.apk/res/drawable-nodpi/unica_logo.webp" ]; then
+    cp -fa "$MODPATH/SecSettings.apk/res/drawable-nodpi/unica_logo.webp" "$WORK_DIR/system/system/media/unica_logo.webp"
+    SET_METADATA "system" "system/media/unica_logo.webp" 0 0 644 "u:object_r:system_file:s0"
 fi
 LOG_STEP_OUT
 

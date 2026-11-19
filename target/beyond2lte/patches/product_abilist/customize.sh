@@ -27,11 +27,11 @@ python3 "$MODPATH/settings-native/patch_bixby.py" "$APKTOOL_DIR/system/priv-app/
 python3 "$MODPATH/patch_nfc.py" "$APKTOOL_DIR/system/priv-app/SecSettings/SecSettings.apk" || exit 1
 SOURCE_BUILD_ID="$(GET_PROP "$WORK_DIR/system/system/build.prop" "ro.build.version.incremental")"
 [[ -z "$SOURCE_BUILD_ID" ]] && SOURCE_BUILD_ID="S721BXXSFEZJ1"
-BUILD_DISPLAY_ID="OneROM Delta $ROM_VERSION ($TARGET_CODENAME) ($SOURCE_BUILD_ID) $(date +%Y%m%d)"
+BUILD_DISPLAY_ID="OneROM Zeta $ROM_VERSION ($TARGET_CODENAME) ($SOURCE_BUILD_ID) $(date +%Y%m%d)"
 SET_PROP "system" "ro.onerom.official" "$ROM_IS_OFFICIAL"
 SET_PROP "system" "ro.onerom.version" "$ROM_VERSION"
 SET_PROP "system" "ro.onerom.build" "$BUILD_DISPLAY_ID"
-SET_PROP "system" "ro.onerom.codename" "Delta"
+SET_PROP "system" "ro.onerom.codename" "Zeta"
 SET_PROP "system" "ro.onerom.device" "$TARGET_CODENAME"
 SET_PROP "system" "ro.onerom.build_date" "$(date +%Y-%m-%d)"
 SET_PROP "system" "ro.onerom.build.date" "$(date +%Y-%m-%d)"

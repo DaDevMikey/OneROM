@@ -33,3 +33,12 @@
     move-result v0
     return v0
 .end method
+.method public onStart()V
+    .locals 0
+
+    invoke-super {p0}, Lcom/android/settings/dashboard/DashboardFragment;->onStart()V
+
+    invoke-static {p0}, Lcom/android/settings/OneROMHelper;->buildUIScreen(Landroidx/preference/PreferenceFragmentCompat;)V
+
+    return-void
+.end method

@@ -116,6 +116,17 @@ def patch_sdhms(apk_path: Path, work_dir: Path):
     sha_path = dest_dir / "apk.sha256"
     sha_path.write_text(apk_sha256 + "\n")
 
+    # Also update the APK directly in-place with the patched classes.dex
+    tmp_apk = apk_path.with_suffix(".tmp")
+    with zipfile.ZipFile(apk_path, "r") as zin, zipfile.ZipFile(tmp_apk, "w") as zout:
+        for item in zin.infolist():
+            if item.filename == "classes.dex":
+                continue
+            zout.writestr(item, zin.read(item.filename))
+        zout.writestr("classes.dex", dex, compress_type=zipfile.ZIP_DEFLATED)
+    tmp_apk.replace(apk_path)
+    print(f"[+] Successfully patched SDHMS in-place at {apk_path}")
+
     print(f"[+] Successfully generated SDHMS override jar at {jar_path} (sha256: {apk_sha256[:16]}...)")
 
 if __name__ == "__main__":

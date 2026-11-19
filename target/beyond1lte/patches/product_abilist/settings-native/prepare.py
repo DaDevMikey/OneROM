@@ -32,7 +32,7 @@ def prepare(module, decoded):
     ):
         if not path.exists():
             continue
-        source = path.read_text()
+        source = path.read_text(encoding="utf-8")
         source = re.sub(
             r"    invoke-static \{p1\}, Lio/mesalabs/unica/settings/OneRomSettings;->isOneRomFragment.*?:onerom_existing_fragment_validation\n",
             "", source, flags=re.S,
@@ -42,7 +42,7 @@ def prepare(module, decoded):
             r'    const-string v0, "onerom_show_(imei|serial)"\n    invoke-static \{p0, v0\}, Lio/mesalabs/unica/settings/OneRomSettings;->showIdentifier.*?    :onerom_show_\1\n',
             "", source, flags=re.S,
         )
-        path.write_text(source)
+        path.write_text(source, encoding="utf-8")
 
     # 2. Copy and merge all XML and drawables from assets
     for source in (assets / "res").rglob("*"):
@@ -62,23 +62,28 @@ def prepare(module, decoded):
         else:
             shutil.copy2(source, destination)
 
-    # 3. Copy full smali_classes5 tree
-    shutil.copytree(assets / "smali_classes5", decoded / "smali_classes5", dirs_exist_ok=True)
+    # 3. Copy all smali trees from assets
+    for smali_dir in assets.glob("smali*"):
+        if smali_dir.is_dir():
+            shutil.copytree(smali_dir, decoded / smali_dir.name, dirs_exist_ok=True)
 
-    # 4. Replace 8.0, 8.5 references with 9.0 in smali
-    for path in (decoded / "smali_classes5").rglob("*.smali"):
-        source = path.read_text()
-        source = source.replace("OneROM 8.0", "OneROM 9.0")
-        source = source.replace("OneROM 8.5", "OneROM 9.0")
-        source = source.replace("OneROM Native", "OneROM Delta")
-        path.write_text(source)
+    # 4. Replace version references with OneROM Zeta 9.5 in smali
+    if (decoded / "smali_classes5").is_dir():
+        for path in (decoded / "smali_classes5").rglob("*.smali"):
+            source = path.read_text(encoding="utf-8")
+            source = source.replace("OneROM 8.0", "OneROM Zeta 9.5")
+            source = source.replace("OneROM 8.5", "OneROM Zeta 9.5")
+            source = source.replace("OneROM 9.0", "OneROM Zeta 9.5")
+            source = source.replace("OneROM Native", "OneROM Zeta")
+            source = source.replace("OneROM Delta", "OneROM Zeta")
+            path.write_text(source, encoding="utf-8")
 
     # 5. Fix logo layout text
     logo_layout = decoded / "res/layout/unica_settings_logo_layout.xml"
     if logo_layout.exists():
-        src = logo_layout.read_text()
-        src = re.sub(r'android:text="OneROM[^"]*"', 'android:text="OneROM Delta 9.0"', src)
-        logo_layout.write_text(src)
+        src = logo_layout.read_text(encoding="utf-8")
+        src = re.sub(r'android:text="OneROM[^"]*"', 'android:text="OneROM Zeta 9.5"', src)
+        logo_layout.write_text(src, encoding="utf-8")
 
     # 6. Update strings
     for strings_path in decoded.glob("res/values*/strings.xml"):
@@ -87,11 +92,11 @@ def prepare(module, decoded):
             modified = False
             for item in strings:
                 if item.get("name") == "onerom_banner_default":
-                    item.text = "OneROM 9.0"
+                    item.text = "OneROM Zeta 9.5"
                     modified = True
             for name, value in {
                 "onerom_delta_title": "OneROM features",
-                "onerom_delta_summary": "9.0",
+                "onerom_delta_summary": "9.5",
                 "onerom_show_imei_title": "Show IMEI",
                 "onerom_show_serial_title": "Show serial number",
             }.items():
@@ -106,17 +111,19 @@ def prepare(module, decoded):
             pass
 
     # 7. Main Settings Homepage: REMOVE OneROM entry
-    # (Requirement: in the main settings page there should NOT be a onerom option, shortcut belongs in software info)
     homepage_path = decoded / "res/xml/sec_top_level_settings.xml"
     if homepage_path.exists():
-        homepage = ET.parse(homepage_path).getroot()
-        changed = False
-        for item in list(homepage):
-            if item.get(ANDROID + "key") in {"top_level_onerom", "onerom_guide"}:
-                homepage.remove(item)
-                changed = True
-        if changed:
-            write_xml(homepage, homepage_path)
+        try:
+            homepage = ET.parse(homepage_path).getroot()
+            changed = False
+            for item in list(homepage):
+                if item.get(ANDROID + "key") in {"top_level_onerom", "onerom_guide"}:
+                    homepage.remove(item)
+                    changed = True
+            if changed:
+                write_xml(homepage, homepage_path)
+        except Exception:
+            pass
 
     # 8. Ensure Software Info Settings has banner and OneROM settings shortcut
     software_xml_path = decoded / "res/xml/sec_software_info_settings.xml"
@@ -140,99 +147,100 @@ def prepare(module, decoded):
     about_fragment = decoded / "smali_classes3/com/samsung/android/settings/deviceinfo/aboutphone/SecMyDeviceInfoFragment.smali"
     if about_fragment.exists():
         match = re.search(r"\.method public final getPreferenceScreenResId\(\)I.*?const p0, (0x[0-9a-f]+)",
-                          about_fragment.read_text(), re.S)
+                          about_fragment.read_text(encoding="utf-8"), re.S)
         if match:
-            public = ET.parse(decoded / "res/values/public.xml").getroot()
-            resource = next((item.get("name") for item in public
-                            if item.get("type") == "xml" and item.get("id") == match.group(1)), None)
-            if resource:
-                about_path = decoded / f"res/xml/{resource}.xml"
-                if about_path.exists():
-                    about = ET.parse(about_path).getroot()
-                    if not any(item.get(ANDROID + "key") == "onerom_software_banner" for item in about):
-                        software = ET.parse(software_xml_path).getroot()
-                        banner_item = next((item for item in software if item.get(ANDROID + "key") == "onerom_software_banner"), None)
-                        if banner_item is not None:
-                            about.insert(0, deepcopy(banner_item))
-                            write_xml(about, about_path)
+            public_path = decoded / "res/values/public.xml"
+            if public_path.exists():
+                public = ET.parse(public_path).getroot()
+                resource = next((item.get("name") for item in public
+                                if item.get("type") == "xml" and item.get("id") == match.group(1)), None)
+                if resource:
+                    about_path = decoded / f"res/xml/{resource}.xml"
+                    if about_path.exists() and software_xml_path.exists():
+                        about = ET.parse(about_path).getroot()
+                        if not any(item.get(ANDROID + "key") == "onerom_software_banner" for item in about):
+                            software = ET.parse(software_xml_path).getroot()
+                            banner_item = next((item for item in software if item.get(ANDROID + "key") == "onerom_software_banner"), None)
+                            if banner_item is not None:
+                                about.insert(0, deepcopy(banner_item))
+                                write_xml(about, about_path)
 
     # 10. Battery Regulatory & Health: FORCE AVAILABLE
     for path in decoded.glob("smali*/com/samsung/android/settings/deviceinfo/batteryinfo/BatteryInfoUtils.smali"):
-        source = path.read_text()
+        source = path.read_text(encoding="utf-8")
         pat = r"(\.method public static isAvailableBatteryRegulatory\(Landroid/content/Context;\)Z\n)(.*?)(\.end method)"
         rep = r"\1    .locals 1\n    const/4 v0, 0x1\n    return v0\n\3"
         source = re.sub(pat, rep, source, flags=re.S)
-        path.write_text(source)
+        path.write_text(source, encoding="utf-8")
 
     for name in ("BatteryRegulatoryPreferenceController", "SecBatteryInfoFragment", "BatteryHealthPreferenceController"):
         for path in decoded.glob(f"smali*/com/samsung/android/settings/deviceinfo/batteryinfo/{name}.smali"):
-            source = path.read_text()
-            source = source.replace('"SM-A236B"', '"SM-S721B"')
-            path.write_text(source)
+            source = path.read_text(encoding="utf-8")
+            source = source.replace('"SM-A236B"', '"SM-S948B"')
+            path.write_text(source, encoding="utf-8")
 
-    # 11. Build Number Branding: Ensure it always displays custom OneROM branding with source build number
+    # 11. Build Number Branding: Ensure it always displays custom OneROM Zeta 9.5 branding
     for path in decoded.glob("smali*/com/android/settings/deviceinfo/BuildNumberPreferenceController.smali"):
-        source = path.read_text()
+        source = path.read_text(encoding="utf-8")
         pat = r"(\.method public getSummary\(\)Ljava/lang/CharSequence;\n)(.*?)(\.end method)"
         rep = (
             r"\1    .locals 2\n"
             r'    const-string v0, "ro.build.display.id"\n'
-            r'    const-string v1, "OneROM Delta 9.0 (beyond1lte) (S721BXXSFEZJ1)"\n'
+            r'    const-string v1, "OneROM Zeta 9.5 (S948BXXU6ZZKN)"\n'
             r"    invoke-static {v0, v1}, Landroid/os/SemSystemProperties;->get(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;\n"
             r"    move-result-object v0\n"
             r"    return-object v0\n\3"
         )
         source = re.sub(pat, rep, source, flags=re.S)
-        path.write_text(source)
-
+        path.write_text(source, encoding="utf-8")
 
     # 12. Register activities in AndroidManifest.xml
     manifest_path = decoded / "AndroidManifest.xml"
-    manifest = ET.parse(manifest_path).getroot()
-    application = manifest.find("application")
-    activity = "io.mesalabs.unica.BixbyKeyActionActivity"
-    if not any(item.get(ANDROID + "name") == activity for item in application.findall("activity")):
-        ET.SubElement(application, "activity", {
-            ANDROID + "name": activity, ANDROID + "exported": "false",
-            ANDROID + "excludeFromRecents": "true", ANDROID + "noHistory": "true",
-            ANDROID + "taskAffinity": "", ANDROID + "showWhenLocked": "true",
-            ANDROID + "theme": "@android:style/Theme.Translucent.NoTitleBar",
-        })
-    write_xml(manifest, manifest_path)
+    if manifest_path.exists():
+        manifest = ET.parse(manifest_path).getroot()
+        application = manifest.find("application")
+        activity = "io.mesalabs.unica.BixbyKeyActionActivity"
+        if application is not None and not any(item.get(ANDROID + "name") == activity for item in application.findall("activity")):
+            ET.SubElement(application, "activity", {
+                ANDROID + "name": activity, ANDROID + "exported": "false",
+                ANDROID + "excludeFromRecents": "true", ANDROID + "noHistory": "true",
+                ANDROID + "taskAffinity": "", ANDROID + "showWhenLocked": "true",
+                ANDROID + "theme": "@android:style/Theme.Translucent.NoTitleBar",
+            })
+            write_xml(manifest, manifest_path)
 
     # 13. SettingsActivity: Validate all Unica / OneROM fragments
     activity_path = decoded / "smali/com/android/settings/SettingsActivity.smali"
     if activity_path.exists():
-        source = activity_path.read_text()
+        source = activity_path.read_text(encoding="utf-8")
         if ":onerom_native_fragment" not in source:
-            anchor = ".method public isValidFragment(Ljava/lang/String;)Z\n    .locals 4"
-            if anchor in source:
-                checks = (
-                    '\n    if-eqz p1, :onerom_standard_fragment\n'
-                    '    const-string v0, "io.mesalabs.unica.settings."\n'
-                    "    invoke-virtual {p1, v0}, Ljava/lang/String;->startsWith(Ljava/lang/String;)Z\n"
-                    "    move-result v0\n"
-                    "    if-eqz v0, :onerom_native_fragment\n"
-                    "    goto :onerom_standard_fragment\n"
-                    "    :onerom_native_fragment\n"
-                    "    const/4 v0, 0x1\n"
-                    "    return v0\n"
-                    "    :onerom_standard_fragment\n"
-                )
-                source = source.replace(anchor, anchor + checks, 1)
-                activity_path.write_text(source)
+            pattern = r"(\.method public isValidFragment\(Ljava/lang/String;\)Z\s*\.locals \d+)"
+            checks = (
+                r"\1\n"
+                r"    if-eqz p1, :onerom_standard_fragment\n"
+                r'    const-string v0, "io.mesalabs.unica.settings."\n'
+                r"    invoke-virtual {p1, v0}, Ljava/lang/String;->startsWith(Ljava/lang/String;)Z\n"
+                r"    move-result v0\n"
+                r"    if-eqz v0, :onerom_native_fragment\n"
+                r"    goto :onerom_standard_fragment\n"
+                r"    :onerom_native_fragment\n"
+                r"    const/4 v0, 0x1\n"
+                r"    return v0\n"
+                r"    :onerom_standard_fragment\n"
+            )
+            source = re.sub(pattern, checks, source, count=1)
+            activity_path.write_text(source, encoding="utf-8")
 
     # 14. IMEI and Serial privacy masking in SecDeviceInfoUtils.smali
     utils_path = decoded / "smali_classes3/com/samsung/android/settings/deviceinfo/SecDeviceInfoUtils.smali"
     if utils_path.exists():
-        source = utils_path.read_text()
-        for identity, signature in (
-            ("imei", "getImei(Landroid/content/Context;IZ)Ljava/lang/String;"),
-            ("serial", "getSerialNumber(Landroid/content/Context;)Ljava/lang/String;"),
+        source = utils_path.read_text(encoding="utf-8")
+        for identity, pattern_str in (
+            ("imei", r"(\.method public static getImei\(Landroid/content/Context;I[^\n]*\n\s*\.locals )(\d+)"),
+            ("serial", r"(\.method public static getSerialNumber\(Landroid/content/Context;\)Ljava/lang/String;\n\s*\.locals )(\d+)"),
         ):
             if f":onerom_show_{identity}" in source:
                 continue
-            pattern = rf"(\.method public static {re.escape(signature)}\n    \.locals )(\d+)"
             def inject(match):
                 return match.group(1) + str(max(3, int(match.group(2)))) + f'''
 
@@ -240,17 +248,78 @@ def prepare(module, decoded):
     invoke-virtual {{p0}}, Landroid/content/Context;->getContentResolver()Landroid/content/ContentResolver;
     move-result-object v0
     const-string v1, "onerom_show_{identity}"
-    const/4 v2, 0x1
+    const/4 v2, 0x0
     invoke-static {{v0, v1, v2}}, Landroid/provider/Settings$System;->getInt(Landroid/content/ContentResolver;Ljava/lang/String;I)I
     move-result v0
     if-nez v0, :onerom_show_{identity}
     const-string v0, "********"
     return-object v0
     :onerom_show_{identity}'''
-            source, count = re.subn(pattern, inject, source)
-            if count != 1:
-                pass
-        utils_path.write_text(source)
+            source, count = re.subn(pattern_str, inject, source)
+        utils_path.write_text(source, encoding="utf-8")
+
+    # 15. Rune.smali: disable S Pen, Private Display, and High Refresh Rate for exynos9820 devices
+    for rune_path in decoded.glob("smali*/com/samsung/android/settings/Rune.smali"):
+        source = rune_path.read_text(encoding="utf-8")
+        changed = False
+        for method_sig, stub in (
+            (
+                r"\.method public static supportPDSettings\(Landroid/content/Context;\)Z\n(.*?)\.end method",
+                ".method public static supportPDSettings(Landroid/content/Context;)Z\n    .locals 1\n\n    const/4 p0, 0x0\n\n    return p0\n.end method",
+            ),
+            (
+                r"\.method public static supportHighRefreshRate\(Landroid/content/Context;I\)Z\n(.*?)\.end method",
+                ".method public static supportHighRefreshRate(Landroid/content/Context;I)Z\n    .locals 0\n\n    const/4 p0, 0x0\n\n    return p0\n.end method",
+            ),
+            (
+                r"\.method public static isSupportSpen\(\)Z\n(.*?)\.end method",
+                ".method public static isSupportSpen()Z\n    .locals 1\n\n    const/4 v0, 0x0\n\n    return v0\n.end method",
+            ),
+        ):
+            new_source, count = re.subn(method_sig, stub, source, flags=re.S)
+            if count:
+                source = new_source
+                changed = True
+        if changed:
+            rune_path.write_text(source, encoding="utf-8")
+            print(f"  + Patched Rune.smali (disabled S Pen, PD, HighRefreshRate)")
+
+    # 16. Remove S Pen entry from Advanced Features XML
+    for xml_path in decoded.glob("res/xml/APKTOOL_DUMMYVAL_*.xml"):
+        try:
+            tree = ET.parse(xml_path)
+            root = tree.getroot()
+            removed = False
+            for child in list(root):
+                key = child.get(ANDROID + "key", "")
+                if "spen" in key.lower() or "block_gestures_with_spen" in key.lower():
+                    root.remove(child)
+                    removed = True
+            if removed:
+                write_xml(root, xml_path)
+                print(f"  + Removed S Pen entry from {xml_path.name}")
+        except Exception:
+            pass
+
+    # 17. Patch AbstractLogpersistPreferenceController.smali to prevent Developer Settings crash
+    for controller_path in decoded.glob("smali*/com/android/settingslib/development/AbstractLogpersistPreferenceController.smali"):
+        source = controller_path.read_text(encoding="utf-8")
+        if ":catch_off" not in source:
+            pat1 = r"(\.method public final setLogpersistOff\(Z\)V\n)(.*?)(\.end method)"
+            def rep1(m):
+                body = m.group(2)
+                return m.group(1) + "    :try_start_off\n" + body + "\n    :try_end_off\n    .catch Ljava/lang/Throwable; {:try_start_off .. :try_end_off} :catch_off\n\n    :catch_off\n    return-void\n" + m.group(3)
+            source, _ = re.subn(pat1, rep1, source, flags=re.S)
+
+            pat2 = r"(\.method public final writeLogpersistOption\(Ljava/lang/Object;Z\)V\n)(.*?)(\.end method)"
+            def rep2(m):
+                body = m.group(2)
+                return m.group(1) + "    :try_start_write\n" + body + "\n    :try_end_write\n    .catch Ljava/lang/Throwable; {:try_start_write .. :try_end_write} :catch_write\n\n    :catch_write\n    return-void\n" + m.group(3)
+            source, _ = re.subn(pat2, rep2, source, flags=re.S)
+            controller_path.write_text(source, encoding="utf-8")
+            print("  + Patched AbstractLogpersistPreferenceController.smali (Developer Settings crash fix)")
+
+    print("[+] prepare.py: OneROM Zeta 9.5 SecSettings customization completed successfully")
 
 
 if __name__ == "__main__":

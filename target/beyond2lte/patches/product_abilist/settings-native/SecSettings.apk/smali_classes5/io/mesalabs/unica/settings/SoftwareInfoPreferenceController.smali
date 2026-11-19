@@ -153,7 +153,7 @@
     move-result v1
     if-eqz v1, :bootloader
     const-string v0, "ro.onerom.device"
-    const-string v1, "beyond2lte"
+    const-string v1, "beyond1lte"
     invoke-static {v0, v1}, Landroid/os/SemSystemProperties;->get(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
     move-result-object v0
     return-object v0

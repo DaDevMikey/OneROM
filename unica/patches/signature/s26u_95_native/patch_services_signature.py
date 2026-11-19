@@ -1,0 +1,147 @@
+#!/usr/bin/env python3
+"""
+patch_services_signature.py
+
+Allows platform-level trust and signature normalization for SecSettings.apk
+on One UI 9.5 (Android 17 QPR2) so that apktool can rebuild and sign SecSettings.apk
+with the project platform key while preserving android.uid.system.
+"""
+
+import os
+import re
+import sys
+import time
+import shutil
+import zipfile
+import tempfile
+import subprocess
+from pathlib import Path
+
+def main():
+    if len(sys.argv) < 2:
+        print(f"Usage: {sys.argv[0]} <services.jar>", file=sys.stderr)
+        sys.exit(1)
+
+    jar_path = Path(sys.argv[1]).resolve()
+    if not jar_path.is_file():
+        print(f"Error: {jar_path} not found", file=sys.stderr)
+        sys.exit(1)
+
+    # Locate d8
+    d8 = os.environ.get("D8")
+    if not d8 or not os.path.isfile(d8):
+        candidates = [
+            "/home/mikey/Android/Sdk/build-tools/36.1.0/d8",
+            "/home/mikey/Android/Sdk/build-tools/36.0.0/d8",
+            "/home/mikey/Android/Sdk/build-tools/35.0.0/d8",
+            "/home/mikey/Android/Sdk/build-tools/34.0.0/d8",
+            shutil.which("d8")
+        ]
+        for c in candidates:
+            if c and os.path.isfile(c) and os.access(c, os.X_OK):
+                d8 = c
+                break
+
+    if not d8:
+        print("Error: d8 not found", file=sys.stderr)
+        sys.exit(1)
+
+    print(f"[*] Patching services.jar: {jar_path}")
+    print(f"[*] Using d8: {d8}")
+    start_time = time.time()
+
+    with tempfile.TemporaryDirectory() as td:
+        td_path = Path(td)
+        dex_dir = td_path / "dexes"
+        dex_dir.mkdir()
+
+        # 1. Split multidex container with d8
+        print("[*] Splitting multidex services.jar with d8...")
+        subprocess.check_call([d8, "--output", str(dex_dir), str(jar_path)])
+
+        dex_files = sorted(dex_dir.glob("classes*.dex"))
+        print(f"[*] Generated {len(dex_files)} DEX files: {[d.name for d in dex_files]}")
+
+        # 2. Locate ScanPackageUtils across DEX files
+        target_dex = None
+        target_smali_file = None
+        target_smali_dir = td_path / "smali_target"
+
+        for df in dex_files:
+            test_dir = td_path / f"test_{df.stem}"
+            subprocess.check_call(["baksmali", "d", "--api", "34", "-o", str(test_dir), str(df)])
+            candidate = test_dir / "com/android/server/pm/ScanPackageUtils.smali"
+            if candidate.is_file():
+                target_dex = df
+                target_smali_dir = test_dir
+                target_smali_file = candidate
+                print(f"[*] Found ScanPackageUtils.smali in {df.name}")
+                break
+
+        if not target_smali_file or not target_smali_file.is_file():
+            print("Error: ScanPackageUtils.smali not found in any DEX file!", file=sys.stderr)
+            sys.exit(1)
+
+        # 3. Patch ScanPackageUtils.smali
+        content = target_smali_file.read_text(encoding="utf-8")
+        anchor = "    invoke-interface {p0, v1}, Lcom/android/internal/pm/parsing/pkg/ParsedPackage;->setSignedWithPlatformKey(Z)Lcom/android/internal/pm/parsing/pkg/ParsedPackage;"
+        if anchor not in content:
+            print("Error: setSignedWithPlatformKey anchor not found in ScanPackageUtils.smali!", file=sys.stderr)
+            sys.exit(1)
+
+        hook = """    # [OneROM] Trust and normalize platform signing details for rebuilt SecSettings.apk and SDHMS
+    invoke-interface {p0}, Lcom/android/internal/pm/parsing/pkg/ParsedPackage;->getPackageName()Ljava/lang/String;
+    move-result-object v3
+    const-string v4, "com.android.settings"
+    invoke-virtual {v4, v3}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+    move-result v4
+    if-nez v4, :cond_onerom_normalize
+    const-string v4, "com.sec.android.sdhms"
+    invoke-virtual {v4, v3}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+    move-result v4
+    if-eqz v4, :cond_onerom_not_settings
+    :cond_onerom_normalize
+    if-eqz p2, :cond_onerom_not_settings
+    invoke-interface {p2}, Lcom/android/server/pm/pkg/AndroidPackage;->getSigningDetails()Landroid/content/pm/SigningDetails;
+    move-result-object v3
+    invoke-interface {p0, v3}, Lcom/android/internal/pm/parsing/pkg/ParsedPackage;->setSigningDetails(Landroid/content/pm/SigningDetails;)Lcom/android/internal/pm/parsing/pkg/ParsedPackage;
+    const/4 v1, 0x1
+    :cond_onerom_not_settings
+"""
+        new_content = content.replace(anchor, hook + anchor, 1)
+        target_smali_file.write_text(new_content, encoding="utf-8")
+        print("[*] Successfully injected platform signature normalization hook into ScanPackageUtils.smali")
+
+        # 3b. Suppress 'There's an internal problem with your device' boot popup in ActivityTaskManagerService
+        for smali_f in target_smali_dir.rglob("*.smali"):
+            if "1041137" in smali_f.read_text(encoding="utf-8"):
+                stxt = smali_f.read_text(encoding="utf-8")
+                pat = r"(\.method public final run\(\)V\s*\.registers \d+)"
+                rep = r"\1\n    return-void\n"
+                new_stxt, cnt = re.subn(pat, rep, stxt, count=1)
+                if cnt > 0:
+                    smali_f.write_text(new_stxt, encoding="utf-8")
+                    print(f"[*] Successfully suppressed internal system error dialog in {smali_f.name}")
+
+        # 4. Reassemble modified DEX
+        print(f"[*] Reassembling {target_dex.name} with smali...")
+        target_dex.unlink()
+        subprocess.check_call(["smali", "a", "--api", "34", "-j", "16", "-o", str(target_dex), str(target_smali_dir)])
+
+        # 5. Repack services.jar with ZIP_STORED DEXes
+        print("[*] Repacking services.jar...")
+        tmp_jar = td_path / "services_patched.jar"
+        with zipfile.ZipFile(jar_path, "r") as zin, zipfile.ZipFile(tmp_jar, "w") as zout:
+            for item in zin.infolist():
+                if item.filename.endswith(".dex"):
+                    continue
+                zout.writestr(item, zin.read(item.filename))
+
+            for df in sorted(dex_dir.glob("classes*.dex")):
+                zout.write(df, df.name, compress_type=zipfile.ZIP_STORED)
+
+        shutil.copy2(tmp_jar, jar_path)
+        print(f"[+] Successfully patched services.jar in {time.time()-start_time:.2f}s (size: {jar_path.stat().st_size} bytes)")
+
+if __name__ == "__main__":
+    main()

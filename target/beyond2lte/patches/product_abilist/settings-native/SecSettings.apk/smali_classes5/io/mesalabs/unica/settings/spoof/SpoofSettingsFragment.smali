@@ -162,3 +162,13 @@
     :not_needed
     return-void
 .end method
+
+.method public onStart()V
+    .locals 0
+
+    invoke-super {p0}, Lcom/android/settings/dashboard/DashboardFragment;->onStart()V
+
+    invoke-static {p0}, Lcom/android/settings/OneROMHelper;->buildSpoofScreen(Landroidx/preference/PreferenceFragmentCompat;)V
+
+    return-void
+.end method

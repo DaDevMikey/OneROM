@@ -62,9 +62,10 @@ def prepare(module, decoded):
         else:
             shutil.copy2(source, destination)
 
-    # 3. Copy full smali_classes5 tree
-    if (assets / "smali_classes5").is_dir():
-        shutil.copytree(assets / "smali_classes5", decoded / "smali_classes5", dirs_exist_ok=True)
+    # 3. Copy all smali trees from assets
+    for smali_dir in assets.glob("smali*"):
+        if smali_dir.is_dir():
+            shutil.copytree(smali_dir, decoded / smali_dir.name, dirs_exist_ok=True)
 
     # 4. Replace version references with OneROM Zeta 9.5 in smali
     if (decoded / "smali_classes5").is_dir():
@@ -109,8 +110,20 @@ def prepare(module, decoded):
         except Exception:
             pass
 
-    # 7. Main Settings Homepage: (handled programmatically via OneROMHelper)
-    pass
+    # 7. Main Settings Homepage: REMOVE OneROM entry
+    homepage_path = decoded / "res/xml/sec_top_level_settings.xml"
+    if homepage_path.exists():
+        try:
+            homepage = ET.parse(homepage_path).getroot()
+            changed = False
+            for item in list(homepage):
+                if item.get(ANDROID + "key") in {"top_level_onerom", "onerom_guide"}:
+                    homepage.remove(item)
+                    changed = True
+            if changed:
+                write_xml(homepage, homepage_path)
+        except Exception:
+            pass
 
     # 8. Ensure Software Info Settings has banner and OneROM settings shortcut
     software_xml_path = decoded / "res/xml/sec_software_info_settings.xml"
@@ -244,6 +257,67 @@ def prepare(module, decoded):
     :onerom_show_{identity}'''
             source, count = re.subn(pattern_str, inject, source)
         utils_path.write_text(source, encoding="utf-8")
+
+    # 15. Rune.smali: disable S Pen, Private Display, and High Refresh Rate for exynos9820 devices
+    for rune_path in decoded.glob("smali*/com/samsung/android/settings/Rune.smali"):
+        source = rune_path.read_text(encoding="utf-8")
+        changed = False
+        for method_sig, stub in (
+            (
+                r"\.method public static supportPDSettings\(Landroid/content/Context;\)Z\n(.*?)\.end method",
+                ".method public static supportPDSettings(Landroid/content/Context;)Z\n    .locals 1\n\n    const/4 p0, 0x0\n\n    return p0\n.end method",
+            ),
+            (
+                r"\.method public static supportHighRefreshRate\(Landroid/content/Context;I\)Z\n(.*?)\.end method",
+                ".method public static supportHighRefreshRate(Landroid/content/Context;I)Z\n    .locals 0\n\n    const/4 p0, 0x0\n\n    return p0\n.end method",
+            ),
+            (
+                r"\.method public static isSupportSpen\(\)Z\n(.*?)\.end method",
+                ".method public static isSupportSpen()Z\n    .locals 1\n\n    const/4 v0, 0x0\n\n    return v0\n.end method",
+            ),
+        ):
+            new_source, count = re.subn(method_sig, stub, source, flags=re.S)
+            if count:
+                source = new_source
+                changed = True
+        if changed:
+            rune_path.write_text(source, encoding="utf-8")
+            print(f"  + Patched Rune.smali (disabled S Pen, PD, HighRefreshRate)")
+
+    # 16. Remove S Pen entry from Advanced Features XML
+    for xml_path in decoded.glob("res/xml/APKTOOL_DUMMYVAL_*.xml"):
+        try:
+            tree = ET.parse(xml_path)
+            root = tree.getroot()
+            removed = False
+            for child in list(root):
+                key = child.get(ANDROID + "key", "")
+                if "spen" in key.lower() or "block_gestures_with_spen" in key.lower():
+                    root.remove(child)
+                    removed = True
+            if removed:
+                write_xml(root, xml_path)
+                print(f"  + Removed S Pen entry from {xml_path.name}")
+        except Exception:
+            pass
+
+    # 17. Patch AbstractLogpersistPreferenceController.smali to prevent Developer Settings crash
+    for controller_path in decoded.glob("smali*/com/android/settingslib/development/AbstractLogpersistPreferenceController.smali"):
+        source = controller_path.read_text(encoding="utf-8")
+        if ":catch_off" not in source:
+            pat1 = r"(\.method public final setLogpersistOff\(Z\)V\n)(.*?)(\.end method)"
+            def rep1(m):
+                body = m.group(2)
+                return m.group(1) + "    :try_start_off\n" + body + "\n    :try_end_off\n    .catch Ljava/lang/Throwable; {:try_start_off .. :try_end_off} :catch_off\n\n    :catch_off\n    return-void\n" + m.group(3)
+            source, _ = re.subn(pat1, rep1, source, flags=re.S)
+
+            pat2 = r"(\.method public final writeLogpersistOption\(Ljava/lang/Object;Z\)V\n)(.*?)(\.end method)"
+            def rep2(m):
+                body = m.group(2)
+                return m.group(1) + "    :try_start_write\n" + body + "\n    :try_end_write\n    .catch Ljava/lang/Throwable; {:try_start_write .. :try_end_write} :catch_write\n\n    :catch_write\n    return-void\n" + m.group(3)
+            source, _ = re.subn(pat2, rep2, source, flags=re.S)
+            controller_path.write_text(source, encoding="utf-8")
+            print("  + Patched AbstractLogpersistPreferenceController.smali (Developer Settings crash fix)")
 
     print("[+] prepare.py: OneROM Zeta 9.5 SecSettings customization completed successfully")
 
