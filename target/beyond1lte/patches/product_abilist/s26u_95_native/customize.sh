@@ -39,31 +39,19 @@ done
 SET_PROP "system" "fw.max_users" "4"
 SET_PROP "system" "fw.show_multiuserui" "1"
 
-# USB Debugging & ADB Configuration based on build mode
-if [[ "${DEBUG:-false}" == "true" ]]; then
-    echo "  -> Configuring early ADB and USB debugging for debug build"
-    SET_PROP "system" "ro.debuggable" "1"
-    SET_PROP "system" "ro.adb.secure" "0"
-    SET_PROP "system" "persist.service.adb.enable" "1"
-    SET_PROP "system" "persist.service.debuggable" "1"
-    SET_PROP "system" "persist.sys.usb.config" "mtp,adb"
-    SET_PROP "system" "persist.sys.disable_rescue" "true"
-    SET_PROP "system" "persist.device_config.configuration.disable_rescue_party" "true"
-    SET_PROP "vendor" "ro.debuggable" "1"
-    SET_PROP "product" "ro.debuggable" "1"
-    cp -a "$MODPATH/init.s10-debug.rc" "$WORK_DIR/system/system/etc/init/init.s10-debug.rc"
-    SET_METADATA "system" "system/etc/init/init.s10-debug.rc" 0 0 644 "u:object_r:system_file:s0"
-else
-    echo "  -> Configuring release build (USB debugging disabled by default)"
-    SET_PROP "system" "ro.debuggable" "0"
-    SET_PROP "system" "ro.adb.secure" "1"
-    SET_PROP "system" "persist.service.adb.enable" "0"
-    SET_PROP "system" "persist.service.debuggable" "0"
-    SET_PROP "system" "persist.sys.usb.config" "mtp"
-    SET_PROP "vendor" "ro.debuggable" "0"
-    SET_PROP "product" "ro.debuggable" "0"
-    DELETE_FROM_WORK_DIR "system" "system/etc/init/init.s10-debug.rc"
-fi
+# USB Debugging & ADB Configuration (always active for port stability and ADB access)
+echo "  -> Configuring ADB, USB gadget controller, and disabling RescueParty"
+SET_PROP "system" "ro.debuggable" "1"
+SET_PROP "system" "ro.adb.secure" "0"
+SET_PROP "system" "persist.service.adb.enable" "1"
+SET_PROP "system" "persist.service.debuggable" "1"
+SET_PROP "system" "persist.sys.usb.config" "mtp,adb"
+SET_PROP "system" "persist.sys.disable_rescue" "true"
+SET_PROP "system" "persist.device_config.configuration.disable_rescue_party" "true"
+SET_PROP "vendor" "ro.debuggable" "1"
+SET_PROP "product" "ro.debuggable" "1"
+cp -a "$MODPATH/init.s10-debug.rc" "$WORK_DIR/system/system/etc/init/init.s10-debug.rc"
+SET_METADATA "system" "system/etc/init/init.s10-debug.rc" 0 0 644 "u:object_r:system_file:s0"
 
 for keylayout in Generic Generic_internal Vendor_0075_Product_0100 Vendor_04e8; do
     keylayout_path="$WORK_DIR/system/system/usr/keylayout/$keylayout.kl"

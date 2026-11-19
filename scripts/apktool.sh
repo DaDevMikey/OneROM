@@ -48,6 +48,8 @@ BUILD()
 
     if [[ ("$TARGET_CODENAME" == "beyond1lte" || "$TARGET_CODENAME" == "beyond2lte" || "$TARGET_PLATFORM" == "exynos9820") && "$SOURCE_API_LEVEL" -ge 37 ]]; then
         case "$FILE" in
+            system/framework/services.jar|\
+            framework/services.jar|\
             system/priv-app/SettingsProvider/SettingsProvider.apk|\
             system/priv-app/BiometricSetting/BiometricSetting.apk|\
             system/priv-app/FotaAgent/FotaAgent.apk|\
@@ -124,7 +126,7 @@ BUILD()
     mv -f "$OUTPUT_PATH/dist/$FILE_NAME" "$INPUT_FILE"
     rm -rf "$OUTPUT_PATH/build" && rm -rf "$OUTPUT_PATH/dist"
 
-    if [ -d "${INPUT_FILE%/*}/oat" ]; then
+    if [ -d "${INPUT_FILE%/*}/oat" ] && [[ "${FILE%/*}" != *"framework"* ]]; then
         DELETE_FROM_WORK_DIR "$PARTITION" "${FILE%/*}/oat"
     fi
     if [ -f "${INPUT_FILE%/*}/$FILE_NAME.prof" ]; then

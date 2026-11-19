@@ -13,6 +13,8 @@ SET_PROP "system" "ro.onerom.build.date" "$(date +%Y-%m-%d)"
 SET_PROP "system" "ro.onerom.untested" "false"
 SET_PROP "system" "ro.onerom.boot_guarantee" "true"
 SET_PROP "system" "ro.build.version.oneui" "90500"
+SET_PROP "system" "ro.control_privapp_permissions" "log"
+SET_PROP "vendor" "ro.control_privapp_permissions" "log"
 SET_PROP "system" "fw.max_users" "4"
 SET_PROP "system" "fw.show_multiuserui" "1"
 
