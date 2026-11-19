@@ -41,6 +41,7 @@ while read -r FILE; do
 
         SET_CSC_FEATURE_CONFIG "CscFeature_VoiceCall_ConfigRecording" "RecordingAllowed"
         SET_CSC_FEATURE_CONFIG "CscFeature_Setting_SupportRealTimeNetworkSpeed" "TRUE"
+        SET_CSC_FEATURE_CONFIG "CscFeature_Common_SupportZProjectFunctionInGlobal" "TRUE"
         SET_CSC_FEATURE_CONFIG "CscFeature_Setting_EnableHwVersionDisplay" "TRUE"
         SET_CSC_FEATURE_CONFIG "CscFeature_Setting_SupportMenuSmartTutor" "FALSE"
         SET_CSC_FEATURE_CONFIG "CscFeature_Setting_ConfigLongPressType" 1

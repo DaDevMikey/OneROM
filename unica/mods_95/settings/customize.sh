@@ -39,6 +39,9 @@ for f in xml_dir.glob("*.xml"):
         if 'android:key="privacy_display"' in txt:
             txt = re.sub(r'<[^>]*android:key="privacy_display"[^>]*/>\s*', '', txt)
             print(f"  - Removed privacy_display from {f.name}")
+        if 'android:key="pd_inset"' in txt:
+            txt = re.sub(r'<[^>]*android:key="pd_inset"[^>]*/>\s*', '', txt)
+            print(f"  - Removed pd_inset from {f.name}")
         if 'android:key="sec_high_refresh_rate"' in txt:
             txt = re.sub(r'<[^>]*android:key="sec_high_refresh_rate"[^>]*/>\s*', '', txt)
             print(f"  - Removed sec_high_refresh_rate from {f.name}")

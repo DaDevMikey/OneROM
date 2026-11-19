@@ -1,0 +1,2 @@
+/system/etc/permissions/privapp-permissions-com\.samsung\.android\.applock\.xml u:object_r:system_file:s0
+/system/priv-app/SAppLock(/.*)? u:object_r:system_file:s0
