@@ -1,0 +1,114 @@
+From 9040ef37ae767103e9b752932b383a24e09de666 Mon Sep 17 00:00:00 2001
+From: aaronthetechie1 <aaronbildstein@gmx.de>
+Date: Fri, 20 Nov 2026 23:27:34 +0100
+Subject: [PATCH] Allow dummy camera nodes passthrough
+
+---
+ .../android/camera/core2/node/Node.smali      | 90 +------------------
+ 1 file changed, 2 insertions(+), 88 deletions(-)
+
+diff --git a/smali_classes2/com/samsung/android/camera/core2/node/Node.smali b/smali_classes2/com/samsung/android/camera/core2/node/Node.smali
+index 5c31277..a79bc3d 100644
+--- a/smali_classes2/com/samsung/android/camera/core2/node/Node.smali
++++ b/smali_classes2/com/samsung/android/camera/core2/node/Node.smali
+@@ -1278,95 +1278,9 @@
+ .end method
+ 
+ .method public dummyInitialize()V
+-    .locals 3
+-
+-    invoke-virtual {p0}, Ljava/lang/Object;->getClass()Ljava/lang/Class;
+-
+-    move-result-object v0
+-
+-    invoke-virtual {v0}, Ljava/lang/Class;->getSuperclass()Ljava/lang/Class;
+-
+-    move-result-object v0
+-
+-    invoke-static {v0}, Ljava/util/Optional;->ofNullable(Ljava/lang/Object;)Ljava/util/Optional;
+-
+-    move-result-object v0
+-
+-    new-instance v1, Lcom/samsung/android/camera/core2/node/p;
+-
+-    const/4 v2, 0x3
+-
+-    invoke-direct {v1, v2}, Lcom/samsung/android/camera/core2/node/p;-><init>(I)V
+-
+-    invoke-virtual {v0, v1}, Ljava/util/Optional;->map(Ljava/util/function/Function;)Ljava/util/Optional;
+-
+-    move-result-object v0
+-
+-    new-instance v1, Lcom/samsung/android/camera/core2/node/p;
+-
+-    const/4 v2, 0x4
+-
+-    invoke-direct {v1, v2}, Lcom/samsung/android/camera/core2/node/p;-><init>(I)V
+-
+-    invoke-virtual {v0, v1}, Ljava/util/Optional;->map(Ljava/util/function/Function;)Ljava/util/Optional;
+-
+-    move-result-object v0
+-
+-    const-string v1, "invalid"
+-
+-    invoke-virtual {v0, v1}, Ljava/util/Optional;->orElse(Ljava/lang/Object;)Ljava/lang/Object;
+-
+-    move-result-object v0
+-
+-    check-cast v0, Ljava/lang/String;
+-
+-    new-instance v1, Ljava/lang/StringBuilder;
+-
+-    const-string v2, " initialize(nodeFeature:"
+-
+-    invoke-direct {v1, v2}, Ljava/lang/StringBuilder;-><init>(Ljava/lang/String;)V
+-
+-    invoke-virtual {v1, v0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+-
+-    const-string v2, ")"
+-
+-    invoke-virtual {v1, v2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+-
+-    invoke-virtual {v1}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+-
+-    move-result-object v1
+-
+-    invoke-virtual {p0, v1}, Lcom/samsung/android/camera/core2/node/Node;->printDummyMethodCallingMessage(Ljava/lang/String;)V
+-
+-    new-instance v1, Ljava/lang/IllegalStateException;
+-
+-    new-instance v2, Ljava/lang/StringBuilder;
+-
+-    invoke-direct {v2}, Ljava/lang/StringBuilder;-><init>()V
+-
+-    invoke-virtual {p0}, Lcom/samsung/android/camera/core2/node/Node;->getNodeTag()Ljava/lang/String;
+-
+-    move-result-object p0
+-
+-    invoke-virtual {v2, p0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+-
+-    const-string p0, " can\'t initialize. need to check nodeFeature("
+-
+-    invoke-virtual {v2, p0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+-
+-    invoke-virtual {v2, v0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+-
+-    const-string p0, ") in VENDOR_LIB_INFO."
+-
+-    invoke-virtual {v2, p0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+-
+-    invoke-virtual {v2}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+-
+-    move-result-object p0
+-
+-    invoke-direct {v1, p0}, Ljava/lang/IllegalStateException;-><init>(Ljava/lang/String;)V
++    .locals 0
+ 
+-    throw v1
++    return-void
+ .end method
+ 
+ .method public getCoreInterface(Lcom/samsung/android/camera/core2/node/PortType;)Lcom/samsung/android/camera/core2/node/CoreInterface;
+-- 
+2.53.0
+

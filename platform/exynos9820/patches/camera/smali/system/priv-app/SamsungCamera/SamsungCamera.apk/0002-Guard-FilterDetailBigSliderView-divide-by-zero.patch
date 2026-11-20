@@ -1,0 +1,29 @@
+From 525e412cc26f5f06f07b514b82de6caaae5388bb Mon Sep 17 00:00:00 2001
+From: aaronthetechie1 <aaronbildstein@gmx.de>
+Date: Fri, 20 Nov 2026 23:37:41 +0100
+Subject: [PATCH] Guard FilterDetailBigSliderView against zero step
+ divide-by-zero
+
+---
+ .../menu/effects/filterV2/FilterDetailBigSliderView.smali    | 5 +++++
+ 1 file changed, 5 insertions(+)
+
+diff --git a/smali_classes4/com/sec/android/app/camera/layer/menu/effects/filterV2/FilterDetailBigSliderView.smali b/smali_classes4/com/sec/android/app/camera/layer/menu/effects/filterV2/FilterDetailBigSliderView.smali
+index d5be665..643d137 100644
+--- a/smali_classes4/com/sec/android/app/camera/layer/menu/effects/filterV2/FilterDetailBigSliderView.smali
++++ b/smali_classes4/com/sec/android/app/camera/layer/menu/effects/filterV2/FilterDetailBigSliderView.smali
+@@ -1077,6 +1077,11 @@
+ 
+     iget v3, p0, Lla/e;->k:I
+ 
++    if-gtz v3, :cond_step_ok
++
++    const/4 v3, 0x1
++
++    :cond_step_ok
+     rem-int v4, p1, v3
+ 
+     sub-int/2addr p1, v4
+-- 
+2.53.0
+
