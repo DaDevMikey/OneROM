@@ -1,0 +1,2 @@
+on property:persist.sys.unica.emoji_95=true
+    mount none /system/fonts/SamsungColorEmoji_95.ttf /system/fonts/SamsungColorEmoji.ttf bind ro

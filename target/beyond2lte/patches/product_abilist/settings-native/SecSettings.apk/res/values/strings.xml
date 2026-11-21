@@ -115,4 +115,4 @@
     <string name="onerom_changelog_850_title">OneROM 8.5.0.3 DB</string>
     <string name="onerom_changelog_850_summary">• Display &amp; Camera: Calibrated front camera switch animation ring coordinates for Galaxy S10 cutout; eliminated SystemUI cutout protection solid black rectangle.\n• Kernel &amp; DVFS: Tuned Mali-G76 MP12 GPU operating frequencies up to 910 MHz with 17 DVFS voltage steps for optimal thermal stability.\n• UI Performance: Integrated EAS schedtune boosting for foreground UI threads on M4 Cheetah cores, eliminating task switching latency.\n• Galaxy AI: Integrated Samsung GenAI suite including Call Assist, Writing Assist, Note Assist, Browsing Assist, and Generative Photo Editing.</string>
     <string name="onerom_website_unavailable">Web browser required to navigate to external URL.</string>
-</resources>
+<string name="unica_emoji_95_title">One UI 9.5 emojis</string><string name="unica_emoji_95_summary">Use the newer emoji set from One UI 9.5 (requires reboot)</string></resources>
