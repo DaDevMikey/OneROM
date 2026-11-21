@@ -142,3 +142,10 @@ system/app/HMT
 system/app/AllShareAware
 system/app/AllshareMediaShare
 "
+
+
+
+# Google Messages
+PRODUCT_DEBLOAT+="
+priv-app/Messages
+"

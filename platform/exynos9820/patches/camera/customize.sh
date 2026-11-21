@@ -115,5 +115,16 @@ done
 # shellcheck disable=SC2046
 wait $(jobs -p) || exit 1
 
+# Keep native One UI 9.0 donor SamsungCamera (overrides One UI 8.5 e2sxxx mass-camera swap)
+# and disable legacy MPI MultiFrame entries incompatible with Exynos 9820 ION on Android 17
+LOG_STEP_IN "- Restoring native One UI 9.0 SamsungCamera & disabling legacy MPI nodes"
+DELETE_FROM_WORK_DIR "system" "system/priv-app/SamsungCamera"
+ADD_TO_WORK_DIR "$SOURCE_FIRMWARE" "system" "system/priv-app/SamsungCamera/SamsungCamera.apk" 0 0 644 "u:object_r:system_file:s0"
+for mpi_tok in hifills.mpi.v1 super_night.mpi.v2 mfhdr.mpi.v1 llhdr.mpi.v1; do
+    sed -i "s/${mpi_tok},//g; s/,${mpi_tok}//g" "$WORK_DIR/system/system/etc/floating_feature.xml"
+done
+sed -i "s/image_codec\.samsung\.v1/image_codec.samsung.v2/g" "$WORK_DIR/system/system/etc/floating_feature.xml"
+LOG_STEP_OUT
+
 # Keep multi-language SamsungCamera donor-signed (Samsung Cert) to retain SYSTEM_CAMERA permission
 LOG_STEP_OUT

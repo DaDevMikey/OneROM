@@ -1,0 +1,2 @@
+on property:persist.sys.unica.emoji_95=true
+    mount none /system/fonts_95 /system/fonts bind ro
