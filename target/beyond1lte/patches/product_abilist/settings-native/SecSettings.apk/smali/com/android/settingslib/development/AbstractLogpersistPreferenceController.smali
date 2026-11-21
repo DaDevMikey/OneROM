@@ -62,21 +62,9 @@
 .method public final isAvailable()Z
     .locals 1
 
-    const-string/jumbo p0, "ro.debuggable"
+    const/4 v0, 0x0
 
-    const-string v0, "0"
-
-    invoke-static {p0, v0}, Landroid/os/SystemProperties;->get(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
-
-    move-result-object p0
-
-    const-string v0, "1"
-
-    invoke-static {p0, v0}, Landroid/text/TextUtils;->equals(Ljava/lang/CharSequence;Ljava/lang/CharSequence;)Z
-
-    move-result p0
-
-    return p0
+    return v0
 .end method
 
 .method public final onCreate(Landroid/os/Bundle;)V
@@ -203,8 +191,9 @@
 .end method
 
 .method public final setLogpersistOff(Z)V
-    :try_start_off
     .locals 5
+
+    :try_start_off
 
     const-string/jumbo v0, "persist.logd.logpersistd.buffer"
 
@@ -293,6 +282,7 @@
 .method public final updateLogpersistValues()V
     .locals 8
 
+    :try_start_val
     iget-object v0, p0, Lcom/android/settingslib/development/AbstractLogpersistPreferenceController;->mLogpersist:Landroidx/preference/ListPreference;
 
     if-nez v0, :cond_0
@@ -498,11 +488,18 @@
     :cond_a
     :goto_2
     return-void
+
+    :try_end_val
+    .catch Ljava/lang/Throwable; {:try_start_val .. :try_end_val} :catch_val
+
+    :catch_val
+    return-void
 .end method
 
 .method public final writeLogpersistOption(Ljava/lang/Object;Z)V
-    :try_start_write
     .locals 6
+
+    :try_start_write
 
     iget-object v0, p0, Lcom/android/settingslib/development/AbstractLogpersistPreferenceController;->mLogpersist:Landroidx/preference/ListPreference;
 

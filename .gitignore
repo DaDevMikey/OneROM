@@ -1,5 +1,8 @@
 out/
 tools/apktool/
+__pycache__/
+*.pyc
+possiblyimportant/
 
 # MacOS files
 *.DS_Store

@@ -560,7 +560,7 @@
     invoke-virtual {p0, v3}, Landroidx/preference/PreferenceScreen;->addPreference(Landroidx/preference/Preference;)Z
 
     .line 268
-    const-string v0, "About Galaxy"
+    const-string v0, "About Your Galaxy"
 
     invoke-static {p0, v1, v0}, Lcom/android/settings/OneROMHelper;->addCategory(Landroidx/preference/PreferenceGroup;Landroid/content/Context;Ljava/lang/String;)Landroidx/preference/PreferenceCategory;
 
@@ -654,7 +654,7 @@
     invoke-static/range {v0 .. v5}, Lcom/android/settings/OneROMHelper;->addPreference(Landroidx/preference/PreferenceGroup;Landroid/content/Context;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Landroidx/preference/Preference$OnPreferenceClickListener;)Landroidx/preference/Preference;
 
     .line 284
-    const-string v0, "ROM information"
+    const-string v0, "ROM Information"
 
     invoke-static {p0, v1, v0}, Lcom/android/settings/OneROMHelper;->addCategory(Landroidx/preference/PreferenceGroup;Landroid/content/Context;Ljava/lang/String;)Landroidx/preference/PreferenceCategory;
 
@@ -733,7 +733,7 @@
 
     const-string v4, "Developer"
 
-    const-string v5, "Mikey"
+    const-string v5, "@DaManMikey"
 
     move-object v10, v2
 
@@ -775,7 +775,7 @@
 
     move-object v1, v10
 
-    const-string v5, "Testing"
+    const-string v5, "Stable"
 
     const/4 v6, 0x0
 
@@ -794,7 +794,7 @@
     .line 314
     move-object v1, v2
 
-    const-string v0, "System status"
+    const-string v0, "System Status"
 
     invoke-static {p0, v1, v0}, Lcom/android/settings/OneROMHelper;->addCategory(Landroidx/preference/PreferenceGroup;Landroid/content/Context;Ljava/lang/String;)Landroidx/preference/PreferenceCategory;
 
@@ -866,7 +866,7 @@
     invoke-static/range {v0 .. v5}, Lcom/android/settings/OneROMHelper;->addPreference(Landroidx/preference/PreferenceGroup;Landroid/content/Context;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Landroidx/preference/Preference$OnPreferenceClickListener;)Landroidx/preference/Preference;
 
     .line 324
-    const-string v0, "Software details"
+    const-string v0, "Software Details"
 
     invoke-static {p0, v1, v0}, Lcom/android/settings/OneROMHelper;->addCategory(Landroidx/preference/PreferenceGroup;Landroid/content/Context;Ljava/lang/String;)Landroidx/preference/PreferenceCategory;
 
@@ -1451,7 +1451,7 @@
 
     invoke-direct {v6, v1}, Lcom/android/settings/OneROMHelper$11;-><init>(Landroid/content/Context;)V
 
-    const/16 v2, 0x8c
+    const/16 v2, 0x96
 
     const-string v3, "OneROM Zeta 9.5"
 
@@ -1932,19 +1932,35 @@
     invoke-virtual {v5, v7}, Landroid/widget/ImageView;->setScaleType(Landroid/widget/ImageView$ScaleType;)V
 
     .line 69
+    :try_start_wp
+    invoke-static {v0}, Landroid/app/WallpaperManager;->getInstance(Landroid/content/Context;)Landroid/app/WallpaperManager;
+
+    move-result-object v7
+
+    invoke-virtual {v7}, Landroid/app/WallpaperManager;->getDrawable()Landroid/graphics/drawable/Drawable;
+
+    move-result-object v7
+
+    if-eqz v7, :cond_file_wp
+
+    invoke-virtual {v5, v7}, Landroid/widget/ImageView;->setImageDrawable(Landroid/graphics/drawable/Drawable;)V
+
+    goto :cond_78
+
+    :try_end_wp
+    .catch Ljava/lang/Throwable; {:try_start_wp .. :try_end_wp} :cond_file_wp
+
+    :cond_file_wp
     const-string v7, "/system/media/onerom_wallpaper.png"
 
     invoke-static {v7}, Landroid/graphics/BitmapFactory;->decodeFile(Ljava/lang/String;)Landroid/graphics/Bitmap;
 
     move-result-object v7
 
-    .line 70
     if-eqz v7, :cond_78
 
-    .line 71
     invoke-virtual {v5, v7}, Landroid/widget/ImageView;->setImageBitmap(Landroid/graphics/Bitmap;)V
 
-    .line 73
     :cond_78
     invoke-virtual {v9, v5}, Landroid/widget/FrameLayout;->addView(Landroid/view/View;)V
 
@@ -2240,7 +2256,7 @@
     if-eqz v0, :cond_11
 
     .line 703
-    const-string v0, "KernelSU Next v1.0.5 (12104)"
+    const-string v0, "KernelSU Next v3.4.0 (33294) (12104)"
     :try_end_f
     .catch Ljava/lang/Exception; {:try_start_0 .. :try_end_f} :catch_10
 
@@ -2766,5 +2782,35 @@
     invoke-virtual {p0}, Landroid/app/AlertDialog$Builder;->show()Landroid/app/AlertDialog;
 
     .line 741
+    return-void
+.end method
+
+.method public static showRebootDialog(Landroid/content/Context;)V
+    .registers 5
+
+    if-nez p0, :cond_0
+    return-void
+
+    :cond_0
+    const/4 v0, 0x4
+    new-array v1, v0, [Ljava/lang/String;
+    const/4 v2, 0x0
+    const-string v3, "Reboot"
+    aput-object v3, v1, v2
+    const/4 v2, 0x1
+    const-string v3, "Quick Reboot"
+    aput-object v3, v1, v2
+    const/4 v2, 0x2
+    const-string v3, "Recovery"
+    aput-object v3, v1, v2
+    const/4 v2, 0x3
+    const-string v3, "Download"
+    aput-object v3, v1, v2
+
+    new-instance v0, Lcom/android/settings/OneROMHelper$RebootCallback;
+    invoke-direct {v0, p0}, Lcom/android/settings/OneROMHelper$RebootCallback;-><init>(Landroid/content/Context;)V
+
+    const-string v2, "Reboot options"
+    invoke-static {p0, v2, v1, v0}, Lcom/android/settings/OneROMHelper;->showChoiceDialog(Landroid/content/Context;Ljava/lang/String;[Ljava/lang/String;Lcom/android/settings/OneROMHelper$DialogCallback;)V
     return-void
 .end method

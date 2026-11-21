@@ -54,6 +54,8 @@ BUILD()
             system/priv-app/SecSettings/SecSettings.apk|\
             priv-app/SecSettings/SecSettings.apk|\
             system/priv-app/BiometricSetting/BiometricSetting.apk|\
+            system/priv-app/SamsungCamera/SamsungCamera.apk|\
+            priv-app/SamsungCamera/SamsungCamera.apk|\
             system/priv-app/FotaAgent/FotaAgent.apk|\
             priv-app/FotaAgent/FotaAgent.apk|\
             system/system_ext/priv-app/SystemUI/SystemUI.apk|\

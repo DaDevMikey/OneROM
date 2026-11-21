@@ -84,31 +84,63 @@ def main():
 
         # 3. Patch ScanPackageUtils.smali
         content = target_smali_file.read_text(encoding="utf-8")
-        anchor = "    invoke-interface {p0, v1}, Lcom/android/internal/pm/parsing/pkg/ParsedPackage;->setSignedWithPlatformKey(Z)Lcom/android/internal/pm/parsing/pkg/ParsedPackage;"
-        if anchor not in content:
-            print("Error: setSignedWithPlatformKey anchor not found in ScanPackageUtils.smali!", file=sys.stderr)
+        method_match = re.search(r"(\.method public static applyPolicy\(Lcom/android/internal/pm/parsing/pkg/ParsedPackage;ILcom/android/server/pm/pkg/AndroidPackage;Z\)V\s*\.registers \d+)", content)
+        if not method_match:
+            print("Error: applyPolicy method not found in ScanPackageUtils.smali!", file=sys.stderr)
             sys.exit(1)
+        method_anchor = method_match.group(1)
 
-        hook = """    # [OneROM] Trust and normalize platform signing details for rebuilt SecSettings.apk and SDHMS
+        norm_hook = """
+    # [OneROM] Trust and normalize platform signing details for rebuilt system apps
+    invoke-interface {p0}, Lcom/android/internal/pm/parsing/pkg/ParsedPackage;->getPackageName()Ljava/lang/String;
+    move-result-object v0
+    const-string v1, "com.android.settings"
+    invoke-virtual {v1, v0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+    move-result v1
+    if-nez v1, :cond_onerom_normalize
+    const-string v1, "com.sec.android.sdhms"
+    invoke-virtual {v1, v0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+    move-result v1
+    if-nez v1, :cond_onerom_normalize
+    const-string v1, "com.android.systemui"
+    invoke-virtual {v1, v0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+    move-result v1
+    if-eqz v1, :cond_onerom_not_settings
+    :cond_onerom_normalize
+    if-eqz p2, :cond_onerom_not_settings
+    invoke-interface {p2}, Lcom/android/server/pm/pkg/AndroidPackage;->getSigningDetails()Landroid/content/pm/SigningDetails;
+    move-result-object v0
+    invoke-interface {p0, v0}, Lcom/android/internal/pm/parsing/pkg/ParsedPackage;->setSigningDetails(Landroid/content/pm/SigningDetails;)Lcom/android/internal/pm/parsing/pkg/ParsedPackage;
+    :cond_onerom_not_settings
+"""
+        new_content = content.replace(method_anchor, method_anchor + norm_hook, 1)
+
+        sign_anchor = "    invoke-interface {p0, v1}, Lcom/android/internal/pm/parsing/pkg/ParsedPackage;->setSignedWithPlatformKey(Z)Lcom/android/internal/pm/parsing/pkg/ParsedPackage;"
+        if sign_anchor in new_content:
+            force_sign_hook = """    # [OneROM] Force signedWithPlatformKey for rebuilt system apps
     invoke-interface {p0}, Lcom/android/internal/pm/parsing/pkg/ParsedPackage;->getPackageName()Ljava/lang/String;
     move-result-object v3
     const-string v4, "com.android.settings"
     invoke-virtual {v4, v3}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
     move-result v4
-    if-nez v4, :cond_onerom_normalize
+    if-nez v4, :cond_onerom_sign_plat
     const-string v4, "com.sec.android.sdhms"
     invoke-virtual {v4, v3}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
     move-result v4
-    if-eqz v4, :cond_onerom_not_settings
-    :cond_onerom_normalize
-    if-eqz p2, :cond_onerom_not_settings
-    invoke-interface {p2}, Lcom/android/server/pm/pkg/AndroidPackage;->getSigningDetails()Landroid/content/pm/SigningDetails;
-    move-result-object v3
-    invoke-interface {p0, v3}, Lcom/android/internal/pm/parsing/pkg/ParsedPackage;->setSigningDetails(Landroid/content/pm/SigningDetails;)Lcom/android/internal/pm/parsing/pkg/ParsedPackage;
+    if-nez v4, :cond_onerom_sign_plat
+    const-string v4, "com.android.systemui"
+    invoke-virtual {v4, v3}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+    move-result v4
+    if-eqz v4, :cond_onerom_done_plat
+    :cond_onerom_sign_plat
     const/4 v1, 0x1
-    :cond_onerom_not_settings
+    :cond_onerom_done_plat
 """
-        new_content = content.replace(anchor, hook + anchor, 1)
+            new_content = new_content.replace(sign_anchor, force_sign_hook + sign_anchor, 1)
+        else:
+            print("Error: setSignedWithPlatformKey anchor not found in ScanPackageUtils.smali!", file=sys.stderr)
+            sys.exit(1)
+
         target_smali_file.write_text(new_content, encoding="utf-8")
         print("[*] Successfully injected platform signature normalization hook into ScanPackageUtils.smali")
 
@@ -123,10 +155,41 @@ def main():
                     smali_f.write_text(new_stxt, encoding="utf-8")
                     print(f"[*] Successfully suppressed internal system error dialog in {smali_f.name}")
 
-        # 4. Reassemble modified DEX
-        print(f"[*] Reassembling {target_dex.name} with smali...")
-        target_dex.unlink()
-        subprocess.check_call(["smali", "a", "--api", "34", "-j", "16", "-o", str(target_dex), str(target_smali_dir)])
+        # 3c. Ensure FontManagerService$Lifecycle.onBootPhase never blocks boot across all DEXes
+        dexes_to_rebuild = {target_dex: target_smali_dir}
+        for df in dex_files:
+            test_dir = td_path / f"test_{df.stem}"
+            fms_lifecycle = test_dir / "com/android/server/graphics/fonts/FontManagerService$Lifecycle.smali"
+            if fms_lifecycle.is_file():
+                fcontent = fms_lifecycle.read_text(encoding="utf-8")
+                pat = r"(\.method public final onBootPhase\(I\)V.*?\n\.end method)"
+                safe_onbootphase = """.method public final onBootPhase(I)V
+    .registers 3
+
+    :try_start_0
+    iget-object v0, p0, Lcom/android/server/graphics/fonts/FontManagerService$Lifecycle;->mServiceStarted:Ljava/util/concurrent/CompletableFuture;
+
+    if-eqz v0, :cond_0
+
+    invoke-virtual {v0}, Ljava/util/concurrent/CompletableFuture;->join()Ljava/lang/Object;
+    :cond_0
+    :try_end_0
+    .catchall {:try_start_0 .. :try_end_0} :catch_all
+
+    :catch_all
+    return-void
+.end method"""
+                new_fcontent, cnt = re.subn(pat, safe_onbootphase, fcontent, flags=re.DOTALL)
+                if cnt > 0:
+                    fms_lifecycle.write_text(new_fcontent, encoding="utf-8")
+                    dexes_to_rebuild[df] = test_dir
+                    print(f"[*] Successfully protected FontManagerService$Lifecycle.onBootPhase in {df.name}")
+
+        # 4. Reassemble modified DEXes
+        for df, sdir in dexes_to_rebuild.items():
+            print(f"[*] Reassembling {df.name} with smali...")
+            df.unlink()
+            subprocess.check_call(["smali", "a", "--api", "34", "-j", "16", "-o", str(df), str(sdir)])
 
         # 5. Repack services.jar with ZIP_STORED DEXes
         print("[*] Repacking services.jar...")

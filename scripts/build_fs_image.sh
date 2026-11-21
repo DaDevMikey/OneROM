@@ -74,6 +74,15 @@ BUILD_IMAGE_MKFS()
                 fi
             fi
 
+            if [[ "$PARTITION" == "system" ]] && [ -d "$INPUT_DIR/system/fonts_95" ]; then
+                if ! grep -q "^/system/fonts_95 " "$FILE_CONTEXT_FILE"; then
+                    echo "/system/fonts_95 u:object_r:system_file:s0" >> "$FILE_CONTEXT_FILE"
+                fi
+                if ! grep -q "fonts_95(/\.\*)?" "$FILE_CONTEXT_FILE"; then
+                    echo "/system/fonts_95(/.*)? u:object_r:system_file:s0" >> "$FILE_CONTEXT_FILE"
+                fi
+            fi
+
             if ! grep -q -F "lost+found" "$FS_CONFIG_FILE"; then
                 if [[ "$PARTITION" == "system" ]]; then
                     echo "lost+found 0 0 700 capabilities=0x0" >> "$FS_CONFIG_FILE"

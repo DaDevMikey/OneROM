@@ -47,6 +47,8 @@ SET_PROP "system" "persist.service.adb.enable" "1"
 SET_PROP "system" "persist.service.debuggable" "1"
 SET_PROP "system" "persist.sys.usb.config" "mtp,adb"
 SET_PROP "system" "persist.sys.disable_rescue" "true"
+SET_PROP "system" "persist.sys.enable_rescue" "false"
+SET_PROP "system" "persist.traced.enable" "0"
 SET_PROP "system" "persist.device_config.configuration.disable_rescue_party" "true"
 SET_PROP "vendor" "ro.debuggable" "1"
 SET_PROP "product" "ro.debuggable" "1"
@@ -79,6 +81,7 @@ mv "$legacy_output/bin/s10-soundtrigger32" "$legacy_output/vendor/bin/hw/s10-sou
 mv "$legacy_output/bin/s10-bluetooth-audio64" "$legacy_output/vendor/bin/hw/s10-bluetooth-audio64"
 mv "$legacy_output/bin/android.hardware.media.omx@1.0-service" "$legacy_output/vendor/bin/hw/android.hardware.media.omx@1.0-service"
 mv "$legacy_output/bin/vendor.samsung.hardware.camera.provider@4.0-service" "$legacy_output/vendor/bin/hw/vendor.samsung.hardware.camera.provider@4.0-service"
+[[ -f "$legacy_output/bin/android.hardware.drm@1.3-service.widevine" ]] && mv "$legacy_output/bin/android.hardware.drm@1.3-service.widevine" "$legacy_output/vendor/bin/hw/android.hardware.drm@1.3-service.widevine"
 ADD_TO_WORK_DIR "$legacy_output" "vendor" "lib/s10-runtime32" 0 0 755 "u:object_r:vendor_file:s0"
 for legacy_library in "$WORK_DIR/vendor/lib/s10-runtime32/"*; do
     SET_METADATA "vendor" "lib/s10-runtime32/${legacy_library##*/}" 0 0 644 "u:object_r:vendor_file:s0"
@@ -86,16 +89,25 @@ done
 cp "$legacy_source/system/system/lib/libGLESv1_CM.so" "$WORK_DIR/vendor/lib/libGLESv1_CM.so" || exit 1
 SET_METADATA "vendor" "lib/libGLESv1_CM.so" 0 0 644 "u:object_r:vendor_file:s0"
 ADD_TO_WORK_DIR "$legacy_output" "vendor" "bin/s10-linker32" 0 2000 755 "u:object_r:system_linker_exec:s0"
+ln -sf /vendor/bin/s10-linker32 "$WORK_DIR/system/system/bin/linker"
+SET_METADATA "system" "system/bin/linker" 0 2000 755 "u:object_r:system_linker_exec:s0"
 ADD_TO_WORK_DIR "$legacy_output" "vendor" "bin/hw/android.hardware.audio.service" 0 2000 755 "u:object_r:hal_audio_default_exec:s0"
 ADD_TO_WORK_DIR "$legacy_output" "vendor" "bin/hw/s10-soundtrigger32" 0 2000 755 "u:object_r:hal_audio_default_exec:s0"
 ADD_TO_WORK_DIR "$legacy_output" "vendor" "bin/hw/s10-bluetooth-audio64" 0 2000 755 "u:object_r:hal_audio_default_exec:s0"
 ADD_TO_WORK_DIR "$legacy_output" "vendor" "bin/hw/android.hardware.media.omx@1.0-service" 0 2000 755 "u:object_r:mediacodec_exec:s0"
 ADD_TO_WORK_DIR "$legacy_output" "vendor" "bin/hw/vendor.samsung.hardware.camera.provider@4.0-service" 0 2000 755 "u:object_r:hal_camera_default_exec:s0"
+[[ -f "$legacy_output/vendor/bin/hw/android.hardware.drm@1.3-service.widevine" ]] && ADD_TO_WORK_DIR "$legacy_output" "vendor" "bin/hw/android.hardware.drm@1.3-service.widevine" 0 2000 755 "u:object_r:hal_drm_default_exec:s0"
 ADD_TO_WORK_DIR "$MODPATH" "vendor" "etc/init/android.hardware.media.omx@1.0-service.rc" 0 0 644 "u:object_r:vendor_configs_file:s0"
 if [[ -f "$WORK_DIR/vendor/etc/init/android.hardware.audio.service.rc" ]]; then
     if ! grep -q 'setenv LD_LIBRARY_PATH' "$WORK_DIR/vendor/etc/init/android.hardware.audio.service.rc"; then
         sed -i '/service vendor.audio-hal/a\    setenv LD_LIBRARY_PATH /vendor/lib/s10-runtime32:/vendor/lib:/vendor/lib/hw' \
             "$WORK_DIR/vendor/etc/init/android.hardware.audio.service.rc"
+    fi
+fi
+if [[ -f "$WORK_DIR/vendor/etc/init/android.hardware.drm@1.3-service.widevine.rc" ]]; then
+    if ! grep -q 'setenv LD_LIBRARY_PATH' "$WORK_DIR/vendor/etc/init/android.hardware.drm@1.3-service.widevine.rc"; then
+        sed -i '/service vendor.drm-widevine-hal-1-3/a\    setenv LD_LIBRARY_PATH /vendor/lib/s10-runtime32:/vendor/lib:/vendor/lib/hw' \
+            "$WORK_DIR/vendor/etc/init/android.hardware.drm@1.3-service.widevine.rc"
     fi
 fi
 for codec_library in "$WORK_DIR"/vendor/lib/omx/*.so "$WORK_DIR/vendor/lib/libstagefright_softomx_plugin.so" "$WORK_DIR"/vendor/lib/hw/camera.*.so "$WORK_DIR/vendor/lib/hw/gralloc.exynos9820.so" "$WORK_DIR"/vendor/lib/hw/*audio*.so "$WORK_DIR"/vendor/lib/hw/audio.*.so; do

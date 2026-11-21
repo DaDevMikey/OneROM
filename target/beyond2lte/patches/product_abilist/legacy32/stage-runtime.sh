@@ -29,6 +29,7 @@ for hardware_library in \
     "$vendor_source/lib/hw/sound_trigger.primary.exynos9820.so" \
     "$vendor_source/bin/hw/android.hardware.media.omx@1.0-service" \
     "$vendor_source/bin/hw/vendor.samsung.hardware.camera.provider@4.0-service" \
+    "$vendor_source/bin/hw/android.hardware.drm@1.3-service.widevine" \
     "$vendor_source/lib/hw/gralloc.exynos9820.so" \
     "$vendor_source"/lib/hw/camera.*.so \
     "$vendor_source"/lib/omx/*.so; do
@@ -73,6 +74,11 @@ patchelf --set-interpreter /vendor/bin/s10-linker32 --set-rpath /vendor/lib/s10-
 cp "$vendor_source/bin/hw/android.hardware.audio.service" "$destination/bin/android.hardware.audio.service"
 patchelf --set-interpreter /vendor/bin/s10-linker32 --set-rpath /vendor/lib/s10-runtime32 \
     "$destination/bin/android.hardware.audio.service"
+if [[ -f "$vendor_source/bin/hw/android.hardware.drm@1.3-service.widevine" ]]; then
+    cp "$vendor_source/bin/hw/android.hardware.drm@1.3-service.widevine" "$destination/bin/android.hardware.drm@1.3-service.widevine"
+    patchelf --set-interpreter /vendor/bin/s10-linker32 --set-rpath /vendor/lib/s10-runtime32 \
+        "$destination/bin/android.hardware.drm@1.3-service.widevine"
+fi
 helper_directory="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 python3 "$helper_directory/bind-foundation.py" \
     "$destination/lib/libstagefright_foundation.so" \

@@ -153,7 +153,7 @@
     move-result v1
     if-eqz v1, :bootloader
     const-string v0, "ro.onerom.device"
-    const-string v1, "beyond1lte"
+    const-string v1, "beyond2lte"
     invoke-static {v0, v1}, Landroid/os/SemSystemProperties;->get(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
     move-result-object v0
     return-object v0
@@ -205,4 +205,52 @@
     :catch_0
     const-string v0, "Not installed"
     return-object v0
+.end method
+
+.method public bridge synthetic getStatusText()Ljava/lang/String;
+    .locals 0
+
+    const/4 p0, 0x0
+
+    return-object p0
+.end method
+
+.method public bridge synthetic getValue()Lcom/samsung/android/settings/cube/ControlValue;
+    .locals 0
+
+    const/4 p0, 0x0
+
+    return-object p0
+.end method
+
+.method public bridge synthetic isControllable()Z
+    .locals 0
+
+    const/4 p0, 0x0
+
+    return p0
+.end method
+
+.method public bridge synthetic needUserInteraction(Ljava/lang/Object;)Lcom/samsung/android/settings/cube/Controllable$ControllableType;
+    .locals 0
+
+    sget-object p0, Lcom/samsung/android/settings/cube/Controllable$ControllableType;->NO_INTERACTION:Lcom/samsung/android/settings/cube/Controllable$ControllableType;
+
+    return-object p0
+.end method
+
+.method public bridge synthetic runDefaultAction()Z
+    .locals 0
+
+    const/4 p0, 0x0
+
+    return p0
+.end method
+
+.method public bridge synthetic setValue(Lcom/samsung/android/settings/cube/ControlValue;)Lcom/samsung/android/settings/cube/ControlResult;
+    .locals 0
+
+    const/4 p0, 0x0
+
+    return-object p0
 .end method

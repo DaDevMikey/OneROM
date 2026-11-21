@@ -21,6 +21,7 @@ public final class S10AppCodeOverrides {
             "/system/priv-app/BiometricSetting/BiometricSetting.apk",
             "/system/system_ext/priv-app/SystemUI/SystemUI.apk",
             "/system_ext/priv-app/SystemUI/SystemUI.apk",
+            "/system/priv-app/SamsungCamera/SamsungCamera.apk",
             "/system/priv-app/FotaAgent/FotaAgent.apk",
             "/system/priv-app/SamsungDeviceHealthManagerService/SamsungDeviceHealthManagerService.apk"
         };

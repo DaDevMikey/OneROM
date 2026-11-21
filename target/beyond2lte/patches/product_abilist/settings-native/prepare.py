@@ -19,9 +19,6 @@ def write_xml(root, path):
 
 def prepare(module, decoded):
     assets = module / "SecSettings.apk"
-    package = decoded / "smali_classes5/io/mesalabs/unica/settings"
-    if package.exists():
-        shutil.rmtree(package)
 
     # 1. Clear any old reflection hooks
     for path in (
@@ -110,18 +107,43 @@ def prepare(module, decoded):
         except Exception:
             pass
 
-    # 7. Main Settings Homepage: REMOVE OneROM entry
-    homepage_path = decoded / "res/xml/sec_top_level_settings.xml"
-    if homepage_path.exists():
+    # 7. Main Settings Homepage: Restore About phone parity and remove OneROM card
+    homepage_candidates = list((decoded / "res/xml").glob("*.xml"))
+    for h_path in homepage_candidates:
         try:
-            homepage = ET.parse(homepage_path).getroot()
-            changed = False
-            for item in list(homepage):
-                if item.get(ANDROID + "key") in {"top_level_onerom", "onerom_guide"}:
-                    homepage.remove(item)
+            tree = ET.parse(h_path)
+            homepage = tree.getroot()
+            if any(item.get(ANDROID + "key") in {"top_level_about_phone", "top_level_about_device"} for item in homepage):
+                changed = False
+                for item in list(homepage):
+                    key = item.get(ANDROID + "key")
+                    if key in {"top_level_onerom", "top_level_user_manual"}:
+                        homepage.remove(item)
+                        changed = True
+                    elif key in {"top_level_about_device", "top_level_about_phone"}:
+                        item.tag = "io.mesalabs.unica.settings.AboutHomepagePreference"
+                        item.set(SETTINGS + "controller", "io.mesalabs.unica.settings.DoubleTapAboutPreferenceController")
+                        changed = True
+                    elif key == "top_level_remote_support":
+                        item.set(ANDROID + "title", "OneROM Guide")
+                        item.set(ANDROID + "summary", "Learn about OneROM features and tips")
+                        item.set(ANDROID + "fragment", "io.mesalabs.unica.settings.OneRomGuideFragment")
+                        item.set(ANDROID + "icon", "@drawable/sec_ic_settings_help")
+                        changed = True
+                if not any(item.get(ANDROID + "key") == "top_level_remote_support" for item in homepage):
+                    guide = ET.Element("com.android.settings.widget.HomepagePreference", {
+                        ANDROID + "icon": "@drawable/sec_ic_settings_help",
+                        ANDROID + "title": "OneROM Guide",
+                        ANDROID + "key": "top_level_remote_support",
+                        ANDROID + "summary": "Learn about OneROM features and tips",
+                        ANDROID + "order": "360000",
+                        ANDROID + "fragment": "io.mesalabs.unica.settings.OneRomGuideFragment",
+                    })
+                    homepage.append(guide)
                     changed = True
-            if changed:
-                write_xml(homepage, homepage_path)
+                if changed:
+                    write_xml(homepage, h_path)
+                break
         except Exception:
             pass
 
@@ -318,6 +340,17 @@ def prepare(module, decoded):
             source, _ = re.subn(pat2, rep2, source, flags=re.S)
             controller_path.write_text(source, encoding="utf-8")
             print("  + Patched AbstractLogpersistPreferenceController.smali (Developer Settings crash fix)")
+
+    
+    # 18. Patch Utils.getResourceId to return 0 instead of throwing NotFoundException
+    for utils_path in decoded.glob("smali*/io/mesalabs/unica/utils/Utils.smali"):
+        source = utils_path.read_text(encoding="utf-8")
+        pat = r"(:cond_0\s*\n\s*)new-instance v0, Landroid/content/res/Resources;.*?throw v0"
+        rep = r"\1const/4 v0, 0x0\n    return v0"
+        new_source, count = re.subn(pat, rep, source, flags=re.S)
+        if count:
+            utils_path.write_text(new_source, encoding="utf-8")
+            print("  + Patched Utils.getResourceId (prevent NotFoundException)")
 
     print("[+] prepare.py: OneROM Zeta 9.5 SecSettings customization completed successfully")
 
