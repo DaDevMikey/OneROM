@@ -23,7 +23,7 @@
 
     new-instance p0, Ljava/io/File;
 
-    const-string v0, "/system/fonts/SamsungColorEmoji_95.ttf"
+    const-string v0, "/system/fonts_95/SamsungColorEmoji.ttf"
 
     invoke-direct {p0, v0}, Ljava/io/File;-><init>(Ljava/lang/String;)V
 
