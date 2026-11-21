@@ -6,7 +6,7 @@ OneROM Delta 9.0 packages **OneKernel 9.0** for the Samsung Galaxy S10 LTE (`bey
 
 - **Kernel Name**: OneKernel 9.0
 - **Base**: ExtremeKRNL 2.6.5 by Creeeeger
-- **Upstream Repository**: [https://github.com/Creeeeger/9820_kernel](https://github.com/Creeeeger/9820_kernel)
+- **Kernel Source**: [https://github.com/aaronthetechie1/9820_kernel/tree/onekernel-ksun-legacy](https://github.com/aaronthetechie1/9820_kernel/tree/onekernel-ksun-legacy) (forked from [Creeeeger/9820_kernel](https://github.com/Creeeeger/9820_kernel))
 - **Linux Base**: 4.14.356 (openela-rc1)
 - **Features**:
   - Exynos 9820 CPU overclock up to 3.04 GHz
