@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version='1.0' encoding='utf-8'?>
 <resources>
     <string name="unica_allow_downgrade_title">App Downgrade erlauben</string>
     <string name="unica_allow_sdkbypass_title">Deaktiviere SDK-Block</string>
@@ -56,4 +56,4 @@
     <string name="unica_updates_title">OneROM Updates</string>
     <string name="unica_vulkan_summary">Das ist instabil und könnte Probleme verursachen!</string>
     <string name="unica_vulkan_title">Vulkan Renderer aktivieren</string>
-</resources>
+<string name="unica_emoji_95_title">One UI 9.5-Emojis</string><string name="unica_emoji_95_summary">Das neuere Emoji-Set aus One UI 9.5 verwenden (Neustart erforderlich)</string></resources>

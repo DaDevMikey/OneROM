@@ -142,3 +142,15 @@ system/app/HMT
 system/app/AllShareAware
 system/app/AllshareMediaShare
 "
+
+# FotaAgent
+SYSTEM_DEBLOAT+="
+system/etc/permissions/privapp-permissions-com.wssyncmldm.xml
+system/etc/sysconfig/preinstalled-packages-com.wssyncmldm.xml
+system/priv-app/FotaAgent
+"
+
+# Google Messages
+PRODUCT_DEBLOAT+="
+priv-app/Messages
+"
