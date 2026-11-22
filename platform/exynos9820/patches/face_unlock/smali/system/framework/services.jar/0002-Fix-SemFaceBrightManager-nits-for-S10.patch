@@ -1,0 +1,34 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Aaron <aaron@onerom>
+Date: Sun, 22 Nov 2026 17:25:00 +0100
+Subject: [PATCH] Fix SemFaceBrightManager nits for S10
+
+--- a/smali/com/android/server/biometrics/sensors/face/aidl/SemFaceServiceExImpl.smali
++++ b/smali/com/android/server/biometrics/sensors/face/aidl/SemFaceServiceExImpl.smali
+@@ -4290,7 +4290,7 @@
+ 
+     iget-object v8, v0, Lcom/android/server/biometrics/sensors/face/SemFaceBrightManager;->mDisplayManager:Landroid/hardware/display/DisplayManager;
+ 
+-    const/high16 v9, 0x42580000    # 54.0f
++    const/high16 v9, 0x437a0000    # 250.0f
+ 
+     invoke-virtual {v8, v9}, Landroid/hardware/display/DisplayManager;->convertToBrightness(F)I
+ 
+@@ -4298,7 +4298,7 @@
+ 
+     iget-object v9, v0, Lcom/android/server/biometrics/sensors/face/SemFaceBrightManager;->mDisplayManager:Landroid/hardware/display/DisplayManager;
+ 
+-    const/high16 v10, 0x429a0000    # 77.0f
++    const/high16 v10, 0x43a00000    # 320.0f
+ 
+     invoke-virtual {v9, v10}, Landroid/hardware/display/DisplayManager;->convertToBrightness(F)I
+ 
+@@ -4306,7 +4306,7 @@
+ 
+     iget-object v10, v0, Lcom/android/server/biometrics/sensors/face/SemFaceBrightManager;->mDisplayManager:Landroid/hardware/display/DisplayManager;
+ 
+-    const/high16 v11, 0x42c80000    # 100.0f
++    const/high16 v11, 0x43c80000    # 400.0f
+ 
+     invoke-virtual {v10, v11}, Landroid/hardware/display/DisplayManager;->convertToBrightness(F)I
+ 

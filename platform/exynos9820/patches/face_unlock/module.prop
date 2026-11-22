@@ -1,0 +1,4 @@
+id=face_unlock
+name=S10 Face Unlock
+author=aaron
+description=Ports S10 Face Unlock (faced + BioFaceService + S10FaceHal) for OneROM 9.0

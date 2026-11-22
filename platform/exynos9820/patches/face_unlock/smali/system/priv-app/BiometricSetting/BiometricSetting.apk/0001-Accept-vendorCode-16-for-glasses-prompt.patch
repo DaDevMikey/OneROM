@@ -1,0 +1,54 @@
+diff --git a/smali/com/samsung/android/biometrics/app/setting/face/FaceEnrollActivity$6.smali b/smali/com/samsung/android/biometrics/app/setting/face/FaceEnrollActivity$6.smali
+--- a/smali/com/samsung/android/biometrics/app/setting/face/FaceEnrollActivity$6.smali
++++ b/smali/com/samsung/android/biometrics/app/setting/face/FaceEnrollActivity$6.smali
+@@ -131,6 +131,34 @@
+ .method public final onEnrollmentFrame(ILjava/lang/CharSequence;Landroid/hardware/face/FaceEnrollCell;IFFF)V
+     .locals 8
+ 
++    sparse-switch p1, :sswitch_vendor_norm
++
++    goto :goto_vendor_norm_done
++
++    :sswitch_v16
++    const/16 p1, 0x3f8
++
++    goto :goto_vendor_norm_done
++
++    :sswitch_v24
++    const/16 p1, 0x400
++
++    goto :goto_vendor_norm_done
++
++    :sswitch_v25
++    const/16 p1, 0x401
++
++    goto :goto_vendor_norm_done
++
++    :sswitch_v50
++    const/16 p1, 0x41a
++
++    goto :goto_vendor_norm_done
++
++    :sswitch_v1001
++    const/16 p1, 0x7d1
++
++    :goto_vendor_norm_done
+     new-instance p3, Ljava/lang/StringBuilder;
+ 
+     const-string p5, "onEnrollmentFrame["
+@@ -707,6 +735,15 @@
+         :pswitch_6
+         :pswitch_0
+     .end packed-switch
++
++    :sswitch_vendor_norm
++    .sparse-switch
++        0x10 -> :sswitch_v16
++        0x18 -> :sswitch_v24
++        0x19 -> :sswitch_v25
++        0x32 -> :sswitch_v50
++        0x3e9 -> :sswitch_v1001
++    .end sparse-switch
+ .end method
+ 
+ .method public final onEnrollmentProgress(I)V
