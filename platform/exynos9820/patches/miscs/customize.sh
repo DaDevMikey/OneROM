@@ -33,9 +33,11 @@ LOG_STEP_OUT
 
 LOG_STEP_IN "- Patching Bluetooth APEX for Exynos 9820 software A2DP"
 if [ -f "$WORK_DIR/system/system/apex/com.android.bt.apex" ]; then
-    python3 "$SRC_DIR/scripts/patch_bluetooth_apex.py" "$WORK_DIR/system/system/apex/com.android.bt.apex"
+    python3 "$SRC_DIR/scripts/patch_bluetooth_apex.py" "$WORK_DIR/system/system/apex/com.android.bt.apex" || ABORT "Bluetooth APEX patch failed"
 elif [ -f "$WORK_DIR/system/apex/com.android.bt.apex" ]; then
-    python3 "$SRC_DIR/scripts/patch_bluetooth_apex.py" "$WORK_DIR/system/apex/com.android.bt.apex"
+    python3 "$SRC_DIR/scripts/patch_bluetooth_apex.py" "$WORK_DIR/system/apex/com.android.bt.apex" || ABORT "Bluetooth APEX patch failed"
+else
+    ABORT "Bluetooth APEX not found in work directory"
 fi
 LOG_STEP_OUT
 

@@ -1,0 +1,58 @@
+diff --git a/smali/com/airbnb/lottie/LottieAnimationView.smali b/smali/com/airbnb/lottie/LottieAnimationView.smali
+--- a/smali/com/airbnb/lottie/LottieAnimationView.smali
++++ b/smali/com/airbnb/lottie/LottieAnimationView.smali
+@@ -2011,12 +2011,53 @@
+ .method public setAnimation(Ljava/lang/String;)V
+-    .registers 8
++    .registers 11
+ 
+     iput-object p1, p0, Lcom/airbnb/lottie/LottieAnimationView;->animationName:Ljava/lang/String;
+ 
+     const/4 v0, 0x0
+ 
+     iput v0, p0, Lcom/airbnb/lottie/LottieAnimationView;->animationResId:I
+ 
++    const-string v6, "punch_hole_ic_b1"
++
++    invoke-virtual {p1, v6}, Ljava/lang/String;->startsWith(Ljava/lang/String;)Z
++
++    move-result v6
++
++    if-eqz v6, :cond_standard_asset
++
++    new-instance v6, Ljava/io/File;
++
++    const-string v7, "/system/framework/s10-app-overrides/BiometricSetting.apk/assets"
++
++    invoke-direct {v6, v7, p1}, Ljava/io/File;-><init>(Ljava/lang/String;Ljava/lang/String;)V
++
++    invoke-virtual {v6}, Ljava/io/File;->isFile()Z
++
++    move-result v7
++
++    if-eqz v7, :cond_standard_asset
++
++    :try_start_external_asset
++    new-instance v7, Ljava/io/FileInputStream;
++
++    invoke-direct {v7, v6}, Ljava/io/FileInputStream;-><init>(Ljava/io/File;)V
++
++    invoke-virtual {p0, v7, p1}, Lcom/airbnb/lottie/LottieAnimationView;->setAnimation(Ljava/io/InputStream;Ljava/lang/String;)V
++
++    return-void
++    :try_end_external_asset
++    .catch Ljava/io/IOException; {:try_start_external_asset .. :try_end_external_asset} :catch_external_asset
++
++    :catch_external_asset
++    move-exception v6
++
++    const-string v7, "LottieAnimationView"
++
++    const-string v8, "Unable to open external animation; falling back to APK assets"
++
++    invoke-static {v7, v8, v6}, Landroid/util/Log;->w(Ljava/lang/String;Ljava/lang/String;Ljava/lang/Throwable;)I
++
++    :cond_standard_asset
+     invoke-virtual {p0}, Landroid/widget/ImageView;->isInEditMode()Z
+ 
+     move-result v0

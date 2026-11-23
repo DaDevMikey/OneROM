@@ -168,7 +168,7 @@ DECODE()
     # - Disabled debug info
     # - Use .locals directive instead of the .registers one
     # - Use a sequential numbering scheme for labels
-    EVAL "apktool d -b -o \"$OUTPUT_PATH\" -p \"$FRAMEWORK_DIR\" -t \"$FRAMEWORK_TAG\" -s \"$INPUT_FILE\"" || exit 1
+    EVAL "apktool d --no-debug-info -o \"$OUTPUT_PATH\" -p \"$FRAMEWORK_DIR\" -t \"$FRAMEWORK_TAG\" -s \"$INPUT_FILE\"" || exit 1
 
     local DEX_ENTRIES=()
     while IFS= read -r entry; do

@@ -9,11 +9,11 @@ This document tracks verified active issues and bug hunting targets for **OneROM
 
 ## Active Known Issues
 
-### 1. Bluetooth Audio Crash (Galaxy Buds / A2DP Offload Assertion)
+### 1. Bluetooth Audio Broken (Galaxy Buds / A2DP Routing)
 - **Devices**: Galaxy S10 (`beyond1lte`), Galaxy S10+ (`beyond2lte`).
-- **Symptom**: Connecting Galaxy Buds or initiating Bluetooth A2DP audio streaming causes Bluetooth to suddenly turn off and restart a few seconds later.
-- **Root Cause**: Exynos 9820 vendor does not implement Samsung's newer `vendor.samsung.hardware.bluetooth.a2dp@1.0` HIDL offload service. When `ISehBluetoothAudioOffload::getService()` returns `nullptr`, `btif_a2dp_audio_interface_start_session()` in `libbluetooth_jni.so` (inside `com.android.bt.apex`) triggers `FATAL:btif_a2dp_audio_interface.cc(303) Check failed: btAudio != nullptr`, killing `com.android.bluetooth` with `SIGABRT`.
-- **Status / Fix**: Fixed in `com.android.bt.apex` by patching the assertion and bypassing the HIDL offload start call to enforce standard AOSP software A2DP streaming. Users can flash the `OneROM_Delta_9.0.1.1_Bluetooth_Buds_Fix.zip` hotfix package or update to OneROM Delta 9.0.1.1.
+- **Symptom**: Galaxy Buds pair and connect, but audio does not route to the headset. With the stock Bluetooth APEX, starting an A2DP session can also crash `com.android.bluetooth` and turn Bluetooth off.
+- **Root Cause**: The Exynos 9820 vendor does not expose Samsung's `vendor.samsung.hardware.bluetooth.a2dp@1.0::ISehBluetoothAudioOffload` service. The stock APEX aborts in `btif_a2dp_audio_interface_start_session()` when that service is unavailable. Bypassing the abort prevents the crash, but the live test still shows AudioPolicy suppressing the A2DP route.
+- **Status**: Broken and under investigation. Pairing/connection and crash prevention are not proof of working audio; no working A2DP audio fix is verified.
 
 ### 2. Galaxy S10+ Camera Launch Failure ("Warning: Camera failed")
 - **Devices**: Galaxy S10+ (`beyond2lte`).

@@ -23,7 +23,8 @@ public final class S10AppCodeOverrides {
             "/system_ext/priv-app/SystemUI/SystemUI.apk",
             "/system/priv-app/SamsungCamera/SamsungCamera.apk",
             "/system/priv-app/FotaAgent/FotaAgent.apk",
-            "/system/priv-app/SamsungDeviceHealthManagerService/SamsungDeviceHealthManagerService.apk"
+            "/system/priv-app/SamsungDeviceHealthManagerService/SamsungDeviceHealthManagerService.apk",
+            "/system/priv-app/BioFaceService/BioFaceService.apk"
         };
         for (String source : allowed) {
             if (!source.equals(dexPath)) {
