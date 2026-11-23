@@ -184,7 +184,7 @@ index f4cfa6e..a18b67d 100644
      .locals 5
  
      const-string p2, "BSS_FaceGuideFragment"
-@@ -522,18 +648,18 @@
+@@ -522,18 +648,14 @@
  
      iget-object v2, p0, Lcom/samsung/android/biometrics/app/setting/face/FaceGuideFragment;->mMediaPlayer:Landroid/media/MediaPlayer;
  
