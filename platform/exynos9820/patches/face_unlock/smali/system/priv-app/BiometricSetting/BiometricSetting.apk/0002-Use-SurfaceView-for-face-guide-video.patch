@@ -1,0 +1,225 @@
+diff --git a/smali/com/samsung/android/biometrics/app/setting/face/FaceGuideFragment.smali b/smali/com/samsung/android/biometrics/app/setting/face/FaceGuideFragment.smali
+index f4cfa6e..a18b67d 100644
+--- a/smali/com/samsung/android/biometrics/app/setting/face/FaceGuideFragment.smali
++++ b/smali/com/samsung/android/biometrics/app/setting/face/FaceGuideFragment.smali
+@@ -4,6 +4,7 @@
+ 
+ # interfaces
+ .implements Landroid/view/TextureView$SurfaceTextureListener;
++.implements Landroid/view/SurfaceHolder$Callback;
+ 
+ 
+ # instance fields
+@@ -11,6 +12,8 @@
+ 
+ .field public mMediaPlayer:Landroid/media/MediaPlayer;
+ 
++.field public mSurfaceView:Landroid/view/SurfaceView;
++
+ .field public mTextureView:Landroid/view/TextureView;
+ 
+ 
+@@ -28,6 +31,42 @@
+ .method public final adjustTextureViewRatio(II)V
+     .locals 4
+ 
++    iget-object v0, p0, Lcom/samsung/android/biometrics/app/setting/face/FaceGuideFragment;->mSurfaceView:Landroid/view/SurfaceView;
++
++    if-eqz v0, :cond_tex
++
++    invoke-virtual {v0}, Landroid/view/SurfaceView;->getHeight()I
++
++    move-result v1
++
++    if-lez v1, :cond_tex
++
++    int-to-double v2, p1
++
++    int-to-double p1, p2
++
++    div-double/2addr v2, p1
++
++    int-to-double p1, v1
++
++    mul-double/2addr v2, p1
++
++    double-to-int p1, v2
++
++    invoke-virtual {v0}, Landroid/view/SurfaceView;->getLayoutParams()Landroid/view/ViewGroup$LayoutParams;
++
++    move-result-object v1
++
++    if-eqz v1, :cond_sv_ret
++
++    iput p1, v1, Landroid/view/ViewGroup$LayoutParams;->width:I
++
++    invoke-virtual {v0, v1}, Landroid/view/SurfaceView;->setLayoutParams(Landroid/view/ViewGroup$LayoutParams;)V
++
++    :cond_sv_ret
++    return-void
++
++    :cond_tex
+     iget-object v0, p0, Lcom/samsung/android/biometrics/app/setting/face/FaceGuideFragment;->mTextureView:Landroid/view/TextureView;
+ 
+     if-nez v0, :cond_0
+@@ -268,15 +307,49 @@
+ 
+     if-eqz v0, :cond_1
+ 
+-    invoke-virtual {v0, v1}, Landroid/view/TextureView;->setVisibility(I)V
++    const/16 v2, 0x8
+ 
+-    iget-object v0, p0, Lcom/samsung/android/biometrics/app/setting/face/FaceGuideFragment;->mTextureView:Landroid/view/TextureView;
++    invoke-virtual {v0, v2}, Landroid/view/TextureView;->setVisibility(I)V
+ 
+-    invoke-virtual {v0, p0}, Landroid/view/TextureView;->setSurfaceTextureListener(Landroid/view/TextureView$SurfaceTextureListener;)V
++    invoke-virtual {v0}, Landroid/view/TextureView;->getParent()Landroid/view/ViewParent;
+ 
+-    iget-object v0, p0, Lcom/samsung/android/biometrics/app/setting/face/FaceGuideFragment;->mTextureView:Landroid/view/TextureView;
++    move-result-object v2
++
++    instance-of v3, v2, Landroid/view/ViewGroup;
++
++    if-eqz v3, :cond_1
++
++    check-cast v2, Landroid/view/ViewGroup;
++
++    new-instance v3, Landroid/view/SurfaceView;
++
++    iget-object v4, p0, Lcom/samsung/android/biometrics/app/setting/face/FaceGuideFragment;->mActivity:Lcom/samsung/android/biometrics/app/setting/face/FaceEnrollActivity;
++
++    invoke-direct {v3, v4}, Landroid/view/SurfaceView;-><init>(Landroid/content/Context;)V
++
++    iput-object v3, p0, Lcom/samsung/android/biometrics/app/setting/face/FaceGuideFragment;->mSurfaceView:Landroid/view/SurfaceView;
++
++    invoke-virtual {v3, v1}, Landroid/view/SurfaceView;->setFocusable(Z)V
++
++    new-instance v4, Landroid/widget/RelativeLayout$LayoutParams;
++
++    const/4 v0, -0x1
++
++    invoke-direct {v4, v0, v0}, Landroid/widget/RelativeLayout$LayoutParams;-><init>(II)V
++
++    const/16 v0, 0xd
++
++    invoke-virtual {v4, v0}, Landroid/widget/RelativeLayout$LayoutParams;->addRule(I)V
++
++    invoke-virtual {v3, v4}, Landroid/view/SurfaceView;->setLayoutParams(Landroid/view/ViewGroup$LayoutParams;)V
++
++    invoke-virtual {v3}, Landroid/view/SurfaceView;->getHolder()Landroid/view/SurfaceHolder;
++
++    move-result-object v0
++
++    invoke-interface {v0, p0}, Landroid/view/SurfaceHolder;->addCallback(Landroid/view/SurfaceHolder$Callback;)V
+ 
+-    invoke-virtual {v0, v1}, Landroid/view/TextureView;->setFocusable(Z)V
++    invoke-virtual {v2, v3}, Landroid/view/ViewGroup;->addView(Landroid/view/View;)V
+ 
+     :cond_1
+     const v0, 0x7f0a0188
+@@ -452,6 +525,19 @@
+     iput-object v1, p0, Lcom/samsung/android/biometrics/app/setting/face/FaceGuideFragment;->mMediaPlayer:Landroid/media/MediaPlayer;
+ 
+     :cond_0
++    iget-object v0, p0, Lcom/samsung/android/biometrics/app/setting/face/FaceGuideFragment;->mSurfaceView:Landroid/view/SurfaceView;
++
++    if-eqz v0, :cond_sv_done
++
++    invoke-virtual {v0}, Landroid/view/SurfaceView;->getHolder()Landroid/view/SurfaceHolder;
++
++    move-result-object v0
++
++    invoke-interface {v0, p0}, Landroid/view/SurfaceHolder;->removeCallback(Landroid/view/SurfaceHolder$Callback;)V
++
++    iput-object v1, p0, Lcom/samsung/android/biometrics/app/setting/face/FaceGuideFragment;->mSurfaceView:Landroid/view/SurfaceView;
++
++    :cond_sv_done
+     iget-object v0, p0, Lcom/samsung/android/biometrics/app/setting/face/FaceGuideFragment;->mTextureView:Landroid/view/TextureView;
+ 
+     if-eqz v0, :cond_1
+@@ -465,6 +551,46 @@
+ .end method
+ 
+ .method public final onSurfaceTextureAvailable(Landroid/graphics/SurfaceTexture;II)V
++    .locals 1
++
++    new-instance v0, Landroid/view/Surface;
++
++    invoke-direct {v0, p1}, Landroid/view/Surface;-><init>(Landroid/graphics/SurfaceTexture;)V
++
++    invoke-virtual {p0, v0, p2, p3}, Lcom/samsung/android/biometrics/app/setting/face/FaceGuideFragment;->startGuideMediaPlayer(Landroid/view/Surface;II)V
++
++    return-void
++.end method
++
++.method public final surfaceCreated(Landroid/view/SurfaceHolder;)V
++    .locals 2
++
++    invoke-interface {p1}, Landroid/view/SurfaceHolder;->getSurface()Landroid/view/Surface;
++
++    move-result-object p1
++
++    const/4 v0, 0x0
++
++    const/4 v1, 0x0
++
++    invoke-virtual {p0, p1, v0, v1}, Lcom/samsung/android/biometrics/app/setting/face/FaceGuideFragment;->startGuideMediaPlayer(Landroid/view/Surface;II)V
++
++    return-void
++.end method
++
++.method public final surfaceChanged(Landroid/view/SurfaceHolder;III)V
++    .locals 0
++
++    return-void
++.end method
++
++.method public final surfaceDestroyed(Landroid/view/SurfaceHolder;)V
++    .locals 0
++
++    return-void
++.end method
++
++.method public final startGuideMediaPlayer(Landroid/view/Surface;II)V
+     .locals 5
+ 
+     const-string p2, "BSS_FaceGuideFragment"
+@@ -522,18 +648,35 @@
+ 
+     iget-object v2, p0, Lcom/samsung/android/biometrics/app/setting/face/FaceGuideFragment;->mMediaPlayer:Landroid/media/MediaPlayer;
+ 
+-    new-instance v3, Landroid/view/Surface;
++    invoke-virtual {v2, p1}, Landroid/media/MediaPlayer;->setSurface(Landroid/view/Surface;)V
++
++    new-instance p1, Ljava/io/File;
++
++    const-string v2, "/system/framework/s10-app-overrides/BiometricSetting.apk/face_enroll_help_guide.mp4"
+ 
+-    invoke-direct {v3, p1}, Landroid/view/Surface;-><init>(Landroid/graphics/SurfaceTexture;)V
++    invoke-direct {p1, v2}, Ljava/io/File;-><init>(Ljava/lang/String;)V
++
++    invoke-virtual {p1}, Ljava/io/File;->isFile()Z
++
++    move-result p1
+ 
+-    invoke-virtual {v2, v3}, Landroid/media/MediaPlayer;->setSurface(Landroid/view/Surface;)V
++    if-eqz p1, :cond_res_uri
+ 
+     iget-object p1, p0, Lcom/samsung/android/biometrics/app/setting/face/FaceGuideFragment;->mMediaPlayer:Landroid/media/MediaPlayer;
+ 
++    invoke-virtual {p1, v2}, Landroid/media/MediaPlayer;->setDataSource(Ljava/lang/String;)V
++
++    goto :goto_ds_done
++
++    :cond_res_uri
++    iget-object p1, p0, Lcom/samsung/android/biometrics/app/setting/face/FaceGuideFragment;->mMediaPlayer:Landroid/media/MediaPlayer;
++
+     iget-object v2, p0, Lcom/samsung/android/biometrics/app/setting/face/FaceGuideFragment;->mActivity:Lcom/samsung/android/biometrics/app/setting/face/FaceEnrollActivity;
+ 
+     invoke-virtual {p1, v2, v1}, Landroid/media/MediaPlayer;->setDataSource(Landroid/content/Context;Landroid/net/Uri;)V
+ 
++    :goto_ds_done
++
+     iget-object p1, p0, Lcom/samsung/android/biometrics/app/setting/face/FaceGuideFragment;->mMediaPlayer:Landroid/media/MediaPlayer;
+ 
+     invoke-virtual {p1, v4}, Landroid/media/MediaPlayer;->setLooping(Z)V

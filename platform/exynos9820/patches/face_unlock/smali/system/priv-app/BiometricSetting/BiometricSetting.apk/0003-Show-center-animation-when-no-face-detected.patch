@@ -1,0 +1,45 @@
+diff --git a/smali/com/samsung/android/biometrics/app/setting/face/FaceEnrollActivity$6.smali b/smali/com/samsung/android/biometrics/app/setting/face/FaceEnrollActivity$6.smali
+index 0e92ca7..ac76c6f 100644
+--- a/smali/com/samsung/android/biometrics/app/setting/face/FaceEnrollActivity$6.smali
++++ b/smali/com/samsung/android/biometrics/app/setting/face/FaceEnrollActivity$6.smali
+@@ -189,6 +189,40 @@
+ 
+     iget-object p3, p0, Lcom/samsung/android/biometrics/app/setting/face/FaceEnrollActivity$6;->this$0:Lcom/samsung/android/biometrics/app/setting/face/FaceEnrollActivity;
+ 
++    const/16 p5, 0x17
++
++    const/4 p6, 0x0
++
++    const/4 p7, 0x1
++
++    if-ne p1, p5, :cond_check_noface
++
++    iget-object p5, p3, Lcom/samsung/android/biometrics/app/setting/face/FaceEnrollActivity;->mPoseGuideShown:[Z
++
++    aget-boolean p5, p5, p6
++
++    if-eqz p5, :cond_noface_done
++
++    sget-object p5, Lcom/samsung/android/biometrics/app/setting/face/FaceEnrollActivity$Pose;->CENTER:Lcom/samsung/android/biometrics/app/setting/face/FaceEnrollActivity$Pose;
++
++    invoke-static {p3, p5, p7, p6}, Lcom/samsung/android/biometrics/app/setting/face/FaceEnrollActivity;->-$$Nest$mshowPoseGuide(Lcom/samsung/android/biometrics/app/setting/face/FaceEnrollActivity;Lcom/samsung/android/biometrics/app/setting/face/FaceEnrollActivity$Pose;ZZ)V
++
++    goto :goto_noface_done
++
++    :cond_check_noface
++    if-ne p1, p7, :cond_noface_done
++
++    iget-boolean p5, p3, Lcom/samsung/android/biometrics/app/setting/face/FaceEnrollActivity;->mIsWearingGlasses:Z
++
++    if-nez p5, :cond_noface_done
++
++    sget-object p5, Lcom/samsung/android/biometrics/app/setting/face/FaceEnrollActivity$Pose;->CENTER:Lcom/samsung/android/biometrics/app/setting/face/FaceEnrollActivity$Pose;
++
++    invoke-static {p3, p5, p6, p7}, Lcom/samsung/android/biometrics/app/setting/face/FaceEnrollActivity;->-$$Nest$mshowPoseGuide(Lcom/samsung/android/biometrics/app/setting/face/FaceEnrollActivity;Lcom/samsung/android/biometrics/app/setting/face/FaceEnrollActivity$Pose;ZZ)V
++
++    :cond_noface_done
++    :goto_noface_done
++
+     iget-boolean p5, p3, Lcom/samsung/android/biometrics/app/setting/face/FaceEnrollActivity;->mIsEnrolling:Z
+ 
+     const p6, 0x7f10007c
