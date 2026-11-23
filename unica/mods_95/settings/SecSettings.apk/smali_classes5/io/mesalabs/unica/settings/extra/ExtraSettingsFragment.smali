@@ -40,5 +40,6 @@
 
     invoke-static {p0}, Lcom/android/settings/OneROMHelper;->buildExtraScreen(Landroidx/preference/PreferenceFragmentCompat;)V
 
+
     return-void
 .end method

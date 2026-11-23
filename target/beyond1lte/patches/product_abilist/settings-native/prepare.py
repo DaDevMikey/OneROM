@@ -165,27 +165,7 @@ def prepare(module, decoded):
             software.insert(0, banner)
             write_xml(software, software_xml_path)
 
-    # 9. Also add banner to About phone if desired
-    about_fragment = decoded / "smali_classes3/com/samsung/android/settings/deviceinfo/aboutphone/SecMyDeviceInfoFragment.smali"
-    if about_fragment.exists():
-        match = re.search(r"\.method public final getPreferenceScreenResId\(\)I.*?const p0, (0x[0-9a-f]+)",
-                          about_fragment.read_text(encoding="utf-8"), re.S)
-        if match:
-            public_path = decoded / "res/values/public.xml"
-            if public_path.exists():
-                public = ET.parse(public_path).getroot()
-                resource = next((item.get("name") for item in public
-                                if item.get("type") == "xml" and item.get("id") == match.group(1)), None)
-                if resource:
-                    about_path = decoded / f"res/xml/{resource}.xml"
-                    if about_path.exists() and software_xml_path.exists():
-                        about = ET.parse(about_path).getroot()
-                        if not any(item.get(ANDROID + "key") == "onerom_software_banner" for item in about):
-                            software = ET.parse(software_xml_path).getroot()
-                            banner_item = next((item for item in software if item.get(ANDROID + "key") == "onerom_software_banner"), None)
-                            if banner_item is not None:
-                                about.insert(0, deepcopy(banner_item))
-                                write_xml(about, about_path)
+    # 9. Banner in About phone disabled (per user request: only software info and onerom settings)
 
     # 10. Battery Regulatory & Health: FORCE AVAILABLE
     for path in decoded.glob("smali*/com/samsung/android/settings/deviceinfo/batteryinfo/BatteryInfoUtils.smali"):
@@ -222,13 +202,17 @@ def prepare(module, decoded):
         manifest = ET.parse(manifest_path).getroot()
         application = manifest.find("application")
         activity = "io.mesalabs.unica.BixbyKeyActionActivity"
-        if application is not None and not any(item.get(ANDROID + "name") == activity for item in application.findall("activity")):
-            ET.SubElement(application, "activity", {
-                ANDROID + "name": activity, ANDROID + "exported": "false",
-                ANDROID + "excludeFromRecents": "true", ANDROID + "noHistory": "true",
-                ANDROID + "taskAffinity": "", ANDROID + "showWhenLocked": "true",
-                ANDROID + "theme": "@android:style/Theme.Translucent.NoTitleBar",
-            })
+        if application is not None:
+            existing = next((item for item in application.findall("activity") if item.get(ANDROID + "name") == activity), None)
+            if existing is not None:
+                existing.set(ANDROID + "exported", "true")
+            else:
+                ET.SubElement(application, "activity", {
+                    ANDROID + "name": activity, ANDROID + "exported": "true",
+                    ANDROID + "excludeFromRecents": "true", ANDROID + "noHistory": "true",
+                    ANDROID + "taskAffinity": "", ANDROID + "showWhenLocked": "true",
+                    ANDROID + "theme": "@android:style/Theme.Translucent.NoTitleBar",
+                })
             write_xml(manifest, manifest_path)
 
     # 13. SettingsActivity: Validate all Unica / OneROM fragments
@@ -243,7 +227,7 @@ def prepare(module, decoded):
                 r'    const-string v0, "io.mesalabs.unica.settings."\n'
                 r"    invoke-virtual {p1, v0}, Ljava/lang/String;->startsWith(Ljava/lang/String;)Z\n"
                 r"    move-result v0\n"
-                r"    if-eqz v0, :onerom_native_fragment\n"
+                r"    if-nez v0, :onerom_native_fragment\n"
                 r"    goto :onerom_standard_fragment\n"
                 r"    :onerom_native_fragment\n"
                 r"    const/4 v0, 0x1\n"
@@ -251,6 +235,18 @@ def prepare(module, decoded):
                 r"    :onerom_standard_fragment\n"
             )
             source = re.sub(pattern, checks, source, count=1)
+
+        if ":onerom_bixby_action_check" not in source:
+            pattern_oc = r"(\.method public onCreate\(Landroid/os/Bundle;\)V\s*\.locals \d+)"
+            hook_oc = (
+                r"\1\n"
+                r"    invoke-static {p0}, Lcom/android/settings/OneROMHelper;->handleBixbyIntent(Landroid/app/Activity;)Z\n"
+                r"    move-result v0\n"
+                r"    if-eqz v0, :onerom_bixby_not_handled\n"
+                r"    return-void\n"
+                r"    :onerom_bixby_not_handled\n"
+            )
+            source = re.sub(pattern_oc, hook_oc, source, count=1)
             activity_path.write_text(source, encoding="utf-8")
 
     # 14. IMEI and Serial privacy masking in SecDeviceInfoUtils.smali

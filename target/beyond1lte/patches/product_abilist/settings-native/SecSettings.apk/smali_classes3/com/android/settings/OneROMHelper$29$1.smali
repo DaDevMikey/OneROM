@@ -28,35 +28,12 @@
 # direct methods
 .method constructor <init>(Lcom/android/settings/OneROMHelper$29;Landroid/content/Context;Ljava/lang/String;Landroidx/preference/Preference;)V
     .registers 5
-    .annotation system Ldalvik/annotation/MethodParameters;
-        accessFlags = {
-            0x8010,
-            0x1010,
-            0x1010,
-            0x1010
-        }
-        names = {
-            null,
-            null,
-            null,
-            null
-        }
-    .end annotation
 
-    .annotation system Ldalvik/annotation/Signature;
-        value = {
-            "()V"
-        }
-    .end annotation
-
-    .line 639
     iput-object p2, p0, Lcom/android/settings/OneROMHelper$29$1;->val$context:Landroid/content/Context;
 
     iput-object p3, p0, Lcom/android/settings/OneROMHelper$29$1;->val$key:Ljava/lang/String;
 
     iput-object p4, p0, Lcom/android/settings/OneROMHelper$29$1;->val$preference:Landroidx/preference/Preference;
-
-    invoke-virtual {p1}, Ljava/lang/Object;->getClass()Ljava/lang/Class;
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
@@ -66,9 +43,8 @@
 
 # virtual methods
 .method public onValue(Ljava/lang/String;)V
-    .registers 4
+    .registers 5
 
-    .line 642
     iget-object v0, p0, Lcom/android/settings/OneROMHelper$29$1;->val$context:Landroid/content/Context;
 
     invoke-virtual {v0}, Landroid/content/Context;->getContentResolver()Landroid/content/ContentResolver;
@@ -79,11 +55,15 @@
 
     invoke-static {v0, v1, p1}, Landroid/provider/Settings$System;->putString(Landroid/content/ContentResolver;Ljava/lang/String;Ljava/lang/String;)Z
 
-    .line 643
     iget-object v0, p0, Lcom/android/settings/OneROMHelper$29$1;->val$preference:Landroidx/preference/Preference;
 
     invoke-virtual {v0, p1}, Landroidx/preference/Preference;->setSummary(Ljava/lang/CharSequence;)V
 
-    .line 644
+    iget-object v0, p0, Lcom/android/settings/OneROMHelper$29$1;->val$context:Landroid/content/Context;
+
+    iget-object v1, p0, Lcom/android/settings/OneROMHelper$29$1;->val$key:Ljava/lang/String;
+
+    invoke-static {v0, v1, p1}, Lcom/android/settings/OneROMHelper;->applyBixbyCustomization(Landroid/content/Context;Ljava/lang/String;Ljava/lang/String;)V
+
     return-void
 .end method

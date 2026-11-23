@@ -41,7 +41,7 @@
 
     new-array v1, v0, [Ljava/lang/CharSequence;
 
-    const-string v2, "HighEnd"
+    const-string v2, "Flagship"
 
     const/4 v3, 0x0
 
@@ -53,7 +53,7 @@
 
     aput-object v2, v1, v4
 
-    const-string v2, "LowEnd"
+    const-string v2, "Budget"
 
     const/4 v5, 0x2
 

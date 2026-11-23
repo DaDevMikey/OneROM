@@ -138,15 +138,11 @@
 
     .line 185
     if-eqz p3, :cond_1a
-
     const/4 p3, 0x1
-
-    goto :goto_1b
-
+    goto :goto_set_checked
     :cond_1a
     const/4 p3, 0x0
-
-    :goto_1b
+    :goto_set_checked
     invoke-virtual {v0, p3}, Landroidx/preference/SecSwitchPreference;->setChecked(Z)V
 
     .line 186
@@ -692,13 +688,13 @@
 
     move-result-object v3
 
-    const-string v4, "drawable"
+    const-string v4, "layout"
 
     invoke-virtual {v1}, Landroid/content/Context;->getPackageName()Ljava/lang/String;
 
     move-result-object v5
 
-    const-string v6, "sec_ic_settings_gearshape"
+    const-string v6, "preference_widget_forward_arrow"
 
     invoke-virtual {v3, v6, v4, v5}, Landroid/content/res/Resources;->getIdentifier(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)I
 
@@ -709,18 +705,14 @@
 
     .line 294
     :try_start_f2
-    invoke-virtual {v1, v3}, Landroid/content/Context;->getDrawable(I)Landroid/graphics/drawable/Drawable;
-
-    move-result-object v3
-
-    invoke-virtual {v0, v3}, Landroidx/preference/Preference;->setIcon(Landroid/graphics/drawable/Drawable;)V
+    invoke-virtual {v0, v3}, Landroidx/preference/Preference;->setWidgetLayoutResource(I)V
     :try_end_f9
     .catch Ljava/lang/Exception; {:try_start_f2 .. :try_end_f9} :catch_fa
 
     goto :goto_fb
 
     :catch_fa
-    move-exception v0
+    move-exception v3
 
     .line 297
     :cond_fb
@@ -775,7 +767,7 @@
 
     move-object v1, v10
 
-    const-string v5, "Stable"
+    const-string v5, "Public Beta"
 
     const/4 v6, 0x0
 
@@ -1290,57 +1282,58 @@
 
     move-result-object p0
 
-    const-string v2, "unica_launcher_anim_type"
+    const-string v2, "persist.sys.unica.launcher_anim_type"
 
-    invoke-static {p0, v2}, Landroid/provider/Settings$System;->getString(Landroid/content/ContentResolver;Ljava/lang/String;)Ljava/lang/String;
+    const/4 v3, 0x1
 
-    move-result-object p0
+    invoke-static {v2, v3}, Landroid/os/SemSystemProperties;->getInt(Ljava/lang/String;I)I
 
-    .line 511
-    const-string v2, "Stock"
+    move-result v2
 
-    if-eqz p0, :cond_90
-
-    invoke-virtual {p0}, Ljava/lang/String;->isEmpty()Z
-
-    move-result v3
-
-    if-eqz v3, :cond_8e
-
-    goto :goto_90
-
-    :cond_8e
-    move-object v4, p0
-
-    goto :goto_91
-
-    :cond_90
-    :goto_90
-    move-object v4, v2
-
-    .line 512
-    :goto_91
-    const/4 p0, 0x3
+    const/4 p0, 0x4
 
     new-array p0, p0, [Ljava/lang/String;
 
     const/4 v3, 0x0
 
-    aput-object v2, p0, v3
+    const-string v4, "Flagship"
 
-    const-string v2, "Pixel"
+    aput-object v4, p0, v3
 
     const/4 v3, 0x1
 
-    aput-object v2, p0, v3
+    const-string v4, "Mass"
 
-    const-string v2, "iOS"
+    aput-object v4, p0, v3
 
     const/4 v3, 0x2
 
-    aput-object v2, p0, v3
+    const-string v4, "Budget"
 
-    .line 513
+    aput-object v4, p0, v3
+
+    const/4 v3, 0x3
+
+    const-string v4, "LowestEnd"
+
+    aput-object v4, p0, v3
+
+    if-ltz v2, :anim_default
+
+    const/4 v3, 0x4
+
+    if-ge v2, v3, :anim_default
+
+    aget-object v4, p0, v2
+
+    goto :goto_anim_done
+
+    :anim_default
+    const/4 v2, 0x1
+
+    aget-object v4, p0, v2
+
+    :goto_anim_done
     new-instance v5, Lcom/android/settings/OneROMHelper$22;
 
     invoke-direct {v5, v1, p0}, Lcom/android/settings/OneROMHelper$22;-><init>(Landroid/content/Context;[Ljava/lang/String;)V
@@ -2049,9 +2042,23 @@
     move-result v13
 
     .line 97
+    const/4 v15, -0x2
+
     new-instance v14, Landroid/widget/LinearLayout$LayoutParams;
 
-    invoke-direct {v14, v13, v13}, Landroid/widget/LinearLayout$LayoutParams;-><init>(II)V
+    invoke-direct {v14, v15, v13}, Landroid/widget/LinearLayout$LayoutParams;-><init>(II)V
+
+    const/4 v15, 0x1
+
+    iput v15, v14, Landroid/widget/LinearLayout$LayoutParams;->gravity:I
+
+    sget-object v15, Landroid/widget/ImageView$ScaleType;->FIT_CENTER:Landroid/widget/ImageView$ScaleType;
+
+    invoke-virtual {v12, v15}, Landroid/widget/ImageView;->setScaleType(Landroid/widget/ImageView$ScaleType;)V
+
+    const/4 v15, 0x1
+
+    invoke-virtual {v12, v15}, Landroid/widget/ImageView;->setAdjustViewBounds(Z)V
 
     .line 98
     mul-float v3, v3, v8
@@ -2278,28 +2285,7 @@
 .method public static initAboutBanner(Landroidx/preference/PreferenceFragmentCompat;)V
     .registers 8
 
-    .line 200
-    if-nez p0, :cond_3
-
     return-void
-
-    .line 201
-    :cond_3
-    invoke-virtual {p0}, Landroidx/preference/PreferenceFragmentCompat;->getContext()Landroid/content/Context;
-
-    move-result-object v0
-
-    .line 202
-    invoke-virtual {p0}, Landroidx/preference/PreferenceFragmentCompat;->getPreferenceScreen()Landroidx/preference/PreferenceScreen;
-
-    move-result-object p0
-
-    .line 203
-    if-eqz v0, :cond_45
-
-    if-nez p0, :cond_10
-
-    goto :goto_45
 
     .line 205
     :cond_10
@@ -2429,55 +2415,35 @@
 .method public static openSubSettings(Landroid/content/Context;Ljava/lang/String;Ljava/lang/String;)V
     .registers 6
 
-    .line 147
     if-nez p0, :cond_3
 
     return-void
 
-    .line 149
     :cond_3
     :try_start_3
-    new-instance v0, Landroid/content/Intent;
+    new-instance v0, Lcom/android/settings/core/SubSettingLauncher;
 
-    invoke-direct {v0}, Landroid/content/Intent;-><init>()V
+    invoke-direct {v0, p0}, Lcom/android/settings/core/SubSettingLauncher;-><init>(Landroid/content/Context;)V
 
-    .line 150
-    invoke-virtual {p0}, Landroid/content/Context;->getPackageName()Ljava/lang/String;
+    iget-object v1, v0, Lcom/android/settings/core/SubSettingLauncher;->mLaunchRequest:Lcom/android/settings/core/SubSettingLauncher$LaunchRequest;
 
-    move-result-object v1
+    iput-object p1, v1, Lcom/android/settings/core/SubSettingLauncher$LaunchRequest;->mDestinationName:Ljava/lang/String;
 
-    const-string v2, "com.android.settings.SubSettings"
+    iput-object p2, v1, Lcom/android/settings/core/SubSettingLauncher$LaunchRequest;->mTitle:Ljava/lang/CharSequence;
 
-    invoke-virtual {v0, v1, v2}, Landroid/content/Intent;->setClassName(Ljava/lang/String;Ljava/lang/String;)Landroid/content/Intent;
+    const/16 v2, 0x28
 
-    .line 151
-    const-string v1, ":settings:show_fragment"
+    iput v2, v1, Lcom/android/settings/core/SubSettingLauncher$LaunchRequest;->mSourceMetricsCategory:I
 
-    invoke-virtual {v0, v1, p1}, Landroid/content/Intent;->putExtra(Ljava/lang/String;Ljava/lang/String;)Landroid/content/Intent;
-
-    .line 152
-    const-string p1, ":settings:show_fragment_title"
-
-    invoke-virtual {v0, p1, p2}, Landroid/content/Intent;->putExtra(Ljava/lang/String;Ljava/lang/String;)Landroid/content/Intent;
-
-    .line 153
-    const/high16 p1, 0x10000000
-
-    invoke-virtual {v0, p1}, Landroid/content/Intent;->addFlags(I)Landroid/content/Intent;
-
-    .line 154
-    invoke-virtual {p0, v0}, Landroid/content/Context;->startActivity(Landroid/content/Intent;)V
+    invoke-virtual {v0}, Lcom/android/settings/core/SubSettingLauncher;->launch()V
     :try_end_23
     .catch Ljava/lang/Exception; {:try_start_3 .. :try_end_23} :catch_24
 
-    .line 157
     goto :goto_40
 
-    .line 155
     :catch_24
     move-exception p1
 
-    .line 156
     new-instance p1, Ljava/lang/StringBuilder;
 
     invoke-direct {p1}, Ljava/lang/StringBuilder;-><init>()V
@@ -2504,7 +2470,6 @@
 
     invoke-virtual {p0}, Landroid/widget/Toast;->show()V
 
-    .line 158
     :goto_40
     return-void
 .end method
@@ -2812,5 +2777,198 @@
 
     const-string v2, "Reboot options"
     invoke-static {p0, v2, v1, v0}, Lcom/android/settings/OneROMHelper;->showChoiceDialog(Landroid/content/Context;Ljava/lang/String;[Ljava/lang/String;Lcom/android/settings/OneROMHelper$DialogCallback;)V
+    return-void
+.end method
+
+
+.method public static handleBixbyIntent(Landroid/app/Activity;)Z
+    .registers 4
+
+    const/4 v0, 0x0
+
+    if-nez p0, :cond_null
+
+    return v0
+
+    :cond_null
+    invoke-virtual {p0}, Landroid/app/Activity;->getIntent()Landroid/content/Intent;
+
+    move-result-object v1
+
+    if-nez v1, :cond_no_intent
+
+    return v0
+
+    :cond_no_intent
+    const-string v2, "onerom_action"
+
+    invoke-virtual {v1, v2}, Landroid/content/Intent;->getStringExtra(Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v1
+
+    if-eqz v1, :cond_ret_false
+
+    invoke-virtual {v1}, Ljava/lang/String;->isEmpty()Z
+
+    move-result v2
+
+    if-nez v2, :cond_ret_false
+
+    const/4 v0, 0x1
+
+    :try_start_bixby
+    invoke-virtual {p0, v0}, Landroid/app/Activity;->setShowWhenLocked(Z)V
+
+    invoke-virtual {p0}, Landroid/app/Activity;->getApplicationContext()Landroid/content/Context;
+
+    move-result-object v2
+
+    invoke-static {v2, v1}, Lio/mesalabs/unica/BixbyKeyActionActivity;->run(Landroid/content/Context;Ljava/lang/String;)V
+    :try_end_bixby
+    .catch Ljava/lang/Throwable; {:try_start_bixby .. :try_end_bixby} :catch_bixby
+
+    :catch_bixby
+    invoke-virtual {p0}, Landroid/app/Activity;->finish()V
+
+    return v0
+
+    :cond_ret_false
+    return v0
+.end method
+
+.method public static applyBixbyCustomization(Landroid/content/Context;Ljava/lang/String;Ljava/lang/String;)V
+    .locals 8
+
+    if-eqz p0, :cond_exit
+    if-eqz p1, :cond_exit
+    if-nez p2, :cond_check_key
+
+    return-void
+
+    :cond_check_key
+    const/4 v0, 0x3
+
+    const-string v1, "onerom_bixby_double_action"
+    invoke-virtual {v1, p1}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+    move-result v1
+    if-eqz v1, :cond_check_hold
+
+    const/16 v0, 0x8
+    goto :goto_key_done
+
+    :cond_check_hold
+    const-string v1, "onerom_bixby_hold_action"
+    invoke-virtual {v1, p1}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+    move-result v1
+    if-eqz v1, :cond_goto_key_done
+
+    const/4 v0, 0x4
+
+    :cond_goto_key_done
+    :goto_key_done
+
+    const-string v1, "Voice assistant"
+    invoke-virtual {v1, p2}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+    move-result v1
+    if-eqz v1, :cond_c_cam
+    const-string v1, "voice"
+    goto :goto_action_done
+
+    :cond_c_cam
+    const-string v1, "Camera"
+    invoke-virtual {v1, p2}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+    move-result v1
+    if-eqz v1, :cond_c_torch
+    const-string v1, "camera"
+    goto :goto_action_done
+
+    :cond_c_torch
+    const-string v1, "Flashlight"
+    invoke-virtual {v1, p2}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+    move-result v1
+    if-eqz v1, :cond_c_ss
+    const-string v1, "torch"
+    goto :goto_action_done
+
+    :cond_c_ss
+    const-string v1, "Screenshot"
+    invoke-virtual {v1, p2}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+    move-result v1
+    if-eqz v1, :cond_c_power
+    const-string v1, "screenshot"
+    goto :goto_action_done
+
+    :cond_c_power
+    const-string v1, "Power menu"
+    invoke-virtual {v1, p2}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+    move-result v1
+    if-eqz v1, :cond_c_none
+    const-string v1, "power"
+    goto :goto_action_done
+
+    :cond_c_none
+    const-string v1, "none"
+
+    :goto_action_done
+
+    :try_start_reg
+    invoke-static {}, Landroid/view/WindowManagerGlobal;->getWindowManagerService()Landroid/view/IWindowManager;
+    move-result-object v6
+
+    if-eqz v6, :cond_exit
+
+    const/16 v2, 0x44f
+    const/16 v3, 0x3f7
+    invoke-interface {v6, v2, v0, v3}, Landroid/view/IWindowManager;->removeKeyCustomizationInfo(III)V
+
+    const/16 v3, 0x437
+    invoke-interface {v6, v2, v0, v3}, Landroid/view/IWindowManager;->removeKeyCustomizationInfo(III)V
+
+    const-string v2, "none"
+    invoke-virtual {v2, v1}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+    move-result v2
+    if-nez v2, :cond_skip_put
+
+    new-instance v7, Landroid/content/Intent;
+    invoke-direct {v7}, Landroid/content/Intent;-><init>()V
+    const-string v2, "com.android.settings"
+    const-string v3, "io.mesalabs.unica.BixbyKeyActionActivity"
+    invoke-virtual {v7, v2, v3}, Landroid/content/Intent;->setClassName(Ljava/lang/String;Ljava/lang/String;)Landroid/content/Intent;
+    const-string v2, "onerom_action"
+    invoke-virtual {v7, v2, v1}, Landroid/content/Intent;->putExtra(Ljava/lang/String;Ljava/lang/String;)Landroid/content/Intent;
+    const v1, 0x10810000
+    invoke-virtual {v7, v1}, Landroid/content/Intent;->addFlags(I)Landroid/content/Intent;
+
+    move v1, v0
+    new-instance v0, Lcom/samsung/android/view/SemWindowManager$KeyCustomizationInfo;
+    const/16 v2, 0x44f
+    const/16 v3, 0x3f7
+    const/4 v4, 0x1
+    move-object v5, v7
+    invoke-direct/range {v0 .. v5}, Lcom/samsung/android/view/SemWindowManager$KeyCustomizationInfo;-><init>(IIIILandroid/content/Intent;)V
+    const-string v2, "com.android.settings"
+    iput-object v2, v0, Lcom/samsung/android/view/SemWindowManager$KeyCustomizationInfo;->ownerPackage:Ljava/lang/String;
+    invoke-interface {v6, v0}, Landroid/view/IWindowManager;->putKeyCustomizationInfo(Lcom/samsung/android/view/SemWindowManager$KeyCustomizationInfo;)V
+
+    new-instance v0, Lcom/samsung/android/view/SemWindowManager$KeyCustomizationInfo;
+    const/16 v2, 0x44f
+    const/16 v3, 0x437
+    const/4 v4, 0x1
+    move-object v5, v7
+    invoke-direct/range {v0 .. v5}, Lcom/samsung/android/view/SemWindowManager$KeyCustomizationInfo;-><init>(IIIILandroid/content/Intent;)V
+    const-string v2, "com.android.settings"
+    iput-object v2, v0, Lcom/samsung/android/view/SemWindowManager$KeyCustomizationInfo;->ownerPackage:Ljava/lang/String;
+    invoke-interface {v6, v0}, Landroid/view/IWindowManager;->putKeyCustomizationInfo(Lcom/samsung/android/view/SemWindowManager$KeyCustomizationInfo;)V
+
+    :cond_skip_put
+    invoke-virtual {p0}, Landroid/content/Context;->getContentResolver()Landroid/content/ContentResolver;
+    move-result-object v0
+    const-string v1, "xcover_top_key_on_lockscreen"
+    const/4 v2, 0x1
+    invoke-static {v0, v1, v2}, Landroid/provider/Settings$System;->putInt(Landroid/content/ContentResolver;Ljava/lang/String;I)Z
+    :try_end_reg
+    .catch Ljava/lang/Throwable; {:try_start_reg .. :try_end_reg} :cond_exit
+
+    :cond_exit
     return-void
 .end method

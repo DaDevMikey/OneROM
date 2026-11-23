@@ -163,6 +163,212 @@
     return-object v0
 .end method
 
+.method public static applyBixbyCustomization(Landroid/content/Context;Ljava/lang/String;Ljava/lang/String;)V
+    .registers 11
+
+    if-eqz p0, :cond_b8
+
+    if-eqz p1, :cond_b8
+
+    if-nez p2, :cond_7
+
+    return-void
+
+    :cond_7
+    const/4 v0, 0x3
+
+    const-string v1, "onerom_bixby_double_action"
+
+    invoke-virtual {v1, p1}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+
+    move-result v1
+
+    if-eqz v1, :cond_13
+
+    const/16 v0, 0x8
+
+    goto :goto_1c
+
+    :cond_13
+    const-string v1, "onerom_bixby_hold_action"
+
+    invoke-virtual {v1, p1}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+
+    move-result v1
+
+    if-eqz v1, :cond_1c
+
+    const/4 v0, 0x4
+
+    :cond_1c
+    :goto_1c
+    const-string v1, "Voice assistant"
+
+    invoke-virtual {v1, p2}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+
+    move-result v1
+
+    if-eqz v1, :cond_28
+
+    const-string/jumbo v1, "voice"
+
+    goto :goto_57
+
+    :cond_28
+    const-string v1, "Camera"
+
+    invoke-virtual {v1, p2}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+
+    move-result v1
+
+    if-eqz v1, :cond_33
+
+    const-string v1, "camera"
+
+    goto :goto_57
+
+    :cond_33
+    const-string v1, "Flashlight"
+
+    invoke-virtual {v1, p2}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+
+    move-result v1
+
+    if-eqz v1, :cond_3f
+
+    const-string/jumbo v1, "torch"
+
+    goto :goto_57
+
+    :cond_3f
+    const-string v1, "Screenshot"
+
+    invoke-virtual {v1, p2}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+
+    move-result v1
+
+    if-eqz v1, :cond_4a
+
+    const-string v1, "screenshot"
+
+    goto :goto_57
+
+    :cond_4a
+    const-string v1, "Power menu"
+
+    invoke-virtual {v1, p2}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+
+    move-result v1
+
+    if-eqz v1, :cond_55
+
+    const-string v1, "power"
+
+    goto :goto_57
+
+    :cond_55
+    const-string v1, "none"
+
+    :goto_57
+    :try_start_57
+    invoke-static {}, Landroid/view/WindowManagerGlobal;->getWindowManagerService()Landroid/view/IWindowManager;
+
+    move-result-object v6
+
+    if-eqz v6, :cond_b8
+
+    const/16 v2, 0x44f
+
+    const/16 v3, 0x3f7
+
+    invoke-interface {v6, v2, v0, v3}, Landroid/view/IWindowManager;->removeKeyCustomizationInfo(III)V
+
+    const/16 v3, 0x437
+
+    invoke-interface {v6, v2, v0, v3}, Landroid/view/IWindowManager;->removeKeyCustomizationInfo(III)V
+
+    const-string v2, "none"
+
+    invoke-virtual {v2, v1}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+
+    move-result v2
+
+    if-nez v2, :cond_ad
+
+    new-instance v7, Landroid/content/Intent;
+
+    invoke-direct {v7}, Landroid/content/Intent;-><init>()V
+
+    const-string v2, "com.android.settings"
+
+    const-string v3, "io.mesalabs.unica.BixbyKeyActionActivity"
+
+    invoke-virtual {v7, v2, v3}, Landroid/content/Intent;->setClassName(Ljava/lang/String;Ljava/lang/String;)Landroid/content/Intent;
+
+    const-string v2, "onerom_action"
+
+    invoke-virtual {v7, v2, v1}, Landroid/content/Intent;->putExtra(Ljava/lang/String;Ljava/lang/String;)Landroid/content/Intent;
+
+    const v1, 0x10810000
+
+    invoke-virtual {v7, v1}, Landroid/content/Intent;->addFlags(I)Landroid/content/Intent;
+
+    move v1, v0
+
+    new-instance v0, Lcom/samsung/android/view/SemWindowManager$KeyCustomizationInfo;
+
+    const/16 v2, 0x44f
+
+    const/16 v3, 0x3f7
+
+    const/4 v4, 0x1
+
+    move-object v5, v7
+
+    invoke-direct/range {v0 .. v5}, Lcom/samsung/android/view/SemWindowManager$KeyCustomizationInfo;-><init>(IIIILandroid/content/Intent;)V
+
+    const-string v2, "com.android.settings"
+
+    iput-object v2, v0, Lcom/samsung/android/view/SemWindowManager$KeyCustomizationInfo;->ownerPackage:Ljava/lang/String;
+
+    invoke-interface {v6, v0}, Landroid/view/IWindowManager;->putKeyCustomizationInfo(Lcom/samsung/android/view/SemWindowManager$KeyCustomizationInfo;)V
+
+    new-instance v0, Lcom/samsung/android/view/SemWindowManager$KeyCustomizationInfo;
+
+    const/16 v2, 0x44f
+
+    const/16 v3, 0x437
+
+    const/4 v4, 0x1
+
+    move-object v5, v7
+
+    invoke-direct/range {v0 .. v5}, Lcom/samsung/android/view/SemWindowManager$KeyCustomizationInfo;-><init>(IIIILandroid/content/Intent;)V
+
+    const-string v2, "com.android.settings"
+
+    iput-object v2, v0, Lcom/samsung/android/view/SemWindowManager$KeyCustomizationInfo;->ownerPackage:Ljava/lang/String;
+
+    invoke-interface {v6, v0}, Landroid/view/IWindowManager;->putKeyCustomizationInfo(Lcom/samsung/android/view/SemWindowManager$KeyCustomizationInfo;)V
+
+    :cond_ad
+    invoke-virtual {p0}, Landroid/content/Context;->getContentResolver()Landroid/content/ContentResolver;
+
+    move-result-object v0
+
+    const-string/jumbo v1, "xcover_top_key_on_lockscreen"
+
+    const/4 v2, 0x1
+
+    invoke-static {v0, v1, v2}, Landroid/provider/Settings$System;->putInt(Landroid/content/ContentResolver;Ljava/lang/String;I)Z
+    :try_end_b8
+    .catch Ljava/lang/Throwable; {:try_start_57 .. :try_end_b8} :catch_b8
+
+    :catch_b8
+    :cond_b8
+    return-void
+.end method
+
 .method public static buildExtraScreen(Landroidx/preference/PreferenceFragmentCompat;)V
     .registers 7
 
@@ -227,7 +433,7 @@
 
     const/4 v5, 0x1
 
-    const-string v2, "unica_secure_ss"
+    const-string/jumbo v2, "unica_secure_ss"
 
     const-string v3, "Allow secure screenshots"
 
@@ -236,7 +442,7 @@
     .line 587
     const-string v4, "Prevent applications from detecting captured screenshots"
 
-    const-string v2, "unica_ss_detection"
+    const-string/jumbo v2, "unica_ss_detection"
 
     const-string v3, "Screenshot detection bypass"
 
@@ -252,7 +458,7 @@
     .line 590
     const-string v4, "Allow installing older package versions over newer ones"
 
-    const-string v2, "unica_allow_downgrade"
+    const-string/jumbo v2, "unica_allow_downgrade"
 
     const-string v3, "Allow app downgrade"
 
@@ -261,7 +467,7 @@
     .line 591
     const-string v4, "Allow installing apps targeting legacy Android SDK versions"
 
-    const-string v2, "unica_allow_sdkbypass"
+    const-string/jumbo v2, "unica_allow_sdkbypass"
 
     const-string v3, "App target SDK bypass"
 
@@ -270,7 +476,7 @@
     .line 592
     const-string v4, "Bypass Samsung App Security verification checks"
 
-    const-string v2, "unica_asks"
+    const-string/jumbo v2, "unica_asks"
 
     const-string v3, "Bypass Samsung ASKS"
 
@@ -279,7 +485,7 @@
     .line 593
     const-string v4, "Spoof Pixel XL for unlimited full-resolution backup"
 
-    const-string v2, "unica_gphotos"
+    const-string/jumbo v2, "unica_gphotos"
 
     const-string v3, "Google Photos Unlimited"
 
@@ -288,7 +494,7 @@
     .line 594
     const-string v4, "Unlock 90/120 FPS options in supported gaming titles"
 
-    const-string v2, "unica_games_spoof"
+    const-string/jumbo v2, "unica_games_spoof"
 
     const-string v3, "Unlock high FPS in games"
 
@@ -446,11 +652,11 @@
     move-result-object p0
 
     .line 233
-    if-eqz v1, :cond_1c2
+    if-eqz v1, :cond_1be
 
     if-nez p0, :cond_11
 
-    goto/16 :goto_1c2
+    goto/16 :goto_1be
 
     .line 235
     :cond_11
@@ -519,13 +725,13 @@
 
     invoke-direct {v6, v1}, Lcom/android/settings/OneROMHelper$5;-><init>(Landroid/content/Context;)V
 
-    const/16 v2, 0x4a
+    const/16 v2, 0x4e
 
-    const-string v3, "OneROM Zeta 9.5"
+    const-string v3, ""
 
     const/4 v4, 0x0
 
-    const/4 v5, 0x0
+    const/4 v5, 0x1
 
     invoke-static/range {v1 .. v6}, Lcom/android/settings/OneROMHelper;->createBannerView(Landroid/content/Context;ILjava/lang/String;Ljava/lang/String;ZLjava/lang/Runnable;)Landroid/view/View;
 
@@ -692,39 +898,35 @@
 
     move-result-object v3
 
-    const-string v4, "drawable"
+    const-string v4, "layout"
 
     invoke-virtual {v1}, Landroid/content/Context;->getPackageName()Ljava/lang/String;
 
     move-result-object v5
 
-    const-string v6, "sec_ic_settings_gearshape"
+    const-string v6, "preference_widget_forward_arrow"
 
     invoke-virtual {v3, v6, v4, v5}, Landroid/content/res/Resources;->getIdentifier(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)I
 
     move-result v3
 
     .line 293
-    if-eqz v3, :cond_fb
+    if-eqz v3, :cond_f7
 
     .line 294
     :try_start_f2
-    invoke-virtual {v1, v3}, Landroid/content/Context;->getDrawable(I)Landroid/graphics/drawable/Drawable;
+    invoke-virtual {v0, v3}, Landroidx/preference/Preference;->setWidgetLayoutResource(I)V
+    :try_end_f5
+    .catch Ljava/lang/Exception; {:try_start_f2 .. :try_end_f5} :catch_f6
 
-    move-result-object v3
+    goto :goto_f7
 
-    invoke-virtual {v0, v3}, Landroidx/preference/Preference;->setIcon(Landroid/graphics/drawable/Drawable;)V
-    :try_end_f9
-    .catch Ljava/lang/Exception; {:try_start_f2 .. :try_end_f9} :catch_fa
-
-    goto :goto_fb
-
-    :catch_fa
-    move-exception v0
+    :catch_f6
+    move-exception v3
 
     .line 297
-    :cond_fb
-    :goto_fb
+    :cond_f7
+    :goto_f7
     new-instance v6, Lcom/android/settings/OneROMHelper$9;
 
     invoke-direct {v6, v1}, Lcom/android/settings/OneROMHelper$9;-><init>(Landroid/content/Context;)V
@@ -775,7 +977,7 @@
 
     move-object v1, v10
 
-    const-string v5, "Stable"
+    const-string v5, "Public Beta"
 
     const/4 v6, 0x0
 
@@ -930,8 +1132,8 @@
     .line 330
     nop
 
-    :goto_1ab
-    if-ge v8, v0, :cond_1c1
+    :goto_1a7
+    if-ge v8, v0, :cond_1bd
 
     aget-object v2, v1, v8
 
@@ -940,7 +1142,7 @@
 
     move-result v3
 
-    if-eqz v3, :cond_1be
+    if-eqz v3, :cond_1ba
 
     .line 332
     invoke-interface {v7, v2}, Ljava/util/Map;->get(Ljava/lang/Object;)Ljava/lang/Object;
@@ -952,18 +1154,18 @@
     invoke-virtual {p0, v2}, Landroidx/preference/PreferenceCategory;->addPreference(Landroidx/preference/Preference;)Z
 
     .line 330
-    :cond_1be
+    :cond_1ba
     add-int/lit8 v8, v8, 0x1
 
-    goto :goto_1ab
+    goto :goto_1a7
 
     .line 335
-    :cond_1c1
+    :cond_1bd
     return-void
 
     .line 233
-    :cond_1c2
-    :goto_1c2
+    :cond_1be
+    :goto_1be
     return-void
 .end method
 
@@ -1076,7 +1278,7 @@
     .line 553
     const-string v4, "Spoof hardware attestation keybox"
 
-    const-string v2, "unica_keybox"
+    const-string/jumbo v2, "unica_keybox"
 
     const-string v3, "Keybox attestation spoofing"
 
@@ -1087,7 +1289,7 @@
 
     invoke-direct {v5, v1}, Lcom/android/settings/OneROMHelper$23;-><init>(Landroid/content/Context;)V
 
-    const-string v2, "unica_keybox_load"
+    const-string/jumbo v2, "unica_keybox_load"
 
     const-string v3, "Load keybox file"
 
@@ -1100,7 +1302,7 @@
 
     invoke-direct {v5, v1}, Lcom/android/settings/OneROMHelper$24;-><init>(Landroid/content/Context;)V
 
-    const-string v2, "unica_keybox_clear"
+    const-string/jumbo v2, "unica_keybox_clear"
 
     const-string v3, "Clear keybox"
 
@@ -1113,7 +1315,7 @@
 
     const/4 v5, 0x1
 
-    const-string v2, "unica_pif"
+    const-string/jumbo v2, "unica_pif"
 
     const-string v3, "Play Integrity fix (PIF)"
 
@@ -1124,7 +1326,7 @@
 
     const/4 v5, 0x0
 
-    const-string v2, "unica_hide_dev"
+    const-string/jumbo v2, "unica_hide_dev"
 
     const-string v3, "Hide developer status"
 
@@ -1290,62 +1492,63 @@
 
     move-result-object p0
 
-    const-string v2, "unica_launcher_anim_type"
+    const-string v2, "persist.sys.unica.launcher_anim_type"
 
-    invoke-static {p0, v2}, Landroid/provider/Settings$System;->getString(Landroid/content/ContentResolver;Ljava/lang/String;)Ljava/lang/String;
+    const/4 v3, 0x1
 
-    move-result-object p0
+    invoke-static {v2, v3}, Landroid/os/SemSystemProperties;->getInt(Ljava/lang/String;I)I
 
-    .line 511
-    const-string v2, "Stock"
+    move-result v2
 
-    if-eqz p0, :cond_90
-
-    invoke-virtual {p0}, Ljava/lang/String;->isEmpty()Z
-
-    move-result v3
-
-    if-eqz v3, :cond_8e
-
-    goto :goto_90
-
-    :cond_8e
-    move-object v4, p0
-
-    goto :goto_91
-
-    :cond_90
-    :goto_90
-    move-object v4, v2
-
-    .line 512
-    :goto_91
-    const/4 p0, 0x3
+    const/4 p0, 0x4
 
     new-array p0, p0, [Ljava/lang/String;
 
     const/4 v3, 0x0
 
-    aput-object v2, p0, v3
+    const-string v4, "Flagship"
 
-    const-string v2, "Pixel"
+    aput-object v4, p0, v3
 
     const/4 v3, 0x1
 
-    aput-object v2, p0, v3
+    const-string v4, "Mass"
 
-    const-string v2, "iOS"
+    aput-object v4, p0, v3
 
     const/4 v3, 0x2
 
-    aput-object v2, p0, v3
+    const-string v4, "Budget"
 
-    .line 513
+    aput-object v4, p0, v3
+
+    const/4 v3, 0x3
+
+    const-string v4, "LowestEnd"
+
+    aput-object v4, p0, v3
+
+    if-ltz v2, :cond_a3
+
+    const/4 v3, 0x4
+
+    if-ge v2, v3, :cond_a3
+
+    aget-object v4, p0, v2
+
+    goto :goto_a6
+
+    :cond_a3
+    const/4 v2, 0x1
+
+    aget-object v4, p0, v2
+
+    :goto_a6
     new-instance v5, Lcom/android/settings/OneROMHelper$22;
 
     invoke-direct {v5, v1, p0}, Lcom/android/settings/OneROMHelper$22;-><init>(Landroid/content/Context;[Ljava/lang/String;)V
 
-    const-string v2, "unica_launcher_anim_type"
+    const-string/jumbo v2, "unica_launcher_anim_type"
 
     const-string v3, "Launcher animation type"
 
@@ -1451,11 +1654,11 @@
 
     invoke-direct {v6, v1}, Lcom/android/settings/OneROMHelper$11;-><init>(Landroid/content/Context;)V
 
-    const/16 v2, 0x96
+    const/16 v2, 0x82
 
-    const-string v3, "OneROM Zeta 9.5"
+    const-string v3, ""
 
-    const-string v4, "Android 17 QPR2 \u2022 Exynos 9820 \u2022 OneKernel-9.5+"
+    const-string v4, "Android 17 QPR2 \u2022 Exynos 9820 \u2022 OneKERNEL+ 9.5"
 
     const/4 v5, 0x1
 
@@ -1469,7 +1672,7 @@
     invoke-direct {v2, v1, v0}, Lcom/android/settingslib/widget/LayoutPreference;-><init>(Landroid/content/Context;Landroid/view/View;)V
 
     .line 359
-    const-string v0, "unica_banner_header"
+    const-string/jumbo v0, "unica_banner_header"
 
     invoke-virtual {v2, v0}, Lcom/android/settingslib/widget/LayoutPreference;->setKey(Ljava/lang/String;)V
 
@@ -1505,7 +1708,7 @@
 
     invoke-direct {v5, v1}, Lcom/android/settings/OneROMHelper$13;-><init>(Landroid/content/Context;)V
 
-    const-string v2, "unica_rom_version"
+    const-string/jumbo v2, "unica_rom_version"
 
     const-string v3, "ROM version"
 
@@ -1578,14 +1781,14 @@
     invoke-virtual {v3, v5}, Landroidx/preference/SecSwitchPreference;->setSummary(Ljava/lang/CharSequence;)V
 
     .line 390
-    if-eqz v2, :cond_a1
+    if-eqz v2, :cond_a3
 
-    goto :goto_a2
+    goto :goto_a4
 
-    :cond_a1
+    :cond_a3
     const/4 v6, 0x0
 
-    :goto_a2
+    :goto_a4
     invoke-virtual {v3, v6}, Landroidx/preference/SecSwitchPreference;->setChecked(Z)V
 
     .line 391
@@ -1630,7 +1833,7 @@
 
     invoke-direct {v6, v1}, Lcom/android/settings/OneROMHelper$17;-><init>(Landroid/content/Context;)V
 
-    const-string v3, "unica_ui_settings"
+    const-string/jumbo v3, "unica_ui_settings"
 
     const-string v4, "UI"
 
@@ -1668,31 +1871,31 @@
     move-result v0
 
     .line 432
-    if-eqz v0, :cond_fb
+    if-eqz v0, :cond_fe
 
     .line 433
-    :try_start_f2
+    :try_start_f5
     invoke-virtual {v1, v0}, Landroid/content/Context;->getDrawable(I)Landroid/graphics/drawable/Drawable;
 
     move-result-object v0
 
     invoke-virtual {p0, v0}, Landroidx/preference/Preference;->setIcon(Landroid/graphics/drawable/Drawable;)V
-    :try_end_f9
-    .catch Ljava/lang/Exception; {:try_start_f2 .. :try_end_f9} :catch_fa
+    :try_end_fc
+    .catch Ljava/lang/Exception; {:try_start_f5 .. :try_end_fc} :catch_fd
 
-    goto :goto_fb
+    goto :goto_fe
 
-    :catch_fa
+    :catch_fd
     move-exception v0
 
     .line 436
-    :cond_fb
-    :goto_fb
+    :cond_fe
+    :goto_fe
     new-instance v6, Lcom/android/settings/OneROMHelper$18;
 
     invoke-direct {v6, v1}, Lcom/android/settings/OneROMHelper$18;-><init>(Landroid/content/Context;)V
 
-    const-string v3, "unica_spoof_settings"
+    const-string/jumbo v3, "unica_spoof_settings"
 
     const-string v4, "Spoofing"
 
@@ -1730,31 +1933,31 @@
     move-result v0
 
     .line 444
-    if-eqz v0, :cond_129
+    if-eqz v0, :cond_12d
 
     .line 445
-    :try_start_120
+    :try_start_124
     invoke-virtual {v1, v0}, Landroid/content/Context;->getDrawable(I)Landroid/graphics/drawable/Drawable;
 
     move-result-object v0
 
     invoke-virtual {p0, v0}, Landroidx/preference/Preference;->setIcon(Landroid/graphics/drawable/Drawable;)V
-    :try_end_127
-    .catch Ljava/lang/Exception; {:try_start_120 .. :try_end_127} :catch_128
+    :try_end_12b
+    .catch Ljava/lang/Exception; {:try_start_124 .. :try_end_12b} :catch_12c
 
-    goto :goto_129
+    goto :goto_12d
 
-    :catch_128
+    :catch_12c
     move-exception v0
 
     .line 448
-    :cond_129
-    :goto_129
+    :cond_12d
+    :goto_12d
     new-instance v6, Lcom/android/settings/OneROMHelper$19;
 
     invoke-direct {v6, v1}, Lcom/android/settings/OneROMHelper$19;-><init>(Landroid/content/Context;)V
 
-    const-string v3, "unica_extra_settings"
+    const-string/jumbo v3, "unica_extra_settings"
 
     const-string v4, "Extra"
 
@@ -1788,26 +1991,26 @@
     move-result v0
 
     .line 456
-    if-eqz v0, :cond_155
+    if-eqz v0, :cond_15a
 
     .line 457
-    :try_start_14c
+    :try_start_151
     invoke-virtual {v1, v0}, Landroid/content/Context;->getDrawable(I)Landroid/graphics/drawable/Drawable;
 
     move-result-object v0
 
     invoke-virtual {p0, v0}, Landroidx/preference/Preference;->setIcon(Landroid/graphics/drawable/Drawable;)V
-    :try_end_153
-    .catch Ljava/lang/Exception; {:try_start_14c .. :try_end_153} :catch_154
+    :try_end_158
+    .catch Ljava/lang/Exception; {:try_start_151 .. :try_end_158} :catch_159
 
-    goto :goto_155
+    goto :goto_15a
 
-    :catch_154
+    :catch_159
     move-exception v0
 
     .line 459
-    :cond_155
-    :goto_155
+    :cond_15a
+    :goto_15a
     return-void
 .end method
 
@@ -1932,7 +2135,7 @@
     invoke-virtual {v5, v7}, Landroid/widget/ImageView;->setScaleType(Landroid/widget/ImageView$ScaleType;)V
 
     .line 69
-    :try_start_wp
+    :try_start_6d
     invoke-static {v0}, Landroid/app/WallpaperManager;->getInstance(Landroid/content/Context;)Landroid/app/WallpaperManager;
 
     move-result-object v7
@@ -1941,27 +2144,28 @@
 
     move-result-object v7
 
-    if-eqz v7, :cond_file_wp
+    if-eqz v7, :cond_7b
 
     invoke-virtual {v5, v7}, Landroid/widget/ImageView;->setImageDrawable(Landroid/graphics/drawable/Drawable;)V
 
-    goto :cond_78
+    goto :goto_86
+    :try_end_7b
+    .catch Ljava/lang/Throwable; {:try_start_6d .. :try_end_7b} :catch_7b
 
-    :try_end_wp
-    .catch Ljava/lang/Throwable; {:try_start_wp .. :try_end_wp} :cond_file_wp
-
-    :cond_file_wp
+    :catch_7b
+    :cond_7b
     const-string v7, "/system/media/onerom_wallpaper.png"
 
     invoke-static {v7}, Landroid/graphics/BitmapFactory;->decodeFile(Ljava/lang/String;)Landroid/graphics/Bitmap;
 
     move-result-object v7
 
-    if-eqz v7, :cond_78
+    if-eqz v7, :cond_86
 
     invoke-virtual {v5, v7}, Landroid/widget/ImageView;->setImageBitmap(Landroid/graphics/Bitmap;)V
 
-    :cond_78
+    :cond_86
+    :goto_86
     invoke-virtual {v9, v5}, Landroid/widget/FrameLayout;->addView(Landroid/view/View;)V
 
     .line 75
@@ -2011,7 +2215,7 @@
     .line 89
     const/high16 v8, 0x40800000    # 4.0f
 
-    if-eqz p4, :cond_e0
+    if-eqz p4, :cond_fb
 
     .line 90
     const-string v10, "/system/media/unica_logo.webp"
@@ -2021,7 +2225,7 @@
     move-result-object v10
 
     .line 91
-    if-nez v10, :cond_bb
+    if-nez v10, :cond_c9
 
     .line 92
     const-string v10, "/system/media/rom_logo.png"
@@ -2031,8 +2235,8 @@
     move-result-object v10
 
     .line 94
-    :cond_bb
-    if-eqz v10, :cond_e0
+    :cond_c9
+    if-eqz v10, :cond_fb
 
     .line 95
     new-instance v12, Landroid/widget/ImageView;
@@ -2049,9 +2253,23 @@
     move-result v13
 
     .line 97
+    const/4 v15, -0x2
+
     new-instance v14, Landroid/widget/LinearLayout$LayoutParams;
 
-    invoke-direct {v14, v13, v13}, Landroid/widget/LinearLayout$LayoutParams;-><init>(II)V
+    invoke-direct {v14, v15, v13}, Landroid/widget/LinearLayout$LayoutParams;-><init>(II)V
+
+    const/4 v15, 0x1
+
+    iput v15, v14, Landroid/widget/LinearLayout$LayoutParams;->gravity:I
+
+    sget-object v15, Landroid/widget/ImageView$ScaleType;->FIT_CENTER:Landroid/widget/ImageView$ScaleType;
+
+    invoke-virtual {v12, v15}, Landroid/widget/ImageView;->setScaleType(Landroid/widget/ImageView$ScaleType;)V
+
+    const/4 v15, 0x1
+
+    invoke-virtual {v12, v15}, Landroid/widget/ImageView;->setAdjustViewBounds(Z)V
 
     .line 98
     mul-float v3, v3, v8
@@ -2072,7 +2290,7 @@
     invoke-virtual {v5, v12}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;)V
 
     .line 105
-    :cond_e0
+    :cond_fb
     invoke-virtual {v0}, Landroid/content/Context;->getContentResolver()Landroid/content/ContentResolver;
 
     move-result-object v3
@@ -2084,7 +2302,7 @@
     move-result-object v3
 
     .line 106
-    if-eqz v3, :cond_f7
+    if-eqz v3, :cond_112
 
     invoke-virtual {v3}, Ljava/lang/String;->trim()Ljava/lang/String;
 
@@ -2094,16 +2312,24 @@
 
     move-result v10
 
-    if-nez v10, :cond_f7
+    if-nez v10, :cond_112
 
     .line 107
-    goto :goto_f9
+    goto :goto_114
 
     .line 110
-    :cond_f7
+    :cond_112
     move-object/from16 v3, p2
 
-    :goto_f9
+    :goto_114
+    if-eqz v3, :goto_skip_title
+
+    invoke-virtual {v3}, Ljava/lang/String;->isEmpty()Z
+
+    move-result v10
+
+    if-nez v10, :goto_skip_title
+
     new-instance v10, Landroid/widget/TextView;
 
     invoke-direct {v10, v0}, Landroid/widget/TextView;-><init>(Landroid/content/Context;)V
@@ -2115,16 +2341,16 @@
     invoke-virtual {v10, v11}, Landroid/widget/TextView;->setTextColor(I)V
 
     .line 113
-    if-eqz p4, :cond_109
+    if-eqz p4, :cond_124
 
     const/high16 v3, 0x41c00000    # 24.0f
 
-    goto :goto_10b
+    goto :goto_126
 
-    :cond_109
+    :cond_124
     const/high16 v3, 0x41a00000    # 20.0f
 
-    :goto_10b
+    :goto_126
     const/4 v11, 0x2
 
     invoke-virtual {v10, v11, v3}, Landroid/widget/TextView;->setTextSize(IF)V
@@ -2157,14 +2383,15 @@
     .line 117
     invoke-virtual {v5, v10}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;)V
 
+    :goto_skip_title
     .line 119
-    if-eqz v1, :cond_15f
+    if-eqz v1, :cond_17a
 
     invoke-virtual {v1}, Ljava/lang/String;->isEmpty()Z
 
     move-result v6
 
-    if-nez v6, :cond_15f
+    if-nez v6, :cond_17a
 
     .line 120
     new-instance v6, Landroid/widget/TextView;
@@ -2189,16 +2416,22 @@
     invoke-virtual {v6, v11, v0}, Landroid/widget/TextView;->setTextSize(IF)V
 
     .line 124
-    const/4 v0, 0x0
+    const-string v0, "sec"
 
-    invoke-static {v3, v0}, Landroid/graphics/Typeface;->create(Ljava/lang/String;I)Landroid/graphics/Typeface;
+    const/4 v3, 0x0
+
+    invoke-static {v0, v3}, Landroid/graphics/Typeface;->create(Ljava/lang/String;I)Landroid/graphics/Typeface;
 
     move-result-object v0
 
     invoke-virtual {v6, v0}, Landroid/widget/TextView;->setTypeface(Landroid/graphics/Typeface;)V
 
     .line 125
+    const/4 v15, 0x0
+
     const/high16 v0, 0x3f800000    # 1.0f
+
+    const-string v13, "#80000000"
 
     invoke-static {v13}, Landroid/graphics/Color;->parseColor(Ljava/lang/String;)I
 
@@ -2213,11 +2446,11 @@
     invoke-virtual {v5, v6}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;)V
 
     .line 130
-    :cond_15f
+    :cond_17a
     invoke-virtual {v9, v5}, Landroid/widget/FrameLayout;->addView(Landroid/view/View;)V
 
     .line 132
-    if-eqz v2, :cond_172
+    if-eqz v2, :cond_18d
 
     .line 133
     invoke-virtual {v9, v4}, Landroid/widget/FrameLayout;->setClickable(Z)V
@@ -2233,7 +2466,7 @@
     invoke-virtual {v9, v0}, Landroid/widget/FrameLayout;->setOnClickListener(Landroid/view/View$OnClickListener;)V
 
     .line 143
-    :cond_172
+    :cond_18d
     return-object v9
 .end method
 
@@ -2275,46 +2508,79 @@
     return-object v0
 .end method
 
+.method public static handleBixbyIntent(Landroid/app/Activity;)Z
+    .registers 4
+
+    const/4 v0, 0x0
+
+    if-nez p0, :cond_4
+
+    return v0
+
+    :cond_4
+    invoke-virtual {p0}, Landroid/app/Activity;->getIntent()Landroid/content/Intent;
+
+    move-result-object v1
+
+    if-nez v1, :cond_b
+
+    return v0
+
+    :cond_b
+    const-string v2, "onerom_action"
+
+    invoke-virtual {v1, v2}, Landroid/content/Intent;->getStringExtra(Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v1
+
+    if-eqz v1, :cond_28
+
+    invoke-virtual {v1}, Ljava/lang/String;->isEmpty()Z
+
+    move-result v2
+
+    if-nez v2, :cond_28
+
+    const/4 v0, 0x1
+
+    :try_start_1a
+    invoke-virtual {p0, v0}, Landroid/app/Activity;->setShowWhenLocked(Z)V
+
+    invoke-virtual {p0}, Landroid/app/Activity;->getApplicationContext()Landroid/content/Context;
+
+    move-result-object v2
+
+    invoke-static {v2, v1}, Lio/mesalabs/unica/BixbyKeyActionActivity;->run(Landroid/content/Context;Ljava/lang/String;)V
+    :try_end_24
+    .catch Ljava/lang/Throwable; {:try_start_1a .. :try_end_24} :catch_24
+
+    :catch_24
+    invoke-virtual {p0}, Landroid/app/Activity;->finish()V
+
+    return v0
+
+    :cond_28
+    return v0
+.end method
+
 .method public static initAboutBanner(Landroidx/preference/PreferenceFragmentCompat;)V
     .registers 8
 
-    .line 200
-    if-nez p0, :cond_3
-
     return-void
 
-    .line 201
-    :cond_3
-    invoke-virtual {p0}, Landroidx/preference/PreferenceFragmentCompat;->getContext()Landroid/content/Context;
-
-    move-result-object v0
-
-    .line 202
-    invoke-virtual {p0}, Landroidx/preference/PreferenceFragmentCompat;->getPreferenceScreen()Landroidx/preference/PreferenceScreen;
-
-    move-result-object p0
-
-    .line 203
-    if-eqz v0, :cond_45
-
-    if-nez p0, :cond_10
-
-    goto :goto_45
-
     .line 205
-    :cond_10
     const-string v6, "onerom_about_banner"
 
     invoke-virtual {p0, v6}, Landroidx/preference/PreferenceScreen;->findPreference(Ljava/lang/CharSequence;)Landroidx/preference/Preference;
 
     move-result-object v1
 
-    if-eqz v1, :cond_19
+    if-eqz v1, :cond_a
 
     return-void
 
     .line 207
-    :cond_19
+    :cond_a
     new-instance v5, Lcom/android/settings/OneROMHelper$3;
 
     invoke-direct {v5, v0}, Lcom/android/settings/OneROMHelper$3;-><init>(Landroid/content/Context;)V
@@ -2363,8 +2629,6 @@
     return-void
 
     .line 203
-    :cond_45
-    :goto_45
     return-void
 .end method
 
@@ -2429,55 +2693,35 @@
 .method public static openSubSettings(Landroid/content/Context;Ljava/lang/String;Ljava/lang/String;)V
     .registers 6
 
-    .line 147
     if-nez p0, :cond_3
 
     return-void
 
-    .line 149
     :cond_3
     :try_start_3
-    new-instance v0, Landroid/content/Intent;
+    new-instance v0, Lcom/android/settings/core/SubSettingLauncher;
 
-    invoke-direct {v0}, Landroid/content/Intent;-><init>()V
+    invoke-direct {v0, p0}, Lcom/android/settings/core/SubSettingLauncher;-><init>(Landroid/content/Context;)V
 
-    .line 150
-    invoke-virtual {p0}, Landroid/content/Context;->getPackageName()Ljava/lang/String;
+    iget-object v1, v0, Lcom/android/settings/core/SubSettingLauncher;->mLaunchRequest:Lcom/android/settings/core/SubSettingLauncher$LaunchRequest;
 
-    move-result-object v1
+    iput-object p1, v1, Lcom/android/settings/core/SubSettingLauncher$LaunchRequest;->mDestinationName:Ljava/lang/String;
 
-    const-string v2, "com.android.settings.SubSettings"
+    iput-object p2, v1, Lcom/android/settings/core/SubSettingLauncher$LaunchRequest;->mTitle:Ljava/lang/CharSequence;
 
-    invoke-virtual {v0, v1, v2}, Landroid/content/Intent;->setClassName(Ljava/lang/String;Ljava/lang/String;)Landroid/content/Intent;
+    const/16 v2, 0x28
 
-    .line 151
-    const-string v1, ":settings:show_fragment"
+    iput v2, v1, Lcom/android/settings/core/SubSettingLauncher$LaunchRequest;->mSourceMetricsCategory:I
 
-    invoke-virtual {v0, v1, p1}, Landroid/content/Intent;->putExtra(Ljava/lang/String;Ljava/lang/String;)Landroid/content/Intent;
+    invoke-virtual {v0}, Lcom/android/settings/core/SubSettingLauncher;->launch()V
+    :try_end_15
+    .catch Ljava/lang/Exception; {:try_start_3 .. :try_end_15} :catch_16
 
-    .line 152
-    const-string p1, ":settings:show_fragment_title"
+    goto :goto_32
 
-    invoke-virtual {v0, p1, p2}, Landroid/content/Intent;->putExtra(Ljava/lang/String;Ljava/lang/String;)Landroid/content/Intent;
-
-    .line 153
-    const/high16 p1, 0x10000000
-
-    invoke-virtual {v0, p1}, Landroid/content/Intent;->addFlags(I)Landroid/content/Intent;
-
-    .line 154
-    invoke-virtual {p0, v0}, Landroid/content/Context;->startActivity(Landroid/content/Intent;)V
-    :try_end_23
-    .catch Ljava/lang/Exception; {:try_start_3 .. :try_end_23} :catch_24
-
-    .line 157
-    goto :goto_40
-
-    .line 155
-    :catch_24
+    :catch_16
     move-exception p1
 
-    .line 156
     new-instance p1, Ljava/lang/StringBuilder;
 
     invoke-direct {p1}, Ljava/lang/StringBuilder;-><init>()V
@@ -2504,8 +2748,7 @@
 
     invoke-virtual {p0}, Landroid/widget/Toast;->show()V
 
-    .line 158
-    :goto_40
+    :goto_32
     return-void
 .end method
 
@@ -2732,6 +2975,53 @@
     return-void
 .end method
 
+.method public static showRebootDialog(Landroid/content/Context;)V
+    .registers 5
+
+    if-nez p0, :cond_3
+
+    return-void
+
+    :cond_3
+    const/4 v0, 0x4
+
+    new-array v1, v0, [Ljava/lang/String;
+
+    const/4 v2, 0x0
+
+    const-string v3, "Reboot"
+
+    aput-object v3, v1, v2
+
+    const/4 v2, 0x1
+
+    const-string v3, "Quick Reboot"
+
+    aput-object v3, v1, v2
+
+    const/4 v2, 0x2
+
+    const-string v3, "Recovery"
+
+    aput-object v3, v1, v2
+
+    const/4 v2, 0x3
+
+    const-string v3, "Download"
+
+    aput-object v3, v1, v2
+
+    new-instance v0, Lcom/android/settings/OneROMHelper$RebootCallback;
+
+    invoke-direct {v0, p0}, Lcom/android/settings/OneROMHelper$RebootCallback;-><init>(Landroid/content/Context;)V
+
+    const-string v2, "Reboot options"
+
+    invoke-static {p0, v2, v1, v0}, Lcom/android/settings/OneROMHelper;->showChoiceDialog(Landroid/content/Context;Ljava/lang/String;[Ljava/lang/String;Lcom/android/settings/OneROMHelper$DialogCallback;)V
+
+    return-void
+.end method
+
 .method private static showTextEditDialog(Landroid/content/Context;Ljava/lang/String;Ljava/lang/String;Lcom/android/settings/OneROMHelper$DialogCallback;)V
     .registers 5
 
@@ -2782,35 +3072,5 @@
     invoke-virtual {p0}, Landroid/app/AlertDialog$Builder;->show()Landroid/app/AlertDialog;
 
     .line 741
-    return-void
-.end method
-
-.method public static showRebootDialog(Landroid/content/Context;)V
-    .registers 5
-
-    if-nez p0, :cond_0
-    return-void
-
-    :cond_0
-    const/4 v0, 0x4
-    new-array v1, v0, [Ljava/lang/String;
-    const/4 v2, 0x0
-    const-string v3, "Reboot"
-    aput-object v3, v1, v2
-    const/4 v2, 0x1
-    const-string v3, "Quick Reboot"
-    aput-object v3, v1, v2
-    const/4 v2, 0x2
-    const-string v3, "Recovery"
-    aput-object v3, v1, v2
-    const/4 v2, 0x3
-    const-string v3, "Download"
-    aput-object v3, v1, v2
-
-    new-instance v0, Lcom/android/settings/OneROMHelper$RebootCallback;
-    invoke-direct {v0, p0}, Lcom/android/settings/OneROMHelper$RebootCallback;-><init>(Landroid/content/Context;)V
-
-    const-string v2, "Reboot options"
-    invoke-static {p0, v2, v1, v0}, Lcom/android/settings/OneROMHelper;->showChoiceDialog(Landroid/content/Context;Ljava/lang/String;[Ljava/lang/String;Lcom/android/settings/OneROMHelper$DialogCallback;)V
     return-void
 .end method

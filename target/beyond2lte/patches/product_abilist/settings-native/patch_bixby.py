@@ -51,6 +51,10 @@ NEW = """.method private applyAction(Ljava/lang/String;I)V
 
     invoke-interface {v6, v0, p2, v1}, Landroid/view/IWindowManager;->removeKeyCustomizationInfo(III)V
 
+    const/16 v1, 0x437
+
+    invoke-interface {v6, v0, p2, v1}, Landroid/view/IWindowManager;->removeKeyCustomizationInfo(III)V
+
     new-instance v0, Lcom/samsung/android/view/SemWindowManager$KeyCustomizationInfo;
 
     move v1, p2
@@ -58,6 +62,24 @@ NEW = """.method private applyAction(Ljava/lang/String;I)V
     const/16 v2, 0x7d3
 
     const/16 v3, 0x3f7
+
+    const/4 v4, 0x1
+
+    invoke-direct/range {v0 .. v5}, Lcom/samsung/android/view/SemWindowManager$KeyCustomizationInfo;-><init>(IIIILandroid/content/Intent;)V
+
+    const-string v1, "com.android.settings"
+
+    iput-object v1, v0, Lcom/samsung/android/view/SemWindowManager$KeyCustomizationInfo;->ownerPackage:Ljava/lang/String;
+
+    invoke-interface {v6, v0}, Landroid/view/IWindowManager;->putKeyCustomizationInfo(Lcom/samsung/android/view/SemWindowManager$KeyCustomizationInfo;)V
+
+    new-instance v0, Lcom/samsung/android/view/SemWindowManager$KeyCustomizationInfo;
+
+    move v1, p2
+
+    const/16 v2, 0x7d3
+
+    const/16 v3, 0x437
 
     const/4 v4, 0x1
 

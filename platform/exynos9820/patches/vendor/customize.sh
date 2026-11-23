@@ -67,3 +67,8 @@ if [ -f "$WORK_DIR/vendor/etc/selinux/vendor_property_contexts" ]; then
     fi
 fi
 LOG_STEP_OUT
+
+LOG "- Disabling crashing iva service"
+if [ -f "$WORK_DIR/vendor/etc/init/vendor.samsung_slsi.hardware.iva@1.0-service.rc" ]; then
+    echo "    disabled" >> "$WORK_DIR/vendor/etc/init/vendor.samsung_slsi.hardware.iva@1.0-service.rc"
+fi

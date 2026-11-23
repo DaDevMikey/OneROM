@@ -1,0 +1,5 @@
+LOG "- Installing OneROM neon logo boot animation"
+cp -f "$MODPATH/system/media/bootsamsung.webp" "$WORK_DIR/system/system/media/bootsamsung.webp"
+cp -f "$MODPATH/system/media/bootsamsungloop.webp" "$WORK_DIR/system/system/media/bootsamsungloop.webp"
+SET_METADATA "system" "system/media/bootsamsung.webp" 0 0 644 "u:object_r:system_file:s0"
+SET_METADATA "system" "system/media/bootsamsungloop.webp" 0 0 644 "u:object_r:system_file:s0"

@@ -232,171 +232,65 @@
     return-void
 .end method
 
-.method private run(Landroid/content/Context;Ljava/lang/String;)V
-    .registers 5
-    .annotation system Ldalvik/annotation/Throws;
-        value = {
-            Ljava/lang/Exception;
-        }
-    .end annotation
+.method public static run(Landroid/content/Context;Ljava/lang/String;)V
+    .locals 3
 
-    .line 40
-    if-nez p2, :cond_4
-
-    const-string p2, "voice"
-
-    .line 41
-    :cond_4
-    invoke-virtual {p2}, Ljava/lang/String;->hashCode()I
-
-    move-result v0
-
-    sparse-switch v0, :sswitch_data_64
-
-    :cond_b
-    goto :goto_3e
-
-    :sswitch_c
-    const-string v0, "torch"
-
-    invoke-virtual {p2, v0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
-
-    move-result p2
-
-    if-eqz p2, :cond_b
-
-    const/4 p2, 0x1
-
-    goto :goto_3f
-
-    :sswitch_16
-    const-string v0, "media"
-
-    invoke-virtual {p2, v0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
-
-    move-result p2
-
-    if-eqz p2, :cond_b
-
-    const/4 p2, 0x3
-
-    goto :goto_3f
-
-    :sswitch_20
-    const-string v0, "none"
-
-    invoke-virtual {p2, v0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
-
-    move-result p2
-
-    if-eqz p2, :cond_b
-
-    const/4 p2, 0x4
-
-    goto :goto_3f
-
-    :sswitch_2a
-    const-string v0, "screenshot"
-
-    invoke-virtual {p2, v0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
-
-    move-result p2
-
-    if-eqz p2, :cond_b
-
-    const/4 p2, 0x2
-
-    goto :goto_3f
-
-    :sswitch_34
-    const-string v0, "camera"
-
-    invoke-virtual {p2, v0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
-
-    move-result p2
-
-    if-eqz p2, :cond_b
-
-    const/4 p2, 0x0
-
-    goto :goto_3f
-
-    :goto_3e
-    const/4 p2, -0x1
-
-    :goto_3f
-    packed-switch p2, :pswitch_data_7a
-
-    .line 57
-    new-instance p2, Landroid/content/Intent;
-
-    const-string v0, "android.intent.action.VOICE_COMMAND"
-
-    invoke-direct {p2, v0}, Landroid/content/Intent;-><init>(Ljava/lang/String;)V
-
-    invoke-static {p1, p2}, Lio/mesalabs/unica/BixbyKeyActionActivity;->launch(Landroid/content/Context;Landroid/content/Intent;)V
-
-    goto :goto_62
-
-    .line 55
-    :pswitch_4d
-    goto :goto_62
-
-    .line 52
-    :pswitch_4e
-    invoke-static {p1}, Lio/mesalabs/unica/BixbyKeyActionActivity;->dispatchMediaKey(Landroid/content/Context;)V
-
-    .line 53
-    goto :goto_62
-
-    .line 49
-    :pswitch_52
-    const/16 p1, 0x78
-
-    const-wide/16 v0, 0x190
-
-    invoke-static {p1, v0, v1}, Lio/mesalabs/unica/BixbyKeyActionActivity;->injectKeyLater(IJ)V
-
-    .line 50
-    goto :goto_62
-
-    .line 46
-    :pswitch_5a
-    invoke-static {p1}, Lio/mesalabs/unica/BixbyKeyActionActivity;->toggleTorch(Landroid/content/Context;)V
-
-    .line 47
-    goto :goto_62
-
-    .line 43
-    :pswitch_5e
-    invoke-static {p1}, Lio/mesalabs/unica/BixbyKeyActionActivity;->launchCamera(Landroid/content/Context;)V
-
-    .line 44
-    nop
-
-    .line 60
-    :goto_62
+    if-nez p0, :cond_start
     return-void
 
-    nop
+    :cond_start
+    if-nez p1, :cond_check_action
+    const-string p1, "voice"
 
-    :sswitch_data_64
-    .sparse-switch
-        -0x51863cdb -> :sswitch_34
-        -0x18d27a9a -> :sswitch_2a
-        0x33af38 -> :sswitch_20
-        0x62f6fe4 -> :sswitch_16
-        0x696d3fc -> :sswitch_c
-    .end sparse-switch
+    :cond_check_action
+    const-string v0, "camera"
+    invoke-virtual {v0, p1}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+    move-result v0
+    if-eqz v0, :cond_check_torch
+    invoke-static {p0}, Lio/mesalabs/unica/BixbyKeyActionActivity;->launchCamera(Landroid/content/Context;)V
+    return-void
 
-    :pswitch_data_7a
-    .packed-switch 0x0
-        :pswitch_5e
-        :pswitch_5a
-        :pswitch_52
-        :pswitch_4e
-        :pswitch_4d
-    .end packed-switch
+    :cond_check_torch
+    const-string v0, "torch"
+    invoke-virtual {v0, p1}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+    move-result v0
+    if-eqz v0, :cond_check_ss
+    invoke-static {p0}, Lio/mesalabs/unica/BixbyKeyActionActivity;->toggleTorch(Landroid/content/Context;)V
+    return-void
+
+    :cond_check_ss
+    const-string v0, "screenshot"
+    invoke-virtual {v0, p1}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+    move-result v0
+    if-eqz v0, :cond_check_power
+    const/16 v0, 0x78
+    const-wide/16 v1, 0x190
+    invoke-static {v0, v1, v2}, Lio/mesalabs/unica/BixbyKeyActionActivity;->injectKeyLater(IJ)V
+    return-void
+
+    :cond_check_power
+    const-string v0, "power"
+    invoke-virtual {v0, p1}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+    move-result v0
+    if-eqz v0, :cond_check_none
+    const/16 v0, 0x1a
+    const-wide/16 v1, 0x190
+    invoke-static {v0, v1, v2}, Lio/mesalabs/unica/BixbyKeyActionActivity;->injectKeyLater(IJ)V
+    return-void
+
+    :cond_check_none
+    const-string v0, "none"
+    invoke-virtual {v0, p1}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+    move-result v0
+    if-eqz v0, :cond_default_voice
+    return-void
+
+    :cond_default_voice
+    new-instance v0, Landroid/content/Intent;
+    const-string v1, "android.intent.action.VOICE_COMMAND"
+    invoke-direct {v0, v1}, Landroid/content/Intent;-><init>(Ljava/lang/String;)V
+    invoke-static {p0, v0}, Lio/mesalabs/unica/BixbyKeyActionActivity;->launch(Landroid/content/Context;Landroid/content/Intent;)V
+    return-void
 .end method
 
 .method private static toggleTorch(Landroid/content/Context;)V
@@ -569,7 +463,7 @@
 
     move-result-object v0
 
-    invoke-direct {p0, v0, p1}, Lio/mesalabs/unica/BixbyKeyActionActivity;->run(Landroid/content/Context;Ljava/lang/String;)V
+    invoke-static {v0, p1}, Lio/mesalabs/unica/BixbyKeyActionActivity;->run(Landroid/content/Context;Ljava/lang/String;)V
     :try_end_30
     .catch Ljava/lang/Exception; {:try_start_29 .. :try_end_30} :catch_31
 

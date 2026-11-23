@@ -109,42 +109,7 @@
     invoke-virtual {v1, v0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
     move-result v1
     if-eqz v1, :device_codename
-    const-string v0, "ro.onerom.channel"
-    const-string v1, ""
-    invoke-static {v0, v1}, Landroid/os/SemSystemProperties;->get(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
-    move-result-object v0
-    const-string v1, "testing"
-    invoke-virtual {v1, v0}, Ljava/lang/String;->equalsIgnoreCase(Ljava/lang/String;)Z
-    move-result v0
-    if-eqz v0, :check_version_status_prop
-    const-string v0, "Testing"
-    return-object v0
-
-    :check_version_status_prop
-    const-string v0, "ro.onerom.version.status"
-    const-string v1, ""
-    invoke-static {v0, v1}, Landroid/os/SemSystemProperties;->get(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
-    move-result-object v0
-    const-string v1, "testing"
-    invoke-virtual {v1, v0}, Ljava/lang/String;->equalsIgnoreCase(Ljava/lang/String;)Z
-    move-result v0
-    if-eqz v0, :official_check
-    const-string v0, "Testing"
-    return-object v0
-
-    :official_check
-    const-string v0, "ro.onerom.official"
-    const-string v1, "false"
-    invoke-static {v0, v1}, Landroid/os/SemSystemProperties;->get(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
-    move-result-object v0
-    const-string v1, "true"
-    invoke-virtual {v1, v0}, Ljava/lang/String;->equalsIgnoreCase(Ljava/lang/String;)Z
-    move-result v0
-    if-eqz v0, :unofficial_status
-    const-string v0, "Official"
-    return-object v0
-    :unofficial_status
-    const-string v0, "Unofficial"
+    const-string v0, "Public Beta"
     return-object v0
 
     :device_codename
@@ -153,7 +118,7 @@
     move-result v1
     if-eqz v1, :bootloader
     const-string v0, "ro.onerom.device"
-    const-string v1, "beyond2lte"
+    const-string v1, "beyond1lte"
     invoke-static {v0, v1}, Landroid/os/SemSystemProperties;->get(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
     move-result-object v0
     return-object v0

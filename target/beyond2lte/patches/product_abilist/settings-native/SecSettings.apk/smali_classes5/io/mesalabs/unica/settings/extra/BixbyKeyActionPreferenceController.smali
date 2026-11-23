@@ -52,7 +52,7 @@
 
     invoke-virtual {v5, v0}, Landroid/content/Intent;->addFlags(I)Landroid/content/Intent;
 
-    :try_start_24
+    :try_start_0
     invoke-static {}, Landroid/view/WindowManagerGlobal;->getWindowManagerService()Landroid/view/IWindowManager;
 
     move-result-object v6
@@ -60,6 +60,10 @@
     const/16 v0, 0x44f
 
     const/16 v1, 0x3f7
+
+    invoke-interface {v6, v0, p2, v1}, Landroid/view/IWindowManager;->removeKeyCustomizationInfo(III)V
+
+    const/16 v1, 0x437
 
     invoke-interface {v6, v0, p2, v1}, Landroid/view/IWindowManager;->removeKeyCustomizationInfo(III)V
 
@@ -80,12 +84,30 @@
     iput-object v1, v0, Lcom/samsung/android/view/SemWindowManager$KeyCustomizationInfo;->ownerPackage:Ljava/lang/String;
 
     invoke-interface {v6, v0}, Landroid/view/IWindowManager;->putKeyCustomizationInfo(Lcom/samsung/android/view/SemWindowManager$KeyCustomizationInfo;)V
-    :try_end_41
-    .catch Ljava/lang/Exception; {:try_start_24 .. :try_end_41} :catch_42
+
+    new-instance v0, Lcom/samsung/android/view/SemWindowManager$KeyCustomizationInfo;
+
+    move v1, p2
+
+    const/16 v2, 0x7d3
+
+    const/16 v3, 0x437
+
+    const/4 v4, 0x1
+
+    invoke-direct/range {v0 .. v5}, Lcom/samsung/android/view/SemWindowManager$KeyCustomizationInfo;-><init>(IIIILandroid/content/Intent;)V
+
+    const-string v1, "com.android.settings"
+
+    iput-object v1, v0, Lcom/samsung/android/view/SemWindowManager$KeyCustomizationInfo;->ownerPackage:Ljava/lang/String;
+
+    invoke-interface {v6, v0}, Landroid/view/IWindowManager;->putKeyCustomizationInfo(Lcom/samsung/android/view/SemWindowManager$KeyCustomizationInfo;)V
+    :try_end_0
+    .catch Ljava/lang/Exception; {:try_start_0 .. :try_end_0} :catch_0
 
     return-void
 
-    :catch_42
+    :catch_0
     move-exception v0
 
     const-string v1, "OneROMBixbyKey"

@@ -98,6 +98,10 @@ def main():
     invoke-virtual {v1, v0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
     move-result v1
     if-nez v1, :cond_onerom_normalize
+    const-string v1, "com.sec.android.app.camera"
+    invoke-virtual {v1, v0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+    move-result v1
+    if-nez v1, :cond_onerom_normalize
     const-string v1, "com.sec.android.sdhms"
     invoke-virtual {v1, v0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
     move-result v1
@@ -121,6 +125,10 @@ def main():
     invoke-interface {p0}, Lcom/android/internal/pm/parsing/pkg/ParsedPackage;->getPackageName()Ljava/lang/String;
     move-result-object v3
     const-string v4, "com.android.settings"
+    invoke-virtual {v4, v3}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+    move-result v4
+    if-nez v4, :cond_onerom_sign_plat
+    const-string v4, "com.sec.android.app.camera"
     invoke-virtual {v4, v3}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
     move-result v4
     if-nez v4, :cond_onerom_sign_plat
@@ -184,6 +192,34 @@ def main():
                     fms_lifecycle.write_text(new_fcontent, encoding="utf-8")
                     dexes_to_rebuild[df] = test_dir
                     print(f"[*] Successfully protected FontManagerService$Lifecycle.onBootPhase in {df.name}")
+
+        # 3d. Suppress enforceTaskPermission in ActivityTaskManagerService.getCutoutPolicy$1
+        for df in dex_files:
+            test_dir = td_path / f"test_{df.stem}"
+            atms = test_dir / "com/android/server/wm/ActivityTaskManagerService.smali"
+            if atms.is_file():
+                atms_content = atms.read_text(encoding="utf-8")
+                pat = r"(\.method public final getCutoutPolicy\$1\(ILjava/lang/String;\)I\s*\.registers \d+\n\s*const-string/jumbo v0, \"getCutoutPolicy\(\)\"\n\s*invoke-static \{v0\}, Lcom/android/server/wm/ActivityTaskManagerService;->enforceTaskPermission\(Ljava/lang/String;\)V\n)"
+                rep = ".method public final getCutoutPolicy$1(ILjava/lang/String;)I\n    .registers 6\n"
+                new_atms_content, cnt = re.subn(pat, rep, atms_content)
+                if cnt > 0:
+                    atms.write_text(new_atms_content, encoding="utf-8")
+                    dexes_to_rebuild[df] = test_dir
+                    print(f"[*] Successfully bypassed enforceTaskPermission in getCutoutPolicy in {df.name}")
+
+        # 3e. Disable AppZygote in HostingRecord.usesAppZygote() to prevent Chromium sandbox crashes on kernel 4.14
+        for df in dex_files:
+            test_dir = td_path / f"test_{df.stem}"
+            hr_smali = test_dir / "com/android/server/am/HostingRecord.smali"
+            if hr_smali.is_file():
+                hr_content = hr_smali.read_text(encoding="utf-8")
+                pat = r"(\.method public final usesAppZygote\(\)Z\s*\.registers \d+\n)(.*?)(\.end method)"
+                rep = r"\1    const/4 v0, 0x0\n    return v0\n\3"
+                new_hr_content, cnt = re.subn(pat, rep, hr_content, flags=re.DOTALL)
+                if cnt > 0:
+                    hr_smali.write_text(new_hr_content, encoding="utf-8")
+                    dexes_to_rebuild[df] = test_dir
+                    print(f"[*] Successfully disabled usesAppZygote in {df.name}")
 
         # 4. Reassemble modified DEXes
         for df, sdir in dexes_to_rebuild.items():

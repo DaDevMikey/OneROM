@@ -180,27 +180,27 @@
 .method public setChecked(Z)Z
     .locals 3
 
+    if-eqz p1, :set_gl
+
+    const-string v1, "true"
+
+    const-string v2, "skiavk"
+
+    goto :apply_prop
+
+    :set_gl
+    const-string v1, "false"
+
+    const-string v2, "skiagl"
+
+    :apply_prop
     const-string v0, "persist.sys.unica.vulkan"
-
-    invoke-static {p1}, Ljava/lang/Boolean;->toString(Z)Ljava/lang/String;
-
-    move-result-object v1
 
     invoke-static {v0, v1}, Landroid/os/SemSystemProperties;->set(Ljava/lang/String;Ljava/lang/String;)V
 
     const-string v0, "debug.hwui.renderer"
 
-    if-eqz p1, :set_vk
-
-    const-string v1, "skiagl"
-
-    goto :apply_prop
-
-    :set_vk
-    const-string v1, "skiavk"
-
-    :apply_prop
-    invoke-static {v0, v1}, Landroid/os/SemSystemProperties;->set(Ljava/lang/String;Ljava/lang/String;)V
+    invoke-static {v0, v2}, Landroid/os/SemSystemProperties;->set(Ljava/lang/String;Ljava/lang/String;)V
 
     iget-object v0, p0, Lio/mesalabs/unica/settings/ui/VulkanPreferenceController;->mRebootDialog:Landroidx/appcompat/app/AlertDialog;
 

@@ -85,6 +85,11 @@ LOG_STEP_IN "- Cleaning SamsungCamera OAT"
 DELETE_FROM_WORK_DIR "system" "system/priv-app/SamsungCamera/oat"
 DELETE_FROM_WORK_DIR "system" "system/priv-app/SamsungCamera/SamsungCamera.apk.prof"
 DELETE_FROM_WORK_DIR "system" "system/app/FilterProvider/oat"
+if [ -f "$WORK_DIR/system/system/etc/floating_feature.xml" ]; then
+    if ! grep -q "image_codec.samsung.v2" "$WORK_DIR/system/system/etc/floating_feature.xml"; then
+        sed -i 's/image_codec.samsung.v1/image_codec.samsung.v1,image_codec.samsung.v2/g' "$WORK_DIR/system/system/etc/floating_feature.xml"
+    fi
+fi
 LOG_STEP_OUT
 
 LOG_STEP_IN "- Fixing AI Photo Editor"

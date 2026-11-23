@@ -1,0 +1,11 @@
+on property:persist.sys.unica.vulkan=true
+    setprop debug.hwui.renderer skiavk
+
+on property:persist.sys.unica.vulkan=1
+    setprop debug.hwui.renderer skiavk
+
+on property:persist.sys.unica.vulkan=false
+    setprop debug.hwui.renderer skiagl
+
+on property:persist.sys.unica.vulkan=0
+    setprop debug.hwui.renderer skiagl

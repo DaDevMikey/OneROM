@@ -32,6 +32,25 @@ if [ -f "$MODPATH/SecSettings.apk/res/drawable-nodpi/unica_logo.webp" ]; then
 fi
 LOG_STEP_OUT
 
+LOG_STEP_IN "- Installing Vulkan renderer init trigger"
+mkdir -p "$WORK_DIR/system/system/etc/init"
+cat << 'EOF' > "$WORK_DIR/system/system/etc/init/vulkan.rc"
+on property:persist.sys.unica.vulkan=true
+    setprop debug.hwui.renderer skiavk
+
+on property:persist.sys.unica.vulkan=1
+    setprop debug.hwui.renderer skiavk
+
+on property:persist.sys.unica.vulkan=false
+    setprop debug.hwui.renderer skiagl
+
+on property:persist.sys.unica.vulkan=0
+    setprop debug.hwui.renderer skiagl
+EOF
+SET_METADATA "system" "system/etc/init/vulkan.rc" 0 0 644 "u:object_r:system_file:s0"
+SET_PROP "system" "persist.sys.unica.vulkan" "false"
+LOG_STEP_OUT
+
 LOG_STEP_IN "- Enabling Cached App Freezer"
 SET_PROP "system" "persist.device_config.activity_manager_native_boot.use_freezer" "true"
 LOG_STEP_OUT

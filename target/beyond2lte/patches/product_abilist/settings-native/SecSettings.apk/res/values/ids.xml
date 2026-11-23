@@ -2,5 +2,6 @@
 <resources>
     <item type="id" name="onerom_banner_text" />
     <item type="id" name="onerom_banner_wallpaper" />
+    <item type="id" name="onerom_banner_logo" />
     <item type="id" name="logo_background_view" />
 </resources>
