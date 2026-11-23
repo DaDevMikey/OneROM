@@ -182,7 +182,8 @@ if [[ "$1" == "--check-tools" ]]; then
             ! $IMG2SDAT && \
             ! $SAMLOADER && \
             ! $SIGNAPK && \
-            ! $SMALI; then
+            ! $SMALI && \
+            ! $OMCDECODER; then
         exit 0
     else
         exit 1
@@ -195,7 +196,6 @@ fi
 
 if $ANDROID_TOOLS; then
     ANDROID_TOOLS_CMDS=(
-        "git submodule foreach --recursive \"git am --abort || true\""
         "cmake -B \"build\" $(GET_CMAKE_FLAGS) -DANDROID_TOOLS_USE_BUNDLED_FMT=ON -DANDROID_TOOLS_USE_BUNDLED_LIBUSB=ON"
         "make -C \"build\" -j\"$(nproc)\""
         "find \"build/vendor\" -maxdepth 1 -type f -exec test -x {} \; -exec cp -a {} \"$TOOLS_DIR/bin\" \;"
@@ -217,7 +217,6 @@ if $ANDROID_TOOLS; then
 fi
 if $APKTOOL; then
     APKTOOL_CMDS=(
-        "git reset --hard"
         "./gradlew build shadowJar"
         "cp -a \"scripts/linux/apktool\" \"$TOOLS_DIR/bin\""
         "cp -a \"brut.apktool/apktool-cli/build/libs/apktool-cli.jar\" \"$TOOLS_DIR/bin/apktool.jar\""
@@ -227,7 +226,6 @@ if $APKTOOL; then
 fi
 if $EROFS_UTILS; then
     EROFS_UTILS_CMDS=(
-        "git reset --hard"
         "cmake -S \"build/cmake\" -B \"out\" $(GET_CMAKE_FLAGS) -DRUN_ON_WSL=\"$(IS_WSL)\" -DENABLE_FULL_LTO=\"ON\" -DMAX_BLOCK_SIZE=\"4096\""
         "make -C \"out\" -j\"$(nproc)\""
         "find \"out/erofs-tools\" -maxdepth 1 -type f -exec test -x {} \; -exec cp -a {} \"$TOOLS_DIR/bin\" \;"

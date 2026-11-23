@@ -103,7 +103,7 @@
 
     if-eqz v1, :cond_check_custom_text
 
-    const-string v0, "/system/media/unica_logo.webp"
+    const-string v0, "/system/media/rom_logo.png"
 
     invoke-static {v0}, Landroid/graphics/BitmapFactory;->decodeFile(Ljava/lang/String;)Landroid/graphics/Bitmap;
 
@@ -111,7 +111,7 @@
 
     if-nez v0, :cond_banner_logo_loaded
 
-    const-string v0, "/system/media/rom_logo.png"
+    const-string v0, "/system/media/unica_logo.webp"
 
     invoke-static {v0}, Landroid/graphics/BitmapFactory;->decodeFile(Ljava/lang/String;)Landroid/graphics/Bitmap;
 
@@ -127,54 +127,20 @@
     invoke-virtual {v2, v0}, Landroid/widget/ImageView;->setImageBitmap(Landroid/graphics/Bitmap;)V
 
     :cond_check_custom_text
-    iget-object v0, p0, Lcom/android/settingslib/core/AbstractPreferenceController;->mContext:Landroid/content/Context;
+    const/4 v0, 0x0
 
-    invoke-virtual {v0}, Landroid/content/Context;->getContentResolver()Landroid/content/ContentResolver;
+    if-eqz v1, :cond_hide_banner_text
 
-    move-result-object v0
+    invoke-virtual {v1, v0}, Landroid/view/View;->setVisibility(I)V
 
-    const-string v2, "custom_oneui_banner"
+    :cond_hide_banner_text
+    if-eqz p1, :cond_banner_done
 
-    invoke-static {v0, v2}, Landroid/provider/Settings$Global;->getString(Landroid/content/ContentResolver;Ljava/lang/String;)Ljava/lang/String;
+    const/16 v0, 0x8
 
-    move-result-object v0
+    invoke-virtual {p1, v0}, Landroid/view/View;->setVisibility(I)V
 
-    invoke-static {v0}, Landroid/text/TextUtils;->isEmpty(Ljava/lang/CharSequence;)Z
-
-    move-result v2
-
-    const/16 v3, 0x8
-
-    const/4 v4, 0x0
-
-    if-nez v2, :cond_3
-
-    # Custom text is set: show text, hide logo
-    if-eqz v1, :cond_2
-
-    invoke-virtual {v1, v3}, Landroid/view/View;->setVisibility(I)V
-
-    :cond_2
-    if-eqz p1, :cond_5
-
-    invoke-virtual {p1, v4}, Landroid/view/View;->setVisibility(I)V
-
-    invoke-virtual {p1, v0}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
-
-    goto :cond_5
-
-    :cond_3
-    # Default: show logo, hide text
-    if-eqz v1, :cond_4
-
-    invoke-virtual {v1, v4}, Landroid/view/View;->setVisibility(I)V
-
-    :cond_4
-    if-eqz p1, :cond_5
-
-    invoke-virtual {p1, v3}, Landroid/view/View;->setVisibility(I)V
-
-    :cond_5
+    :cond_banner_done
     return-void
 .end method
 

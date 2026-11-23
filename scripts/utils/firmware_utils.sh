@@ -162,7 +162,8 @@ PARSE_FIRMWARE_STRING()
         # Firmware is already locally available (e.g. developer test build / custom PDA)
         PDA="$THIRD"
     else
-        LOGE "No valid IMEI/SN in \"$STRING\": $THIRD"
+        LOGE "A valid firmware download identifier is required for $MODEL/$CSC."
+        LOGE "Set ONEROM_TARGET_ID for the target device or provide an existing firmware cache."
         return 1
     fi
 

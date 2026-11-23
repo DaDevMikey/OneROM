@@ -28,11 +28,6 @@ for arg in "$@"; do
 done
 
 if $IS_95; then
-    DEV_95_DIR="/home/mikey/oneui9.5/output_ZZKN"
-    if [[ ! -d "$DEV_95_DIR" ]] && [[ ! -d "$DIR/out/odin/SM-S948B_OXM" ]]; then
-        echo "Error: Missing donor firmware in $DEV_95_DIR or out/odin/SM-S948B_OXM" >&2
-        exit 1
-    fi
     echo "=========================================================="
     echo " Starting OneROM Zeta 9.5 Build for $TARGET"
     echo " Source Donor: Galaxy S26 Ultra Beta (SM-S948B / S948BXXU6ZZKN / Android 17 QPR2 / One UI 9.5)"

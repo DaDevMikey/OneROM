@@ -49,7 +49,11 @@ BUILD()
     if [[ ("$TARGET_CODENAME" == "beyond1lte" || "$TARGET_CODENAME" == "beyond2lte" || "$TARGET_PLATFORM" == "exynos9820") && "$SOURCE_API_LEVEL" -ge 37 ]]; then
         case "$FILE" in
             system/framework/services.jar|\
-            framework/services.jar|\
+            framework/services.jar)
+                LOG "- Rebuilding system-server services.jar"
+                bash "$SRC_DIR/scripts/internal/build_app_code_override.sh" "$OUTPUT_PATH" "$INPUT_FILE" || exit 1
+                return
+                ;;
             system/priv-app/SettingsProvider/SettingsProvider.apk|\
             system/priv-app/SecSettings/SecSettings.apk|\
             priv-app/SecSettings/SecSettings.apk|\

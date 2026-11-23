@@ -235,18 +235,6 @@ def prepare(module, decoded):
                 r"    :onerom_standard_fragment\n"
             )
             source = re.sub(pattern, checks, source, count=1)
-
-        if ":onerom_bixby_action_check" not in source:
-            pattern_oc = r"(\.method public onCreate\(Landroid/os/Bundle;\)V\s*\.locals \d+)"
-            hook_oc = (
-                r"\1\n"
-                r"    invoke-static {p0}, Lcom/android/settings/OneROMHelper;->handleBixbyIntent(Landroid/app/Activity;)Z\n"
-                r"    move-result v0\n"
-                r"    if-eqz v0, :onerom_bixby_not_handled\n"
-                r"    return-void\n"
-                r"    :onerom_bixby_not_handled\n"
-            )
-            source = re.sub(pattern_oc, hook_oc, source, count=1)
             activity_path.write_text(source, encoding="utf-8")
 
     # 14. IMEI and Serial privacy masking in SecDeviceInfoUtils.smali

@@ -158,11 +158,6 @@ while [ "$#" -gt 0 ]; do
             return 0
             ;;
         "--9.5" | "--oneui9.5")
-            DEV_95_DIR="/home/mikey/oneui9.5/output_ZZKN"
-            if [[ ! -d "$DEV_95_DIR" ]]; then
-                echo "Error: --9.5 is restricted to the developer environment (missing $DEV_95_DIR)" >&2
-                return 1
-            fi
             export BUILD_ONEUI_95=true
             ;;
         "-"*)
@@ -202,15 +197,6 @@ if [ ! -d "$SRC_DIR/target/$SELECTED_TARGET" ]; then
 fi
 
 unset -f _PRINT_USAGE
-
-if [[ "${BUILD_ONEUI_95:-false}" == "true" ]]; then
-    DEV_95_DIR="/home/mikey/oneui9.5/output_ZZKN"
-    mkdir -p "$ODIN_DIR/SM-S948B_OXM"
-    for f in "$DEV_95_DIR"/*.tar.md5; do
-        [[ -f "$f" ]] && ln -sf "$f" "$ODIN_DIR/SM-S948B_OXM/$(basename "$f")"
-    done
-    echo -n "S948BXXU6ZZKN/OXM/S948BXXU6ZZKN/S948BXXU6ZZKN" > "$ODIN_DIR/SM-S948B_OXM/.downloaded"
-fi
 
 export APKTOOL_DIR="$OUT_DIR/target/$SELECTED_TARGET/apktool"
 export WORK_DIR="$OUT_DIR/target/$SELECTED_TARGET/work_dir"

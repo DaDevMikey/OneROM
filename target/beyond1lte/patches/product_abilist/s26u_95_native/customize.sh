@@ -160,6 +160,14 @@ rm -rf "$sdhms_output"
 ADD_TO_WORK_DIR "$MODPATH/gralloc2" "system" "system/lib64/libui.so" 0 0 644 "u:object_r:system_lib_file:s0"
 ADD_TO_WORK_DIR "$MODPATH/gralloc2" "system" "system/lib64/libui_shim.so" 0 0 644 "u:object_r:system_lib_file:s0"
 
+# Align the legacy HIDL BufferQueue adapter with the current input layout.
+python3 "$SRC_DIR/scripts/internal/patch_video_bufferqueue.py" "$WORK_DIR/system/system/lib64/libgui.so" || exit 1
+
+# Enable isolated app spawning on Linux 4.14 (clone3 -> fork, ignore unsupported cap_get_bound EINVAL).
+python3 "$SRC_DIR/scripts/internal/patch_chrome_zygote.py" \
+    "$WORK_DIR/system/system/lib64/libzygote_sys.dylib.so" \
+    "$WORK_DIR/system/system/lib64/libcap_rust.dylib.so" || exit 1
+
 STAGEFRIGHT_PATH="$WORK_DIR/system/system/lib64/libstagefright.so"
 if [[ -f "$STAGEFRIGHT_PATH" ]]; then
     stagefright_off="0x$(nm -D "$STAGEFRIGHT_PATH" 2>/dev/null | grep 'reconfigEncoder4OtherApps' | awk '{print $1}')"

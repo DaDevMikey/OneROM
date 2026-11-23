@@ -53,11 +53,6 @@ PREPARE_SCRIPT()
                 export DEBUG=false
                 ;;
             "--9.5" | "--oneui9.5")
-                DEV_95_DIR="/home/mikey/oneui9.5/output_ZZKN"
-                if [[ ! -d "$DEV_95_DIR" ]]; then
-                    echo "Error: --9.5 is restricted to the developer environment (missing $DEV_95_DIR)" >&2
-                    exit 1
-                fi
                 export BUILD_ONEUI_95=true
                 ;;
             *)
@@ -66,7 +61,7 @@ PREPARE_SCRIPT()
                 echo " --no-rom-zip : Do not build ROM zip"
                 echo " --debug : Enable early ADB & USB debugging for testing"
                 echo " --release : Production release (USB debugging off by default)"
-                echo " --9.5 : Build One UI 9.5 beta test (Developer only)"
+                echo " --9.5 : Build One UI 9.5 beta"
                 exit 1
                 ;;
         esac
@@ -99,19 +94,65 @@ PRINT_USAGE()
     echo " --no-rom-zip : Do not build ROM zip" >&2
     echo " --debug : Enable early ADB & USB debugging for testing" >&2
     echo " --release : Production release (USB debugging off by default)" >&2
-    echo " --9.5 : Build One UI 9.5 beta test (Developer only)" >&2
+    echo " --9.5 : Build One UI 9.5 beta" >&2
+}
+
+PREPARE_ONEUI_95_DONOR()
+{
+    local donor_dir="${ONEUI95_DONOR_DIR:-$ODIN_DIR/SM-S948B_OXM}"
+    local cached_dir="$ODIN_DIR/SM-S948B_OXM"
+    local extracted="$FW_DIR/SM-S948B_OXM/.extracted"
+    local version="S948BXXU6ZZKN"
+    local file destination pattern
+    local files=()
+
+    if [ -f "$extracted" ]; then
+        if [[ "$(cut -d / -f 1 "$extracted")" != "$version" ]]; then
+            echo "Error: extracted One UI 9.5 donor is not $version: $extracted" >&2
+            return 1
+        fi
+        return 0
+    fi
+
+    if [ ! -d "$donor_dir" ]; then
+        echo "Error: donor directory not found: $donor_dir" >&2
+        echo "Set ONEUI95_DONOR_DIR to the directory containing the $version Odin files." >&2
+        return 1
+    fi
+    for pattern in "AP_${version}*.tar.md5" "BL_${version}*.tar.md5" "CSC_OXM_S948BOXM6ZZKN*.tar.md5"; do
+        mapfile -t files < <(find "$donor_dir" -maxdepth 1 \( -type f -o -type l \) -name "$pattern" -print)
+        if [ "${#files[@]}" -ne 1 ] || [ ! -f "${files[0]}" ]; then
+            echo "Error: expected exactly one readable $pattern in $donor_dir" >&2
+            return 1
+        fi
+    done
+
+    mkdir -p "$cached_dir"
+    for file in "$donor_dir"/*.tar.md5; do
+        [ -f "$file" ] || continue
+        destination="$cached_dir/$(basename "$file")"
+        if [ -e "$destination" ] || [ -L "$destination" ]; then
+            if ! [ "$file" -ef "$destination" ]; then
+                echo "Error: donor cache already contains a different file: $destination" >&2
+                return 1
+            fi
+        else
+            ln -s "$(realpath "$file")" "$destination"
+        fi
+    done
+    if [ -f "$cached_dir/.downloaded" ] &&
+            [[ "$(cut -d / -f 1 "$cached_dir/.downloaded")" != "$version" ]]; then
+        echo "Error: donor cache marker does not describe $version" >&2
+        return 1
+    fi
+    printf '%s' "$version/OXM/$version/$version" > "$cached_dir/.downloaded"
 }
 # ]
 
 PREPARE_SCRIPT "$@"
 
 if [[ "${BUILD_ONEUI_95:-false}" == "true" ]]; then
-    DEV_95_DIR="/home/mikey/oneui9.5/output_ZZKN"
-    mkdir -p "$ODIN_DIR/SM-S948B_OXM"
-    for f in "$DEV_95_DIR"/*.tar.md5; do
-        [[ -f "$f" ]] && ln -sf "$f" "$ODIN_DIR/SM-S948B_OXM/$(basename "$f")"
-    done
-    echo -n "S948BXXU6ZZKN/OXM/S948BXXU6ZZKN/S948BXXU6ZZKN" > "$ODIN_DIR/SM-S948B_OXM/.downloaded"
+    PREPARE_ONEUI_95_DONOR || exit 1
 fi
 
 if $FORCE; then
@@ -199,6 +240,7 @@ if $BUILD_ROM; then
     if [ -d "$APKTOOL_DIR" ]; then
         LOG_STEP_IN true "Building APKs/JARs"
 
+        APK_BUILD_PIDS=()
         while IFS= read -r f; do
             f="${f/$APKTOOL_DIR\//}"
             PARTITION="$(cut -d "/" -f 1 -s <<< "$f")"
@@ -207,10 +249,16 @@ if $BUILD_ROM; then
             else
                 "$SRC_DIR/scripts/apktool.sh" b "$PARTITION" "$(cut -d "/" -f 2- -s <<< "$f")" &
             fi
+            APK_BUILD_PIDS+=("$!")
         done < <(find "$APKTOOL_DIR" -type d \( -name "*.apk" -o -name "*.jar" \))
 
-        # shellcheck disable=SC2046
-        wait $(jobs -p) || exit 1
+        APK_BUILD_FAILED=false
+        for pid in "${APK_BUILD_PIDS[@]}"; do
+            if ! wait "$pid"; then
+                APK_BUILD_FAILED=true
+            fi
+        done
+        $APK_BUILD_FAILED && exit 1
 
         LOG_STEP_OUT
     fi

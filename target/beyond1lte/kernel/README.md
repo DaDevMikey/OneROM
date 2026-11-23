@@ -5,7 +5,7 @@
 OneROM Zeta 9.5 packages **OneKERNEL+ 9.5** for the Samsung Galaxy S10 LTE (`beyond1lte`, Exynos 9820).
 
 - **Kernel Name**: OneKERNEL+ 9.5
-- **Kernel Repository**: [https://github.com/DaDevMikey/OneKernel](https://github.com/DaDevMikey/OneKernel)
+- **Kernel Source**: [OneKernel-9820, onerom-zeta-9.5](https://github.com/DaDevMikey/OneKernel-9820/tree/onerom-zeta-9.5)
 - **Credits**: Credits to **AaronB** (`aaronthetechie1`) for the kernel fork, KernelSU-Next legacy integration, and Exynos 9820 overclocking work.
 - **Upstream Base**: ExtremeKRNL 2.6.5 by Creeeeger ([Creeeeger/9820_kernel](https://github.com/Creeeeger/9820_kernel))
 - **Linux Base**: 4.14.356 (openela-rc1)
@@ -23,3 +23,8 @@ The repository provides the validated kernel binaries:
 - `dtbo.img`
 
 Verified checksums are tracked in `SHA256SUMS`.
+
+The source branch includes the matching KernelSU-Next source as a submodule.
+Firmware binaries and prebuilt tools are not included in that branch; obtain
+the required inputs separately, including `npu/NPU.bin` for the kernel config.
+The source snapshot is based on [Creeeeger's upstream tree](https://github.com/Creeeeger/9820_kernel).

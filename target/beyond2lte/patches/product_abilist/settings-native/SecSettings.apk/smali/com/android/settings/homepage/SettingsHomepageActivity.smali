@@ -1161,12 +1161,6 @@
 
     invoke-super {p0, p1}, Lcom/samsung/android/settings/core/SecSettingsBaseActivity;->onCreate(Landroid/os/Bundle;)V
 
-    invoke-static {p0}, Lcom/android/settings/OneROMHelper;->handleBixbyIntent(Landroid/app/Activity;)Z
-    move-result v0
-    if-eqz v0, :onerom_bixby_not_handled_create
-    return-void
-    :onerom_bixby_not_handled_create
-
     invoke-virtual {p0}, Landroid/app/Activity;->getApplication()Landroid/app/Application;
 
     move-result-object v0
@@ -1923,12 +1917,6 @@
     invoke-super {p0, p1}, Landroidx/activity/ComponentActivity;->onNewIntent(Landroid/content/Intent;)V
 
     invoke-virtual {p0, p1}, Landroid/app/Activity;->setIntent(Landroid/content/Intent;)V
-
-    invoke-static {p0}, Lcom/android/settings/OneROMHelper;->handleBixbyIntent(Landroid/app/Activity;)Z
-    move-result v0
-    if-eqz v0, :cond_bixby_not_handled_new
-    return-void
-    :cond_bixby_not_handled_new
 
     invoke-virtual {p0}, Landroid/app/Activity;->isFinishing()Z
 

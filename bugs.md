@@ -1,122 +1,72 @@
-# Known Bugs & Active Issues — OneROM Zeta 9.5
+# OneROM Zeta 9.5 known issues
 
-This document tracks verified active issues and bug hunting targets for **OneROM Zeta 9.5** on the Samsung Galaxy S10 series (`beyond1lte` SM-G973F/SM-G973N and `beyond2lte` SM-G975F/SM-G975N, Exynos 9820).
+This list covers the One UI 9.5 beta on Exynos Galaxy S10 (`beyond1lte`) and
+S10+ (`beyond2lte`). The S10 has been tested on hardware; the S10+ release
+needs hardware validation. Reports from earlier builds are marked accordingly.
 
-> [!NOTE]
-> Previously resolved issues from earlier builds (Front camera crash, Chromium/WebView isolated sandboxed process soft reboot, in-display fingerprint sensor overlapping PIN bouncer layout, official build status tag, and hardware JPEG screen recording acceleration) have been verified and integrated in source.
+## Confirmed on S10
 
----
+- **Bluetooth audio:** A2DP headsets can pair and connect, but audio does not
+  route to them. The stock Bluetooth stack can also abort when Samsung's
+  A2DP offload service is unavailable. A crash bypass has not fixed routing.
+- **Browser:** Chrome page rendering is fixed and integrated into builds via
+  `scripts/internal/patch_chrome_zygote.py` (replaces unsupported `clone3` with
+  `fork` in `libzygote_sys.dylib.so`, and treats `cap_get_bound` `EINVAL` as an
+  unsupported kernel capability in `libcap_rust.dylib.so`). Verified loading
+  pages on S10 with SELinux enforcing and full renderer sandboxing (`CapBnd=0`,
+  `NoNewPrivs=1`, `Seccomp=2`); patched libraries verified present after clean
+  flash on S10.
+- **Video recording:** Fixed and integrated into builds via
+  `scripts/internal/patch_video_bufferqueue.py`. Retested on S10: Camera saved
+  a 4K H.264/AAC recording (5.25s video / 5.29s audio, 125 frames) and played
+  back in Samsung Video. Patched `libgui.so` is verified present after clean
+  flash on S10; S10+ is untested. Separate screen recording still produced no
+  frames. A local H.264 MP4 played and displayed advancing frames in Samsung
+  Video on S10; other formats and streaming playback need testing.
+- **OneROM Settings:** Bixby key customization is fixed and integrated into
+  builds via `services.jar` (`KeyCustomizationManager` -> `OneROMBixbyHandler`);
+  single press (flashlight), double press (camera), and long press (screenshot)
+  were verified on S10. Both logo-only banners and the Software information link
+  to OneROM Settings were verified on S10.
+- **Camera cutout:** The camera's separate cutout ring is missing. A
+  device-only compatibility test moved an overlapping Camera control clear
+  of the cutout; that adjustment is not included in the ROM build.
+- **Samsung KG client:** The client process aborts during startup because its
+  SELinux process context cannot be set. Its practical impact is not yet known.
 
-## Active Known Issues
+## Reported or requiring retesting
 
-### 1. Bluetooth Audio Broken (Galaxy Buds / A2DP Routing)
-- **Devices**: Galaxy S10 (`beyond1lte`), Galaxy S10+ (`beyond2lte`).
-- **Symptom**: Galaxy Buds pair and connect, but audio does not route to the headset. With the stock Bluetooth APEX, starting an A2DP session can also crash `com.android.bluetooth` and turn Bluetooth off.
-- **Root Cause**: The Exynos 9820 vendor does not expose Samsung's `vendor.samsung.hardware.bluetooth.a2dp@1.0::ISehBluetoothAudioOffload` service. The stock APEX aborts in `btif_a2dp_audio_interface_start_session()` when that service is unavailable. Bypassing the abort prevents the crash, but the live test still shows AudioPolicy suppressing the A2DP route.
-- **Status**: Broken and under investigation. Pairing/connection and crash prevention are not proof of working audio; no working A2DP audio fix is verified.
+- **Display resolution:** A framework patch retained 1080p/420 DPI across
+  reboots on the clean-flashed S10 with SELinux enforcing (and previously
+  retained 720p/280 DPI and 1440p/560 DPI). S10+ hardware remains untested.
+- **S10+ camera:** Camera launch failure was reported on an earlier build.
+- **S10+ cutout:** Status bar icons were reported overlapping the camera pill.
+- **S10+ fingerprint:** The enrollment animation was reported freezing.
+- **Settings search:** Occasional crashes were reported on earlier builds.
+- **Face unlock on S10+:** The S10 implementation is included but has not been
+  validated on S10+ hardware.
+- **Wallpaper tilt:** The S10 build contains the tilt classes and SystemUI has
+  registered its gyroscope listener. Visual behavior and S10+ remain to be
+  verified by testers.
 
-### 2. Galaxy S10+ Camera Launch Failure ("Warning: Camera failed")
-- **Devices**: Galaxy S10+ (`beyond2lte`).
-- **Symptom**: Opening the Samsung Camera app on Galaxy S10+ displays "Warning: Camera failed" and immediately closes.
-- **Root Cause**: Galaxy S10+ features dual front cameras (wide + depth) and triple rear cameras. The donor S24 FE single front sensor framework expects a different sensor HAL mapping than the legacy Exynos 9820 camera provider configuration on S10+.
-- **Status**: Under active investigation. Logcat from `android.hardware.camera.provider@2.4-service_64` and `cameraserver` is being analyzed.
+## Installation notes
 
-### 3. Galaxy S10+ Dual Pill Cutout Status Bar Overlap
-- **Devices**: Galaxy S10+ (`beyond2lte`).
-- **Symptom**: On Galaxy S10+, the battery percentage/icon and top-right status bar icons overlap the wide dual-camera pill cutout.
-- **Root Cause**: The status bar layout and cutout exclusion area are currently configured with single-circle punch hole metrics (matching the base S10) instead of the wider dual-camera pill cutout dimensions of `beyond2lte`.
-- **Status**: Cutout dimension profiles and SystemUI overlay metrics for `beyond2lte` are being tuned.
+The unlocked-bootloader warning is normal on an unlocked Samsung device.
+An `E1001` system-image write error can indicate insufficient system partition
+space or mounted partitions. Back up data and follow the matching release's
+repartitioning and recovery instructions; repartitioning and formatting erase
+data. Do not use packages intended for another device model.
 
-### 4. Galaxy S10+ Fingerprint Enrollment Animation Freeze
-- **Devices**: Galaxy S10+ (`beyond2lte`).
-- **Symptom**: During initial fingerprint registration in Settings, the animated fingerprint placement indicator turns green and remains frozen.
-- **Status**: Under active investigation. Biometric HAL communication logs are being reviewed.
+## Reporting a bug
 
-### 5. Settings Search Bar Crash
-- **Devices**: Galaxy S10 (`beyond1lte`), Galaxy S10+ (`beyond2lte`).
-- **Symptom**: Tapping into or searching terms inside Settings search may occasionally cause `com.android.settings` to crash.
-- **Root Cause**: Indexing inconsistency in dynamic search provider databases when parsing certain ported One UI 8 / 7 preference controllers.
-- **Status**: Under active investigation.
+Provide the exact device model, ROM build date, clean or dirty flash status,
+and steps to reproduce. Capture logs immediately after reproducing the issue:
 
-### 6. Bootloader Unlocked Warning on Boot
-- **Devices**: All Exynos 9820 models.
-- **Symptom**: Samsung standard bootloader unlocked warning splash screen appears during cold boots.
-- **Status / Fix**: Normal Knox unlock behavior. Users can optionally suppress this warning by flashing `OneROM_Hide_Bootloader_Warning_Exynos9820.zip` via TWRP.
-
-### 7. Recovery Flashing Error E1001 (Failed to update system image)
-- **Devices**: Galaxy S10 (`beyond1lte`), Galaxy S10+ (`beyond2lte`).
-- **Symptom**: Flashing the ROM zip in TWRP halts with:
-  ```
-  Patching system image unconditionally...
-  E1001: Failed to update system image.
-  Updater process ended with ERROR: 1
-  Failed to mount '/system_root' (Invalid argument)
-  ```
-- **Cause**: The device has stock Samsung partition sizes (~5.2 GB for `/system`) or an outdated 7GB layout. OneROM Delta Android 16 system image is ~7.5 GB, so it runs out of space mid-write on unrepartitioned devices. Additionally, TWRP may keep partitions mounted during package installation.
-- **Solution**:
-  1. Boot into TWRP Recovery.
-  2. Flash the official 13GB `Exynos9820_Repartition.zip` (available in the release folder / GoFile share).
-  3. Reboot recovery (`Reboot -> Recovery`).
-  4. Perform data format (`Wipe -> Format Data -> type 'yes'`).
-  5. Flash the OneROM Delta ROM zip.
-- **ROM Updater Safety**: The flashable zip generator now automatically unmounts `/system`, `/system_root`, `/vendor`, `/product`, `/odm`, `/prism`, and `/optics` before executing `block_image_update`.
-
----
-
-## How to Report Bugs
-
-To help diagnose and resolve issues efficiently, please follow these instructions when reporting a bug.
-
-### 1. Required Information
-Always include the following basic details with your report:
-- **Device Model**: Exact model number (e.g., `SM-G973F`, `SM-G973N`, `SM-G975F`, `SM-G975N`).
-- **ROM Version**: Go to `Settings -> About phone -> Software information` and note the OneROM version and build date, or run `adb shell getprop ro.build.display.id`.
-- **Clean Flash Status**: State whether you formatted data before flashing or upgraded dirty.
-- **Reproduction Steps**: Step-by-step description of what you did right before the bug occurred.
-
-### 2. Capturing Logs via ADB
-
-Logs are required for any crash, freeze, or hardware component failure.
-
-#### A. Standard Logcat (App crashes, UI glitches, connection failures)
-Connect your device to a PC with USB debugging enabled, reproduce the issue, and immediately execute:
 ```bash
 adb logcat -d > logcat.txt
-```
-
-#### B. Crash Dumps & Native Aborts (Dropbox / Tombstones)
-If an app crashes with "has stopped" or quietly disappears (such as Bluetooth or SystemUI):
-```bash
 adb shell dumpsys dropbox --print system_app_crash system_app_native_crash system_app_anr > crash_dumps.txt
-```
-
-#### C. Kernel Dmesg (Random reboots, kernel panics, sensor lockups)
-If the phone unexpectedly reboots or reboots into recovery:
-```bash
-adb shell dmesg > dmesg.txt
-```
-If the phone rebooted, grab the previous kernel boot log:
-```bash
-adb shell cat /proc/last_kmsg > last_kmsg.txt 2>/dev/null || adb shell cat /sys/fs/pstore/console-ramoops > ramoops.txt 2>/dev/null
-```
-
-#### D. Device Properties
-To confirm exact build configurations and feature flags:
-```bash
 adb shell getprop > props.txt
 ```
 
-### 3. Submission
-Attach your generated log files (`logcat.txt`, `crash_dumps.txt`) along with the step-by-step description to the Telegram testing group or submit an issue on the GitHub repository.
-
-4. **Browser**
-   - Using the browser causes a soft reboot.
-
----
-
-## Flashing & Utilities Note
-
-For installation and partition prep, please note:
-- **Cleaner**: Uses the exact same cleaner script as **ExtremeROM Nexus** (`Exynos9820_Cleaner.zip`).
-- **TWRP**: Uses the exact same TWRP recovery as **ExtremeROM Nexus** (`ExtremeROM_Nexus_G973_TWRP_OdinPack_v2.tar`).
-- **Repartitioning**: Uses the dedicated repartitioner script (`Exynos9820_Repartition.zip`), available in the GoFile share. Repartitioning is mandatory when installing OneROM for the first time.
+Logs and properties may contain private information. Review and remove
+sensitive data before attaching them to a public issue or sharing them.

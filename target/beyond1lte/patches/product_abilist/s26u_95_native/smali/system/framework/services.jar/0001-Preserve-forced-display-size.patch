@@ -1,0 +1,33 @@
+Subject: [PATCH] Preserve software display size across boot
+
+--- a/smali_classes2/com/android/server/wm/DisplayContent.smali
++++ b/smali_classes2/com/android/server/wm/DisplayContent.smali
+@@ -3209,7 +3209,7 @@
+     :cond_24
+     sget-boolean v2, Lcom/samsung/android/rune/CoreRune;->FW_MULTI_RESOLUTION_POLICY:Z
+ 
+-    if-eqz v2, :cond_26
++    goto :cond_26
+ 
+     iget-object v0, v0, Lcom/android/server/wm/WindowManagerService;->mDisplayManagerInternal:Landroid/hardware/display/DisplayManagerInternal;
+ 
+--- a/smali_classes2/com/android/server/wm/WindowManagerService.smali
++++ b/smali_classes2/com/android/server/wm/WindowManagerService.smali
+@@ -8814,7 +8814,7 @@
+     :cond_3
+     sget-boolean v4, Lcom/samsung/android/rune/CoreRune;->FW_MULTI_RESOLUTION_POLICY:Z
+ 
+-    if-eqz v4, :cond_4
++    goto :cond_4
+ 
+     iget-object v4, v0, Lcom/android/server/wm/WindowManagerService;->mDisplayManagerInternal:Landroid/hardware/display/DisplayManagerInternal;
+ 
+@@ -9105,6 +9105,8 @@
+ 
+     if-eqz v4, :cond_1b
+ 
++    goto/16 :goto_d
++
+     iget-object v0, v0, Lcom/android/server/wm/WindowManagerService;->mExt:Lcom/android/server/wm/WindowManagerServiceExt;
+ 
+     iget-object v9, v0, Lcom/android/server/wm/WindowManagerServiceExt;->mService:Lcom/android/server/wm/WindowManagerService;

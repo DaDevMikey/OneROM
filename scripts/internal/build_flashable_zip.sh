@@ -635,7 +635,7 @@ PRINT_HEADER()
     echo    'ui_print("If you decide to not format, unexpected issues may occur and given support will be limited.");'
     echo    'ui_print(" ");'
     echo    'ui_print("Starting automatic installation in 3 seconds or press Volume UP...");'
-    echo    'run_program("/sbin/sh", "-c", "if [ -f /tmp/headless ] || [ -f /sdcard/headless ]; then exit 0; fi; timeout 3 sh -c '\''while true; do getevent -lc 1 | grep -q -m1 KEY_VOLUMEUP && exit 0; sleep 1; done'\'' || true; exit 0");'
+    echo    'run_program("/sbin/sh", "-c", "if [ -f /tmp/headless ] || [ -f /sdcard/headless ]; then exit 0; fi; timeout 3 getevent -l 2>/dev/null | grep -q -m1 KEY_VOLUMEUP || true; exit 0");'
     echo    'ui_print("Proceeding with installation!");'
     echo    'ui_print("====================================================");'
     echo    'ui_print("****************************************************");'

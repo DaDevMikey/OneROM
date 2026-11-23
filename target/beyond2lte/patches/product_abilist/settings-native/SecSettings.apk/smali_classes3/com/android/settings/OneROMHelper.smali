@@ -515,13 +515,13 @@
 
     invoke-direct {v6, v1}, Lcom/android/settings/OneROMHelper$5;-><init>(Landroid/content/Context;)V
 
-    const/16 v2, 0x4a
+    const/16 v2, 0x4e
 
-    const-string v3, "OneROM Zeta 9.5"
+    const-string v3, ""
 
     const/4 v4, 0x0
 
-    const/4 v5, 0x0
+    const/4 v5, 0x1
 
     invoke-static/range {v1 .. v6}, Lcom/android/settings/OneROMHelper;->createBannerView(Landroid/content/Context;ILjava/lang/String;Ljava/lang/String;ZLjava/lang/Runnable;)Landroid/view/View;
 
@@ -1219,43 +1219,6 @@
     const-string v2, "device_name"
 
     const-string v3, "Device name"
-
-    invoke-static/range {v0 .. v5}, Lcom/android/settings/OneROMHelper;->addPreference(Landroidx/preference/PreferenceGroup;Landroid/content/Context;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Landroidx/preference/Preference$OnPreferenceClickListener;)Landroidx/preference/Preference;
-
-    .line 491
-    invoke-virtual {v1}, Landroid/content/Context;->getContentResolver()Landroid/content/ContentResolver;
-
-    move-result-object v2
-
-    const-string v3, "onerom_custom_banner"
-
-    invoke-static {v2, v3}, Landroid/provider/Settings$System;->getString(Landroid/content/ContentResolver;Ljava/lang/String;)Ljava/lang/String;
-
-    move-result-object v2
-
-    .line 492
-    if-eqz v2, :cond_5a
-
-    invoke-virtual {v2}, Ljava/lang/String;->isEmpty()Z
-
-    move-result v3
-
-    if-eqz v3, :cond_5c
-
-    :cond_5a
-    const-string v2, "OneROM Zeta 9.5"
-
-    :cond_5c
-    move-object v4, v2
-
-    .line 493
-    new-instance v5, Lcom/android/settings/OneROMHelper$21;
-
-    invoke-direct {v5, v1}, Lcom/android/settings/OneROMHelper$21;-><init>(Landroid/content/Context;)V
-
-    const-string v2, "custom_oneui_banner"
-
-    const-string v3, "Custom banner text"
 
     invoke-static/range {v0 .. v5}, Lcom/android/settings/OneROMHelper;->addPreference(Landroidx/preference/PreferenceGroup;Landroid/content/Context;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Landroidx/preference/Preference$OnPreferenceClickListener;)Landroidx/preference/Preference;
 
@@ -2007,7 +1970,7 @@
     if-eqz p4, :cond_e0
 
     .line 90
-    const-string v10, "/system/media/unica_logo.webp"
+    const-string v10, "/system/media/rom_logo.png"
 
     invoke-static {v10}, Landroid/graphics/BitmapFactory;->decodeFile(Ljava/lang/String;)Landroid/graphics/Bitmap;
 
@@ -2017,7 +1980,7 @@
     if-nez v10, :cond_bb
 
     .line 92
-    const-string v10, "/system/media/rom_logo.png"
+    const-string v10, "/system/media/unica_logo.webp"
 
     invoke-static {v10}, Landroid/graphics/BitmapFactory;->decodeFile(Ljava/lang/String;)Landroid/graphics/Bitmap;
 
@@ -2080,144 +2043,6 @@
 
     .line 105
     :cond_e0
-    invoke-virtual {v0}, Landroid/content/Context;->getContentResolver()Landroid/content/ContentResolver;
-
-    move-result-object v3
-
-    const-string v10, "onerom_custom_banner"
-
-    invoke-static {v3, v10}, Landroid/provider/Settings$System;->getString(Landroid/content/ContentResolver;Ljava/lang/String;)Ljava/lang/String;
-
-    move-result-object v3
-
-    .line 106
-    if-eqz v3, :cond_f7
-
-    invoke-virtual {v3}, Ljava/lang/String;->trim()Ljava/lang/String;
-
-    move-result-object v10
-
-    invoke-virtual {v10}, Ljava/lang/String;->isEmpty()Z
-
-    move-result v10
-
-    if-nez v10, :cond_f7
-
-    .line 107
-    goto :goto_f9
-
-    .line 110
-    :cond_f7
-    move-object/from16 v3, p2
-
-    :goto_f9
-    new-instance v10, Landroid/widget/TextView;
-
-    invoke-direct {v10, v0}, Landroid/widget/TextView;-><init>(Landroid/content/Context;)V
-
-    .line 111
-    invoke-virtual {v10, v3}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
-
-    .line 112
-    invoke-virtual {v10, v11}, Landroid/widget/TextView;->setTextColor(I)V
-
-    .line 113
-    if-eqz p4, :cond_109
-
-    const/high16 v3, 0x41c00000    # 24.0f
-
-    goto :goto_10b
-
-    :cond_109
-    const/high16 v3, 0x41a00000    # 20.0f
-
-    :goto_10b
-    const/4 v11, 0x2
-
-    invoke-virtual {v10, v11, v3}, Landroid/widget/TextView;->setTextSize(IF)V
-
-    .line 114
-    const-string v3, "sec"
-
-    invoke-static {v3, v4}, Landroid/graphics/Typeface;->create(Ljava/lang/String;I)Landroid/graphics/Typeface;
-
-    move-result-object v12
-
-    invoke-virtual {v10, v12}, Landroid/widget/TextView;->setTypeface(Landroid/graphics/Typeface;)V
-
-    .line 115
-    const/high16 v12, 0x40000000    # 2.0f
-
-    const-string v13, "#80000000"
-
-    invoke-static {v13}, Landroid/graphics/Color;->parseColor(Ljava/lang/String;)I
-
-    move-result v14
-
-    const/4 v15, 0x0
-
-    invoke-virtual {v10, v6, v15, v12, v14}, Landroid/widget/TextView;->setShadowLayer(FFFI)V
-
-    .line 116
-    invoke-virtual {v10, v7}, Landroid/widget/TextView;->setGravity(I)V
-
-    .line 117
-    invoke-virtual {v5, v10}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;)V
-
-    .line 119
-    if-eqz v1, :cond_15f
-
-    invoke-virtual {v1}, Ljava/lang/String;->isEmpty()Z
-
-    move-result v6
-
-    if-nez v6, :cond_15f
-
-    .line 120
-    new-instance v6, Landroid/widget/TextView;
-
-    invoke-direct {v6, v0}, Landroid/widget/TextView;-><init>(Landroid/content/Context;)V
-
-    .line 121
-    invoke-virtual {v6, v1}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
-
-    .line 122
-    const-string v0, "#ccffffff"
-
-    invoke-static {v0}, Landroid/graphics/Color;->parseColor(Ljava/lang/String;)I
-
-    move-result v0
-
-    invoke-virtual {v6, v0}, Landroid/widget/TextView;->setTextColor(I)V
-
-    .line 123
-    const/high16 v0, 0x41400000    # 12.0f
-
-    invoke-virtual {v6, v11, v0}, Landroid/widget/TextView;->setTextSize(IF)V
-
-    .line 124
-    const/4 v0, 0x0
-
-    invoke-static {v3, v0}, Landroid/graphics/Typeface;->create(Ljava/lang/String;I)Landroid/graphics/Typeface;
-
-    move-result-object v0
-
-    invoke-virtual {v6, v0}, Landroid/widget/TextView;->setTypeface(Landroid/graphics/Typeface;)V
-
-    .line 125
-    const/high16 v0, 0x3f800000    # 1.0f
-
-    invoke-static {v13}, Landroid/graphics/Color;->parseColor(Ljava/lang/String;)I
-
-    move-result v1
-
-    invoke-virtual {v6, v8, v15, v0, v1}, Landroid/widget/TextView;->setShadowLayer(FFFI)V
-
-    .line 126
-    invoke-virtual {v6, v7}, Landroid/widget/TextView;->setGravity(I)V
-
-    .line 127
-    invoke-virtual {v5, v6}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;)V
 
     .line 130
     :cond_15f
