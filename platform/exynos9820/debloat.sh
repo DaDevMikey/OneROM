@@ -47,9 +47,16 @@ system/priv-app/VideoScan
 
 # Wi-Fi Hotspot Overlays
 PRODUCT_DEBLOAT+="
+overlay/SoftapOverlay
+overlay/SoftapOverlayQC
 overlay/SoftapOverlay6GHz
 overlay/SoftapOverlayDualAp
 overlay/SoftapOverlayOWE
+"
+
+# KnoxGuard (SELinux setcontext crash loop on com.samsung.android.kgclient)
+SYSTEM_DEBLOAT+="
+system/priv-app/KnoxGuard
 "
 
 # StorageShare (kSMBd)
@@ -144,8 +151,6 @@ system/app/BBCAgent
 system/app/DsmsAPK
 system/app/AASAservice
 system/app/HMT
-system/app/AllShareAware
-system/app/AllshareMediaShare
 "
 
 # Google Messages

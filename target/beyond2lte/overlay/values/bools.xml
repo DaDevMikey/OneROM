@@ -6,4 +6,8 @@
     <bool name="config_showNavigationBar">true</bool>
     <bool name="config_supportAudioSourceUnprocessed">false</bool>
     <bool name="config_systemCaptionsServiceCallsEnabled">true</bool>
+    <bool name="config_wifi_sta_ap_concurrency">false</bool>
+    <bool name="config_wifiBridgedSoftApSupported">false</bool>
+    <bool name="config_wifi6ghzSupport">false</bool>
+    <bool name="config_wifiSoftap6ghzSupported">false</bool>
 </resources>

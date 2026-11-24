@@ -271,6 +271,24 @@ if [ -f "$FF_PATH" ]; then
     else
         sed -i 's|</SecFloatingFeatureSet>|    <SEC_FLOATING_FEATURE_BIXBY_SUPPORT_LONG_KEY_SERVICE>FALSE</SEC_FLOATING_FEATURE_BIXBY_SUPPORT_LONG_KEY_SERVICE>\n</SecFloatingFeatureSet>|' "$FF_PATH"
     fi
+    if grep -q "SEC_FLOATING_FEATURE_CAMERA_SUPPORT_GALLERY_LR" "$FF_PATH"; then
+        sed -i 's|<SEC_FLOATING_FEATURE_CAMERA_SUPPORT_GALLERY_LR>.*</SEC_FLOATING_FEATURE_CAMERA_SUPPORT_GALLERY_LR>|<SEC_FLOATING_FEATURE_CAMERA_SUPPORT_GALLERY_LR>FALSE</SEC_FLOATING_FEATURE_CAMERA_SUPPORT_GALLERY_LR>|g' "$FF_PATH"
+    else
+        sed -i 's|</SecFloatingFeatureSet>|    <SEC_FLOATING_FEATURE_CAMERA_SUPPORT_GALLERY_LR>FALSE</SEC_FLOATING_FEATURE_CAMERA_SUPPORT_GALLERY_LR>\n</SecFloatingFeatureSet>|' "$FF_PATH"
+    fi
+    if grep -q "SEC_FLOATING_FEATURE_MMFW_SUPPORT_PHOTOHDR" "$FF_PATH"; then
+        sed -i 's|<SEC_FLOATING_FEATURE_MMFW_SUPPORT_PHOTOHDR>.*</SEC_FLOATING_FEATURE_MMFW_SUPPORT_PHOTOHDR>|<SEC_FLOATING_FEATURE_MMFW_SUPPORT_PHOTOHDR>FALSE</SEC_FLOATING_FEATURE_MMFW_SUPPORT_PHOTOHDR>|g' "$FF_PATH"
+    else
+        sed -i 's|</SecFloatingFeatureSet>|    <SEC_FLOATING_FEATURE_MMFW_SUPPORT_PHOTOHDR>FALSE</SEC_FLOATING_FEATURE_MMFW_SUPPORT_PHOTOHDR>\n</SecFloatingFeatureSet>|' "$FF_PATH"
+    fi
+fi
+LOG_STEP_OUT
+
+LOG_STEP_IN "- Patching dnsmasq to eliminate pidfile permission abort"
+if [ -f "$WORK_DIR/system/system/bin/dnsmasq" ]; then
+    HEX_PATCH "$WORK_DIR/system/system/bin/dnsmasq" "13e900f9095500f909a08052" "13e900f91f5500f909a08052" || LOGW "dnsmasq pidfile pattern not found, skipping"
+elif [ -f "$WORK_DIR/system/bin/dnsmasq" ]; then
+    HEX_PATCH "$WORK_DIR/system/bin/dnsmasq" "13e900f9095500f909a08052" "13e900f91f5500f909a08052" || LOGW "dnsmasq pidfile pattern not found, skipping"
 fi
 LOG_STEP_OUT
 
@@ -289,6 +307,7 @@ on property:vold.decrypt=trigger_restart_framework
 
 on property:sys.boot_completed=1
     exec u:r:ksu:s0 root -- /data/adb/ksud boot-completed
+    exec u:r:su:s0 root root -- /system/bin/pm enable com.samsung.android.mdx.kit
 EOF
 SET_METADATA "system" "system/etc/init/init.ksu.rc" 0 0 644 "u:object_r:system_file:s0"
 LOG_STEP_OUT
