@@ -1,20 +1,26 @@
 if [ -f "$WORK_DIR/system/system/priv-app/BiometricSetting/BiometricSetting.apk" ]; then
-    LOG_STEP_IN "- Installing S10 punch-hole assets for BiometricSetting.apk"
-    for asset in punch_hole_ic_b1.json punch_hole_ic_b1_whitebg.json; do
+    LOG_STEP_IN "- Installing S10 punch-hole assets for BiometricSetting.apk & SystemUI.apk"
+    for asset in punch_hole_ic_b1.json punch_hole_ic_b1_whitebg.json punch_hole_ic_b2.json punch_hole_ic_b2_whitebg.json; do
         if [ ! -f "$MODPATH/files/$asset" ]; then
             LOGE "Required BiometricSetting asset is missing: $asset"
             exit 1
         fi
     done
-    OVERRIDE_DIR="$WORK_DIR/system/system/framework/s10-app-overrides/BiometricSetting.apk"
-    mkdir -p "$OVERRIDE_DIR/assets"
-    cp -f "$MODPATH/files/punch_hole_ic_b1.json" "$OVERRIDE_DIR/assets/punch_hole_ic_b1.json"
-    cp -f "$MODPATH/files/punch_hole_ic_b1_whitebg.json" "$OVERRIDE_DIR/assets/punch_hole_ic_b1_whitebg.json"
     SET_METADATA "system" "system/framework/s10-app-overrides" 0 0 755 "u:object_r:system_file:s0"
-    SET_METADATA "system" "system/framework/s10-app-overrides/BiometricSetting.apk" 0 0 755 "u:object_r:system_file:s0"
-    SET_METADATA "system" "system/framework/s10-app-overrides/BiometricSetting.apk/assets" 0 0 755 "u:object_r:system_file:s0"
-    SET_METADATA "system" "system/framework/s10-app-overrides/BiometricSetting.apk/assets/punch_hole_ic_b1.json" 0 0 644 "u:object_r:system_file:s0"
-    SET_METADATA "system" "system/framework/s10-app-overrides/BiometricSetting.apk/assets/punch_hole_ic_b1_whitebg.json" 0 0 644 "u:object_r:system_file:s0"
+    for app in BiometricSetting.apk SystemUI.apk; do
+        OVERRIDE_DIR="$WORK_DIR/system/system/framework/s10-app-overrides/$app"
+        mkdir -p "$OVERRIDE_DIR/assets"
+        cp -f "$MODPATH/files/punch_hole_ic_b1.json" "$OVERRIDE_DIR/assets/punch_hole_ic_b1.json"
+        cp -f "$MODPATH/files/punch_hole_ic_b1_whitebg.json" "$OVERRIDE_DIR/assets/punch_hole_ic_b1_whitebg.json"
+        cp -f "$MODPATH/files/punch_hole_ic_b2.json" "$OVERRIDE_DIR/assets/punch_hole_ic_b2.json"
+        cp -f "$MODPATH/files/punch_hole_ic_b2_whitebg.json" "$OVERRIDE_DIR/assets/punch_hole_ic_b2_whitebg.json"
+        SET_METADATA "system" "system/framework/s10-app-overrides/$app" 0 0 755 "u:object_r:system_file:s0"
+        SET_METADATA "system" "system/framework/s10-app-overrides/$app/assets" 0 0 755 "u:object_r:system_file:s0"
+        SET_METADATA "system" "system/framework/s10-app-overrides/$app/assets/punch_hole_ic_b1.json" 0 0 644 "u:object_r:system_file:s0"
+        SET_METADATA "system" "system/framework/s10-app-overrides/$app/assets/punch_hole_ic_b1_whitebg.json" 0 0 644 "u:object_r:system_file:s0"
+        SET_METADATA "system" "system/framework/s10-app-overrides/$app/assets/punch_hole_ic_b2.json" 0 0 644 "u:object_r:system_file:s0"
+        SET_METADATA "system" "system/framework/s10-app-overrides/$app/assets/punch_hole_ic_b2_whitebg.json" 0 0 644 "u:object_r:system_file:s0"
+    done
     LOG_STEP_OUT
 fi
 

@@ -274,4 +274,23 @@ if [ -f "$FF_PATH" ]; then
 fi
 LOG_STEP_OUT
 
+# Install KernelSU init script for userspace daemon execution
+LOG_STEP_IN "- Installing KernelSU userspace daemon init configuration"
+cat << 'EOF' > "$WORK_DIR/system/system/etc/init/init.ksu.rc"
+on post-fs-data
+    start logd
+    exec u:r:ksu:s0 root -- /data/adb/ksud post-fs-data
+
+on nonencrypted
+    exec u:r:ksu:s0 root -- /data/adb/ksud services
+
+on property:vold.decrypt=trigger_restart_framework
+    exec u:r:ksu:s0 root -- /data/adb/ksud services
+
+on property:sys.boot_completed=1
+    exec u:r:ksu:s0 root -- /data/adb/ksud boot-completed
+EOF
+SET_METADATA "system" "system/etc/init/init.ksu.rc" 0 0 644 "u:object_r:system_file:s0"
+LOG_STEP_OUT
+
 

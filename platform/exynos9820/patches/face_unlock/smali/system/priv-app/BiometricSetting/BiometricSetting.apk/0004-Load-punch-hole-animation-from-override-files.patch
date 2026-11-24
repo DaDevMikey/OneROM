@@ -6,7 +6,7 @@ diff --git a/smali/com/airbnb/lottie/LottieAnimationView.smali b/smali/com/airbn
  
      iput v0, p0, Lcom/airbnb/lottie/LottieAnimationView;->animationResId:I
 +
-+    const-string v1, "punch_hole_ic_b1"
++    const-string v1, "punch_hole_ic_b"
 +
 +    invoke-virtual {p1, v1}, Ljava/lang/String;->startsWith(Ljava/lang/String;)Z
 +

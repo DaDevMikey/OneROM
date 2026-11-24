@@ -2088,7 +2088,7 @@
     if-eqz v0, :cond_11
 
     .line 703
-    const-string v0, "KernelSU Next v3.4.0 (33294) (12104)"
+    const-string v0, "KernelSU Next v3.4.2 (33355) (12140)"
     :try_end_f
     .catch Ljava/lang/Exception; {:try_start_0 .. :try_end_f} :catch_10
 

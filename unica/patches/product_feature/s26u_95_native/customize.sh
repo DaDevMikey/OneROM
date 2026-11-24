@@ -45,10 +45,10 @@ SET_FLOATING_FEATURE_CONFIG "SEC_FLOATING_FEATURE_CAMERA_SUPPORT_SHUTTER_SOUND_M
 # Cutout configuration
 if [[ "$TARGET_CODENAME" == "beyond1lte" ]]; then
     SET_FLOATING_FEATURE_CONFIG "SEC_FLOATING_FEATURE_LOCKSCREEN_CONFIG_PUNCHHOLE_VI" \
-        "face,pos:0.8991:0.0304,size:0.113:0.0597,type:circle"
+        "face,pos:0.8991:0.0304,size:0.113:0.0597,type:b1"
 elif [[ "$TARGET_CODENAME" == "beyond2lte" ]]; then
     SET_FLOATING_FEATURE_CONFIG "SEC_FLOATING_FEATURE_LOCKSCREEN_CONFIG_PUNCHHOLE_VI" \
-        "face,pos:0.862:0.0286,size:0.2084:0.0571,type:circle"
+        "face,pos:0.862:0.0286,size:0.2084:0.0571,type:b2"
 fi
 
 LOG_STEP_OUT
