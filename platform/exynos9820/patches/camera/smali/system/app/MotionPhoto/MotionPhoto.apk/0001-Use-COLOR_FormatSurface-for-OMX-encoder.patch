@@ -4,8 +4,8 @@ Date: Tue, 24 Nov 2026 15:57:00 +0100
 Subject: [PATCH] Use COLOR_FormatSurface for MotionPhoto OMX encoders
 
 diff -ruN a/smali/com/samsung/android/motionphoto/utils/v2/video/transcoding/VideoTrackTranscoder.smali b/smali/com/samsung/android/motionphoto/utils/v2/video/transcoding/VideoTrackTranscoder.smali
---- a/smali/com/samsung/android/motionphoto/utils/v2/video/transcoding/VideoTrackTranscoder.smali	2026-11-24 15:59:37.537546935 +0100
-+++ b/smali/com/samsung/android/motionphoto/utils/v2/video/transcoding/VideoTrackTranscoder.smali	2026-11-24 15:59:38.023185413 +0100
+--- a/smali/com/samsung/android/motionphoto/utils/v2/video/transcoding/VideoTrackTranscoder.smali	2026-11-24 16:08:27.188660716 +0100
++++ b/smali/com/samsung/android/motionphoto/utils/v2/video/transcoding/VideoTrackTranscoder.smali	2026-11-24 16:08:28.388916966 +0100
 @@ -2309,7 +2309,7 @@
  
      const-string p1, "color-format"
@@ -16,8 +16,8 @@ diff -ruN a/smali/com/samsung/android/motionphoto/utils/v2/video/transcoding/Vid
      invoke-virtual {v0, p1, v1}, Landroid/media/MediaFormat;->setInteger(Ljava/lang/String;I)V
  
 diff -ruN a/smali/com/samsung/android/motionphoto/utils/v2/video/transition/renderer/TransitionEncoder.smali b/smali/com/samsung/android/motionphoto/utils/v2/video/transition/renderer/TransitionEncoder.smali
---- a/smali/com/samsung/android/motionphoto/utils/v2/video/transition/renderer/TransitionEncoder.smali	2026-11-24 15:59:37.545154121 +0100
-+++ b/smali/com/samsung/android/motionphoto/utils/v2/video/transition/renderer/TransitionEncoder.smali	2026-11-24 15:59:38.022912105 +0100
+--- a/smali/com/samsung/android/motionphoto/utils/v2/video/transition/renderer/TransitionEncoder.smali	2026-11-24 16:08:27.188323680 +0100
++++ b/smali/com/samsung/android/motionphoto/utils/v2/video/transition/renderer/TransitionEncoder.smali	2026-11-24 16:08:28.388682586 +0100
 @@ -139,7 +139,7 @@
  
      const-string v1, "color-format"
@@ -28,8 +28,8 @@ diff -ruN a/smali/com/samsung/android/motionphoto/utils/v2/video/transition/rend
      invoke-virtual {v0, v1, v2}, Landroid/media/MediaFormat;->setInteger(Ljava/lang/String;I)V
  
 diff -ruN a/smali/com/samsung/android/sum/core/filter/EncoderFilter.smali b/smali/com/samsung/android/sum/core/filter/EncoderFilter.smali
---- a/smali/com/samsung/android/sum/core/filter/EncoderFilter.smali	2026-11-24 15:59:37.623417307 +0100
-+++ b/smali/com/samsung/android/sum/core/filter/EncoderFilter.smali	2026-11-24 15:59:38.022442034 +0100
+--- a/smali/com/samsung/android/sum/core/filter/EncoderFilter.smali	2026-11-24 16:08:27.237345385 +0100
++++ b/smali/com/samsung/android/sum/core/filter/EncoderFilter.smali	2026-11-24 16:08:28.388457777 +0100
 @@ -1935,7 +1935,7 @@
      invoke-virtual {v2, v5, v4}, Landroid/media/MediaFormat;->setInteger(Ljava/lang/String;I)V
  
@@ -39,3 +39,19 @@ diff -ruN a/smali/com/samsung/android/sum/core/filter/EncoderFilter.smali b/smal
  
      invoke-static {v4}, Ljava/lang/Integer;->valueOf(I)Ljava/lang/Integer;
  
+@@ -1953,6 +1953,15 @@
+ 
+     move-result v4
+ 
++    const v5, 0x7f420888
++
++    if-ne v4, v5, :cond_cf_keep
++
++    const v4, 0x7f000789
++
++    :cond_cf_keep
++    move-object/from16 v5, v24
++
+     invoke-virtual {v2, v5, v4}, Landroid/media/MediaFormat;->setInteger(Ljava/lang/String;I)V
+ 
+     invoke-virtual {v1, v9}, Lcom/samsung/android/sum/core/message/Message;->get(Ljava/lang/String;)Ljava/lang/Object;
