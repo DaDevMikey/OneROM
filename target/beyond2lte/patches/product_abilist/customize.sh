@@ -95,6 +95,12 @@ ADD_TO_WORK_DIR "$legacy_output" "vendor" "lib/s10-runtime32" 0 0 755 "u:object_
 for legacy_library in "$WORK_DIR/vendor/lib/s10-runtime32/"*; do
     SET_METADATA "vendor" "lib/s10-runtime32/${legacy_library##*/}" 0 0 644 "u:object_r:vendor_file:s0"
 done
+if [[ -f "$WORK_DIR/vendor/lib/s10-runtime32/libcodecsolutionhelper_vendor.so" ]]; then
+    HEX_PATCH "$WORK_DIR/vendor/lib/s10-runtime32/libcodecsolutionhelper_vendor.so" "9df81000312819d1" "9df81000312819e0"
+fi
+if [[ -f "$WORK_DIR/vendor/lib/libcodecsolutionhelper_vendor.so" ]]; then
+    HEX_PATCH "$WORK_DIR/vendor/lib/libcodecsolutionhelper_vendor.so" "9df81000312819d1" "9df81000312819e0"
+fi
 cp "$legacy_source/system/system/lib/libGLESv1_CM.so" "$WORK_DIR/vendor/lib/libGLESv1_CM.so" || exit 1
 SET_METADATA "vendor" "lib/libGLESv1_CM.so" 0 0 644 "u:object_r:vendor_file:s0"
 ADD_TO_WORK_DIR "$legacy_output" "vendor" "bin/s10-linker32" 0 2000 755 "u:object_r:system_linker_exec:s0"
