@@ -272,4 +272,20 @@ if [ -f "$FF_PATH" ]; then
 fi
 LOG_STEP_OUT
 
+LOG_STEP_IN "- Patching dnsmasq to eliminate pidfile permission abort"
+if [ -f "$WORK_DIR/system/system/bin/dnsmasq" ]; then
+    HEX_PATCH "$WORK_DIR/system/system/bin/dnsmasq" "13e900f9095500f909a08052" "13e900f91f5500f909a08052" || LOGW "dnsmasq pidfile pattern not found, skipping"
+elif [ -f "$WORK_DIR/system/bin/dnsmasq" ]; then
+    HEX_PATCH "$WORK_DIR/system/bin/dnsmasq" "13e900f9095500f909a08052" "13e900f91f5500f909a08052" || LOGW "dnsmasq pidfile pattern not found, skipping"
+fi
+LOG_STEP_OUT
+
+LOG_STEP_IN "- Patching netd TetherController posix_spawn flags for Linux 4.14"
+if [ -f "$WORK_DIR/system/system/bin/netd" ]; then
+    HEX_PATCH "$WORK_DIR/system/system/bin/netd" "8dffff17e02300910128805211b60094" "8dffff17e02300910100805211b60094" || LOGW "netd posix_spawn pattern not found, skipping"
+elif [ -f "$WORK_DIR/system/bin/netd" ]; then
+    HEX_PATCH "$WORK_DIR/system/bin/netd" "8dffff17e02300910128805211b60094" "8dffff17e02300910100805211b60094" || LOGW "netd posix_spawn pattern not found, skipping"
+fi
+LOG_STEP_OUT
+
 
