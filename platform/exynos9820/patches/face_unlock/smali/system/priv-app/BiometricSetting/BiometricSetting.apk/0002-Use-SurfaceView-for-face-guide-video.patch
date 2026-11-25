@@ -184,42 +184,23 @@ index f4cfa6e..a18b67d 100644
      .locals 5
  
      const-string p2, "BSS_FaceGuideFragment"
-@@ -522,18 +648,35 @@
+@@ -522,18 +648,14 @@
  
      iget-object v2, p0, Lcom/samsung/android/biometrics/app/setting/face/FaceGuideFragment;->mMediaPlayer:Landroid/media/MediaPlayer;
  
 -    new-instance v3, Landroid/view/Surface;
 +    invoke-virtual {v2, p1}, Landroid/media/MediaPlayer;->setSurface(Landroid/view/Surface;)V
-+
-+    new-instance p1, Ljava/io/File;
-+
-+    const-string v2, "/system/framework/s10-app-overrides/BiometricSetting.apk/face_enroll_help_guide.mp4"
  
 -    invoke-direct {v3, p1}, Landroid/view/Surface;-><init>(Landroid/graphics/SurfaceTexture;)V
-+    invoke-direct {p1, v2}, Ljava/io/File;-><init>(Ljava/lang/String;)V
-+
-+    invoke-virtual {p1}, Ljava/io/File;->isFile()Z
-+
-+    move-result p1
- 
+-
 -    invoke-virtual {v2, v3}, Landroid/media/MediaPlayer;->setSurface(Landroid/view/Surface;)V
-+    if-eqz p1, :cond_res_uri
- 
+-
      iget-object p1, p0, Lcom/samsung/android/biometrics/app/setting/face/FaceGuideFragment;->mMediaPlayer:Landroid/media/MediaPlayer;
  
-+    invoke-virtual {p1, v2}, Landroid/media/MediaPlayer;->setDataSource(Ljava/lang/String;)V
-+
-+    goto :goto_ds_done
-+
-+    :cond_res_uri
-+    iget-object p1, p0, Lcom/samsung/android/biometrics/app/setting/face/FaceGuideFragment;->mMediaPlayer:Landroid/media/MediaPlayer;
-+
      iget-object v2, p0, Lcom/samsung/android/biometrics/app/setting/face/FaceGuideFragment;->mActivity:Lcom/samsung/android/biometrics/app/setting/face/FaceEnrollActivity;
  
      invoke-virtual {p1, v2, v1}, Landroid/media/MediaPlayer;->setDataSource(Landroid/content/Context;Landroid/net/Uri;)V
  
-+    :goto_ds_done
-+
      iget-object p1, p0, Lcom/samsung/android/biometrics/app/setting/face/FaceGuideFragment;->mMediaPlayer:Landroid/media/MediaPlayer;
  
      invoke-virtual {p1, v4}, Landroid/media/MediaPlayer;->setLooping(Z)V

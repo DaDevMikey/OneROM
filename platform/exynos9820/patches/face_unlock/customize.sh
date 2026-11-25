@@ -23,10 +23,3 @@ if [ -f "$WORK_DIR/system/system/priv-app/BioFaceService/BioFaceService.apk" ] &
     SET_METADATA "system" "system/framework/s10-app-overrides/BioFaceService.apk/classes.jar" 0 0 644 "u:object_r:system_file:s0"
     SET_METADATA "system" "system/framework/s10-app-overrides/BioFaceService.apk/apk.sha256" 0 0 644 "u:object_r:system_file:s0"
 fi
-
-if [ -f "$MODPATH/files/face_enroll_help_guide.mp4" ]; then
-    LOG "- Installing silent face_enroll_help_guide.mp4 for BiometricSetting.apk"
-    mkdir -p "$WORK_DIR/system/system/framework/s10-app-overrides/BiometricSetting.apk"
-    cp -f "$MODPATH/files/face_enroll_help_guide.mp4" "$WORK_DIR/system/system/framework/s10-app-overrides/BiometricSetting.apk/face_enroll_help_guide.mp4"
-    SET_METADATA "system" "system/framework/s10-app-overrides/BiometricSetting.apk/face_enroll_help_guide.mp4" 0 0 644 "u:object_r:system_file:s0"
-fi

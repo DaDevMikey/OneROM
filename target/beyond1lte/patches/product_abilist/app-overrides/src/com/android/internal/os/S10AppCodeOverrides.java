@@ -23,6 +23,7 @@ public final class S10AppCodeOverrides {
             "/system/system_ext/priv-app/SystemUI/SystemUI.apk",
             "/system_ext/priv-app/SystemUI/SystemUI.apk",
             "/system/priv-app/SamsungCamera/SamsungCamera.apk",
+            "/system/app/MotionPhoto/MotionPhoto.apk",
             "/system/priv-app/FotaAgent/FotaAgent.apk"
         };
         for (String source : allowed) {
